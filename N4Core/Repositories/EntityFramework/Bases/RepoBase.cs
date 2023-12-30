@@ -2,12 +2,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using N4Core.Models;
+using N4Core.Records.Bases;
 using N4Core.Repositories.Bases;
 using System.Linq.Expressions;
 
 namespace N4Core.Repositories.EntityFramework.Bases
 {
-    public abstract class RepoBase<TEntity> : IRepoBase<TEntity> where TEntity : class, new()
+    public abstract class RepoBase<TEntity> : IRepoBase<TEntity> where TEntity : RecordBase, new()
     {
         protected readonly DbContext _db;
 
@@ -22,7 +23,7 @@ namespace N4Core.Repositories.EntityFramework.Bases
         public virtual IQueryable<TEntity> Query(bool isNoTracking = false)
         {
             var query = isNoTracking ? _db.Set<TEntity>().AsNoTracking() : _db.Set<TEntity>();
-            if (ReflectionRecordModel.HasIsDeleted)
+            if (ReflectionRecordModel is not null && ReflectionRecordModel.HasIsDeleted)
                 query = query.Where(q => (EF.Property<bool?>(q, ReflectionRecordModel.IsDeleted) ?? false) == false).AsQueryable();
             return query;
         }
@@ -44,32 +45,6 @@ namespace N4Core.Repositories.EntityFramework.Bases
         public virtual void Delete(Expression<Func<TEntity, bool>> predicate, bool save = true)
         {
             _db.Set<TEntity>().RemoveRange(Query().Where(predicate));
-            if (save)
-                Save();
-        }
-
-        public virtual IQueryable<TRelationalEntity> Query<TRelationalEntity>(bool isNoTracking = false) where TRelationalEntity : class, new()
-        {
-            return isNoTracking ? _db.Set<TRelationalEntity>().AsNoTracking() : _db.Set<TRelationalEntity>();
-        }
-
-        public virtual void Add<TRelationalEntity>(TRelationalEntity relationalEntity, bool save = false) where TRelationalEntity : class, new()
-        {
-            _db.Set<TRelationalEntity>().Add(relationalEntity);
-            if (save)
-                Save();
-        }
-
-        public virtual void Update<TRelationalEntity>(TRelationalEntity relationalEntity, bool save = false) where TRelationalEntity : class, new()
-        {
-            _db.Set<TRelationalEntity>().Update(relationalEntity);
-            if (save)
-                Save();
-        }
-
-        public virtual void Delete<TRelationalEntity>(Expression<Func<TRelationalEntity, bool>> predicate, bool save = false) where TRelationalEntity : class, new()
-        {
-            _db.Set<TRelationalEntity>().RemoveRange(Query<TRelationalEntity>().Where(predicate));
             if (save)
                 Save();
         }

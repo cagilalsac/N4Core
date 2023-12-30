@@ -1,8 +1,9 @@
-﻿using System.Linq.Expressions;
+﻿using N4Core.Records.Bases;
+using System.Linq.Expressions;
 
 namespace N4Core.Repositories.Bases
 {
-    public interface IRepoBase<TEntity> : IDisposable where TEntity : class, new()
+    public interface IRepoBase<TEntity> : IDisposable where TEntity : RecordBase, new()
 	{
 		int Save();
 		IQueryable<TEntity> Query(bool isNoTracking = false);

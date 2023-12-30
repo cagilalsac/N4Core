@@ -77,7 +77,14 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
             @:}
             @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).Modal)
             @:{
+                @:if (ViewContext.RouteData.Values["Area"] is null)
+                @:{
                 @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
+                @:}
+                @:else
+                @:{
+                @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
+                @:}
             @:}
             @:else
             @:{
@@ -263,8 +270,16 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
 					@:<td style="text-align:center;width:11%;">
                     @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).Modal)
                     @:{
-                        @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.@pkName1" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                        @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.@pkName1" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:if (ViewContext.RouteData.Values["Area"] is null)
+                         @:{
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:}
+                         @:else
+                         @:{
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:}
                         @:<a href="#" class="deleteItem" onclick="deleteItem(@@item.@pkName1);" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
                     @:}
                     @:else

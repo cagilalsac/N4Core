@@ -1,8 +1,9 @@
-﻿using N4Core.Results.Bases;
+﻿using N4Core.Records.Bases;
+using N4Core.Results.Bases;
 
 namespace N4Core.Services.Bases
 {
-    public interface IService<TModel> : IDisposable where TModel : class, new()
+    public interface IService<TModel> : IDisposable where TModel : RecordBase, new()
 	{
 		IQueryable<TModel> Query();
 
