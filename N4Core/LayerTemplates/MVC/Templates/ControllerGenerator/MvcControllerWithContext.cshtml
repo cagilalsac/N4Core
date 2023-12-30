@@ -1,0 +1,392 @@
+@inherits Microsoft.VisualStudio.Web.CodeGeneration.Templating.RazorTemplateBase
+@{
+if (@Model.NullableEnabled)
+{
+@:#nullable disable
+}
+}
+@using System.Collections.Generic;
+@using System.Linq;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+@{
+    if (Model.RequiredNamespaces != null)
+    {
+        var requiredNamespaces = Model.RequiredNamespaces as HashSet<string>;
+        if (requiredNamespaces != null && requiredNamespaces.Count > 0)
+        {
+            var requiredNamespace = requiredNamespaces.First().Split('.')[0];
+            string[] namespaces = { "Services", "Models" };
+            for (int i = 0; i < namespaces.Length; i++)
+            {
+@:using @(requiredNamespace + "." + namespaces[i] + ";")
+            }
+        }
+    }
+}
+using N4Core.Models;
+using N4Core.Services.Bases;
+using N4Core.Services;
+
+namespace @Model.ControllerNamespace
+{
+@{
+    string routePrefix;
+    if (String.IsNullOrEmpty(Model.AreaName))
+    {
+        routePrefix = Model.ControllerRootName;
+    }
+    else
+    {
+        routePrefix = Model.AreaName + "/" + Model.ControllerRootName;
+    }
+    var modelProperties = new List<string>();
+    foreach (var property in Model.ModelMetadata.Properties)
+    {
+        if (property.Scaffold)
+        {
+            modelProperties.Add(property.PropertyName);
+        }
+    }
+    var bindString = string.Join(",", modelProperties);
+    var contextTypeName = Model.ContextTypeName;
+    var entitySetName = Model.ModelMetadata.EntitySetName;
+    var entitySetVar = Model.EntitySetVariable ??
+        (String.IsNullOrEmpty(entitySetName)
+            ? entitySetName
+            : (entitySetName.Substring(0, length: 1).ToLowerInvariant() + entitySetName.Substring(1)));
+    var primaryKeyName = Model.ModelMetadata.PrimaryKeys[0].PropertyName;
+    var primaryKeyShortTypeName = Model.ModelMetadata.PrimaryKeys[0].ShortTypeName;
+    var primaryKeyType = Model.ModelMetadata.PrimaryKeys[0].TypeName;
+    var primaryKeyNullableTypeName = GetNullableTypeName(primaryKeyType, primaryKeyShortTypeName);
+    var lambdaVar = Model.ModelVariable[0];
+    var relatedProperties = new Dictionary<string, dynamic>();
+    foreach (var nav in Model.ModelMetadata.Navigations)
+    {
+        relatedProperties.Add(nav.AssociationPropertyName, nav);
+    }
+
+    var inlineIncludes = "";
+    foreach (var property in relatedProperties.Values)
+    {
+        inlineIncludes += string.Format("{0}                .Include({1} => {1}.{2})", Environment.NewLine, lambdaVar, property.AssociationPropertyName);
+    }
+
+    if (!string.IsNullOrEmpty(Model.AreaName))
+    {
+    @:@string.Format("[Area(\"{0}\")]", Model.AreaName)
+    }
+
+    var serviceAbstractClassType = Model.ModelTypeName + "ServiceBase";
+    var serviceAbstractClassName = Model.ModelVariable + "Service";
+    var constructorLine = "public " + Model.ControllerName + "(" + serviceAbstractClassType + " " + serviceAbstractClassName;
+    var relatedServiceAbstractClassTypeDeclarations = "";
+    var httpContextAccessorDeclarations = "";
+    var constructorParameters = "";
+    var constructorAssignments = "";
+    var reportServiceConstructorAssignments = "";
+    foreach (var relatedProperty in relatedProperties.Keys)
+    {
+        relatedServiceAbstractClassTypeDeclarations += "private readonly " + relatedProperty + "ServiceBase _" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service;\n";
+        constructorParameters += "\n\t\t\t," + relatedProperty + "ServiceBase " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service";
+        constructorLine += constructorParameters;
+        constructorAssignments += "_" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service = " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service;\n";
+    }
+    relatedServiceAbstractClassTypeDeclarations += "\t\t//private readonly ManyToManyServiceBase _manyToManyService;";
+    httpContextAccessorDeclarations = "private readonly IHttpContextAccessor _httpContextAccessor;";
+    constructorAssignments += "\t\t\t//_manyToManyService = manyToManyService;";
+    constructorAssignments += "\n\t\t\t_httpContextAccessor = httpContextAccessor;";
+    constructorLine += "\n\t\t\t/*,ManyToManyServiceBase manyToManyService*/,\n\t\t\tIHttpContextAccessor httpContextAccessor)";
+    var declareListLine = "List<" + Model.ModelTypeName + "Model> " + Model.ModelVariable + "List;";
+    var listLine = Model.ModelVariable + "List = " + ("_" + serviceAbstractClassName) + ".GetList();";
+    var pageOrderFilterListLine = Model.ModelVariable + "List = " + ("_" + serviceAbstractClassName) + ".GetList(pageOrderFilterModel);";
+    var serviceConfigLine = "_" + serviceAbstractClassName + ".Set(config => { config.PageOrderFilterSession = s; });";
+    var itemLine = Model.ModelTypeName + "Model " + Model.ModelVariable + " = " + ("_" + serviceAbstractClassName) + ".GetItem(id);";
+    var viewListLine = "return View(" + Model.ModelVariable + "List);";
+    var viewItemLine = "return View(" + Model.ModelVariable + ");";
+    var partialViewItemLine = "return PartialView(" + Model.ModelVariable + ");";
+    var addLine = "var result = " + ("_" + serviceAbstractClassName) + ".Add(" + Model.ModelVariable + ");";
+    var updateLine = "var result = " + ("_" + serviceAbstractClassName) + ".Update(" + Model.ModelVariable + ");";
+    var deleteLine = "var result = " + ("_" + serviceAbstractClassName) + ".Delete(id);";
+    var ifResultSuccessfulLine = "if (result.IsSuccessful)";
+    var openCurlyBraceLine = "{";
+    var tempDataLine = "TempData[\"Message\"] = message; // End message in service with '.' for success, '!' for danger Bootstrap CSS classes to be used in the View";
+    var redirectToIndexLine = "return RedirectToAction(nameof(Index), new { s = true });";
+    var redirectToDetailsLine = "return RedirectToAction(nameof(Details), new { id = " + Model.ModelVariable + ".Id });";
+    var redirectToDetailsByIdLine = "return RedirectToAction(nameof(Details), new { id = id });";
+    var closeCurlyBraceLine = "}";
+    var modelStateLine = "ModelState.AddModelError(\"\", result.Message);";
+    var listCountLine = "ViewBag.Message = _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 0 ? _" + serviceAbstractClassName + ".ServiceMessages.RecordNotFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 1 ? _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".ServiceMessages.RecordFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".ServiceMessages.RecordsFound;";
+    var itemNotFoundLine = "ViewBag.Message = _" + serviceAbstractClassName + ".ServiceMessages.RecordNotFound;";
+    var modelType = Model.ModelTypeName + "Model";
+    var viewModelLine = "ViewBag.ViewModel = _" + serviceAbstractClassName + ".ViewModel;";
+}
+    public class @Model.ControllerName : Controller
+    {
+        private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
+        @relatedServiceAbstractClassTypeDeclarations
+        @httpContextAccessorDeclarations
+
+        @constructorLine
+        {
+            @("_" + serviceAbstractClassName) = @serviceAbstractClassName;
+            @constructorAssignments
+            @reportServiceConstructorAssignments
+            @("_" + serviceAbstractClassName).Set(config => 
+            {
+                config.NoTracking = true;
+                config.PageOrderFilter = true;
+                config.Modal = true;
+                config.ExportOperation = false;
+                config.FileOperations = false;
+            });
+        }
+
+        // GET: @routePrefix
+        public IActionResult Index(PageOrderFilterModel pageOrderFilterModel, bool s = false)
+        {
+            @declareListLine
+            if (@("_" + serviceAbstractClassName + ".Config.PageOrderFilter"))
+            {
+                @serviceConfigLine
+                @pageOrderFilterListLine
+            }
+            else
+            {
+                @listLine
+            }
+            @listCountLine
+            @viewModelLine
+            @viewListLine
+        }
+
+        // GET: @routePrefix/Details/5
+        public IActionResult Details(@primaryKeyShortTypeName id)
+        {
+            @itemLine
+            if (@Model.ModelVariable == null)
+            {
+                @itemNotFoundLine
+            }
+            @viewModelLine
+            if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                @partialViewItemLine
+            @viewItemLine
+        }
+
+        private void SetViewData()
+        {
+@{
+    foreach (var property in relatedProperties.Values)
+    {
+            @:ViewData["@(property.ForeignKeyPropertyNames[0])"] = new SelectList(_@(relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(0, 1).ToLower() + relatedProperties.FirstOrDefault(rp => rp.Value == property).Key.Substring(1))Service.GetList(), "Id", "Name");
+    }
+            @://ViewData["ManyToManyIds"] = new MultiSelectList(_manyToManyService.GetList(), "Id", "Name");
+}
+        }
+
+        private void SetTempData(string message)
+        {
+            @tempDataLine
+        }
+
+        // GET: @routePrefix/Create
+        public IActionResult Create()
+        {
+            SetViewData();
+            @viewModelLine
+            if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                return PartialView();
+            return View();
+        }
+
+        // POST: @routePrefix/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(@modelType @Model.ModelVariable)
+        {
+            @viewModelLine
+            if (ModelState.IsValid)
+            {
+@{
+    if (!string.IsNullOrEmpty(primaryKeyType) && IsGuid(primaryKeyType))
+    {
+                @:@(Model.ModelVariable).@primaryKeyName = Guid.NewGuid();
+    }
+}
+                @addLine
+                @ifResultSuccessfulLine
+                @openCurlyBraceLine
+                    SetTempData(result.Message);
+                    if (!@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                        @redirectToDetailsLine
+                    return Ok("?s=true");
+                @closeCurlyBraceLine
+                @modelStateLine
+            }
+            SetViewData();
+            if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                return PartialView(@Model.ModelVariable);
+            return View(@Model.ModelVariable);
+        }
+
+        // GET: @routePrefix/Edit/5
+        public IActionResult Edit(@primaryKeyShortTypeName id)
+        {
+            @itemLine
+            if (@Model.ModelVariable == null)
+            {
+                @itemNotFoundLine
+            }
+            else
+            {
+                SetViewData();
+            }
+            @viewModelLine
+            if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                return PartialView(@Model.ModelVariable);
+            return View(@Model.ModelVariable);
+        }
+
+        // POST: @routePrefix/Edit
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(@modelType @Model.ModelVariable)
+        {
+            @viewModelLine
+            if (ModelState.IsValid)
+            {
+                @updateLine
+                @ifResultSuccessfulLine
+                @openCurlyBraceLine
+                    SetTempData(result.Message);
+                    if (!@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                        @redirectToDetailsLine
+                    return Ok("?s=true");
+                @closeCurlyBraceLine
+                @modelStateLine
+            }
+            SetViewData();
+            if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                return PartialView(@Model.ModelVariable);
+            return View(@Model.ModelVariable);
+        }
+
+        // GET: @routePrefix/Delete/5
+        public IActionResult Delete(@primaryKeyShortTypeName id)
+        {
+            if (@("_" + serviceAbstractClassName + ".Config.Modal"))
+            {
+                // Delete Operation Using AlertifyJS
+                @deleteLine
+                SetTempData(result.Message);
+                @redirectToIndexLine
+            }
+            else
+            {
+                // Delete Operation Using View
+                @itemLine
+                if (@Model.ModelVariable == null)
+                {
+                    @itemNotFoundLine
+                }
+                return View(@Model.ModelVariable);
+            }
+        }
+
+        // Delete Operation Using View
+        // POST: @routePrefix/Delete
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(@primaryKeyShortTypeName id)
+        {
+            @deleteLine
+            SetTempData(result.Message);
+            @redirectToIndexLine
+        }
+
+        #region File Operations
+        public IActionResult DeleteFile(int id)
+        {
+            if (@("_" + serviceAbstractClassName + ".Config.FileOperations"))
+            {
+                @("_" + serviceAbstractClassName).DeleteFiles(id);
+                @viewModelLine
+                if (@("_" + serviceAbstractClassName + ".ViewModel.Modal"))
+                    @redirectToIndexLine
+                @redirectToDetailsByIdLine
+            }
+            else
+            {
+                return View("Error", new ErrorModel("File operations is not configured!"));
+            }
+        }
+
+        public IActionResult DownloadFile(int id)
+        {
+            if (@("_" + serviceAbstractClassName + ".Config.FileOperations"))
+            {
+                var file = @("_" + serviceAbstractClassName).DownloadFile(id);
+                return File(file.Stream, file.ContentType, file.FileName);
+            }
+            else
+            {
+                return View("Error", new ErrorModel("File operations is not configured!"));
+            }
+        }
+        #endregion
+
+        #region Export Operation
+        public void Export(PageOrderFilterModel pageOrderFilterModel, bool pof = false)
+        {
+            if (@("_" + serviceAbstractClassName + ".Config.ExportOperation"))
+            {
+                @declareListLine
+                ReportServiceBase reportService = new ReportService(_httpContextAccessor);
+                if (pof)
+                {
+                    reportService.Set(config => { config.PageOrderFilter = pof; });
+                    @pageOrderFilterListLine
+                }
+                else
+                {
+                    @listLine
+                }
+                reportService.ExportToExcel(@(Model.ModelVariable + "List"), "@(Model.ModelVariable + "Report")");
+            }
+        }
+        #endregion
+	}
+}
+@functions
+{
+    // This function converts the primary key short type name to its nullable equivalent when possible. This is required to make
+    // sure that an HTTP 400 error is thrown when the user tries to access the edit, delete, or details action with null values.
+    string GetNullableTypeName(string typeName, string shortTypeName)
+    {
+        // The exceptions are caught because if for any reason the type is user defined, then the short type name will be used.
+        // In that case the user will receive a server error if null is passed to the edit, delete, or details actions.
+        Type primaryKeyType = null;
+        try
+        {
+            primaryKeyType = Type.GetType(typeName);
+        }
+        catch
+        {
+        }
+        if (primaryKeyType != null && (!Microsoft.VisualStudio.Web.CodeGeneration.Templating.TypeUtilities.IsNullable(primaryKeyType) || IsGuid(typeName)))
+        {
+            return shortTypeName + "?";
+        }
+        return shortTypeName;
+    }
+
+    bool IsGuid(string typeName) {
+        return String.Equals("System.Guid", typeName, StringComparison.OrdinalIgnoreCase);
+    }
+}

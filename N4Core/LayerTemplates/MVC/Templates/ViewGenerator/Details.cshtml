@@ -1,0 +1,254 @@
+@inherits Microsoft.VisualStudio.Web.CodeGeneration.Templating.RazorTemplateBase
+@using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore
+@using System.Collections.Generic
+@using System.Linq
+@{
+    var viewModel = "@model " + Model.ViewDataTypeShortName + "Model";
+}
+@viewModel
+@{
+    @:
+    var message = "\n\tstring message;\n\tstring color;\n\n";
+    message += "@if (ViewBag.Message != null)\n";
+    message += "{\n\tmessage = ViewBag.Message.ToString();\n\tcolor = \"success\";\n";
+    message += "\tif (message.EndsWith(\"!\"))\n\t{\n\t\tcolor = \"danger\";\n\t}\n";
+    message += "\t<p class=\"text-@color\">\n\t\t@message\n\t</p>\n";
+    message += "}\n";
+    message += "@if (TempData[\"Message\"] != null)\n";
+    message += "{\n\tmessage = TempData[\"Message\"].ToString();\n\tcolor = \"success\";\n";
+    message += "\tif (message.EndsWith(\"!\"))\n\t{\n\t\tcolor = \"danger\";\n\t}\n";
+    message += "\t<p class=\"text-@color\">\n\t\t@message\n\t</p>\n";
+    message += "}\n";
+    @:
+}
+@{
+    if (Model.IsPartialView)
+    {
+    }
+    else if (Model.IsLayoutPageSelected)
+    {
+@:@@{
+    @:ViewData["Title"] = "@Model.ViewName";
+        if (!string.IsNullOrEmpty(Model.LayoutPageFile))
+        {
+    @:Layout = "@Model.LayoutPageFile";
+        }
+@:}
+@:
+@:
+    }
+    else
+    {
+@:@@{
+    @:Layout = null;
+@:}
+@:
+@:<!DOCTYPE html>
+@:
+@:<html>
+@:<head>
+    @:<meta name="viewport" content="width=device-width" />
+    @:<title>@Model.ViewName</title>
+@:</head>
+@:<body>
+@:
+        //    PushIndent("    ");
+    }
+}
+@{
+    var openCurlyBraceLine = "{";
+    var closeCurlyBraceLine = "}";
+    var ifLine = "@if (Model != null)";
+}
+@ifLine
+@openCurlyBraceLine
+    <div class="container">
+    @@if (ViewBag.ViewModel is null || !(ViewBag.ViewModel as ViewModel).Modal)
+    {
+        <h3 class="text-light bg-primary p-2"><i class="bi bi-info-circle"></i> @@ViewData["Title"]</h3>
+        <h4>@Model.ViewDataTypeShortName</h4>
+@message
+        <hr />
+    }
+    @{
+        Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
+        Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
+
+        foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
+        {
+            if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
+                && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+            {
+                bool isFile = property.TypeName.Equals(typeof(byte[]).FullName);
+                if (!isFile)
+                {
+                    bool isDateTime = property.TypeName.Equals(typeof(DateTime).FullName) || property.TypeName.Equals(typeof(DateTime?).FullName);
+                    if (isDateTime)
+                    {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
+            </div>
+        @:</div>
+                    }
+                    else
+                    {
+                        bool isDecimal = property.TypeName.Equals(typeof(decimal).FullName) || property.TypeName.Equals(typeof(decimal?).FullName)
+                            || property.TypeName.Equals(typeof(double).FullName) || property.TypeName.Equals(typeof(double?).FullName);
+                        if (isDecimal)
+                        {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
+            </div>
+        @:</div>
+                        }
+                        else
+                        {
+                            bool isBoolean = property.TypeName.Equals(typeof(bool).FullName) || property.TypeName.Equals(typeof(bool?).FullName);
+                            if (isBoolean)
+                            {
+                                bool isPropertyNameIsDeleted = property.PropertyName.Equals("IsDeleted");
+                                if (!isPropertyNameIsDeleted)
+                                {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
+            </div>
+        @:</div>
+                                }
+                            }
+                            else
+                            {
+                                if (!property.PropertyName.Equals("FileContent") && !property.PropertyName.Equals("FilePath") && !property.PropertyName.Equals("Guid"))
+                                {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property))</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(property))
+            </div>
+        @:</div>
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.ImgSrcOutput)</b>
+            </div>
+            <div class="col-5">
+            @{
+                @:@@if (string.IsNullOrWhiteSpace(Model.ImgSrcOutput))
+                @:{
+                @:<span><i class="bi bi-image" style="font-size:xx-large;"></i></span>
+                @:}
+                @:else
+                @:{
+                @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).FileOperations)
+                @:{
+                @:<a asp-action="DownloadFile" asp-route-id="@@Model.Id" title="Download">
+                    @:<img src="@@Model.ImgSrcOutput" class="img-fluid" />
+                @:</a>
+                @:}
+                @:else
+                @:{
+                    @:<img src="@@Model.ImgSrcOutput" class="img-fluid" />   
+                @:}
+                @:}
+            }
+            </div>
+        @:</div>
+                }
+            }
+            else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+            {
+        <div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output)</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(navigation)Output)
+            </div>
+        </div>
+            }
+        }
+        @:@@*
+        <div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.ManyToManyOutput)</b>
+            </div>
+            <div class="col-10">
+                @@if (!string.IsNullOrWhiteSpace(Model.ManyToManyOutput))
+                {
+                    <div style="overflow-y:auto;border-style:solid;border-width:1px;padding-left:7px;height:100px;">
+                        @@Html.Raw(Model.ManyToManyOutput)
+                    </div>
+                }
+            </div>
+        </div>
+        @:*@@
+    }       
+    @{
+        @:@@if (ViewBag.ViewModel is null || !(ViewBag.ViewModel as ViewModel).Modal)
+        @:{
+        @:<hr />
+        @:<div class="row">
+            @:<div class="col-12">
+            string pkName = GetPrimaryKeyName();
+            if (pkName != null)
+            {
+                @:<a asp-action="Edit" asp-route-id="@@Model?.@pkName" class="btn btn-outline-warning text-dark"><i class="bi bi-pencil-square"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                @:<a asp-action="Index" asp-route-s="true" class="btn btn-outline-primary"><i class="bi bi-list"></i> Back to List</a>
+            }
+            else
+            {
+                @:@@Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ })&nbsp;|&nbsp;
+                @:<a asp-action="Index" asp-route-s="true">Back to List</a>
+            }
+            @:</div>
+        @:</div>
+        @:}
+    }   
+    </div>
+@closeCurlyBraceLine
+@{
+    if (!Model.IsPartialView && !Model.IsLayoutPageSelected)
+    {
+        //ClearIndent();
+@:</body>
+@:</html>
+    }
+}
+@functions
+{
+    string GetPrimaryKeyName()
+    {
+        return (Model.ModelMetadata.PrimaryKeys != null && Model.ModelMetadata.PrimaryKeys.Length == 1)
+        ? Model.ModelMetadata.PrimaryKeys[0].PropertyName
+        : null;
+    }
+
+    string GetValueExpression(IPropertyMetadata property)
+    {
+        return property.PropertyName;
+    }
+
+    string GetValueExpression(INavigationMetadata navigation)
+    {
+        return navigation.AssociationPropertyName;
+    }
+}

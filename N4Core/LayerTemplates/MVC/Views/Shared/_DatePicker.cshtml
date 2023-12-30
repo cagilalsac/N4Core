@@ -1,0 +1,32 @@
+﻿@* https://xdsoft.net/jqplugins/datetimepicker *@
+<link rel="stylesheet" href="~/lib/jquery-datetimepicker/jquery.datetimepicker.min.css" />
+<script src="~/lib/jquery-datetimepicker/jquery.datetimepicker.full.min.js"></script>
+
+<script>
+	$(function () {
+		// Turkish:
+		// $.datetimepicker.setLocale("tr");
+		// $('.datetimepicker').datetimepicker({
+		//    timepicker: false,
+		//    format: 'd.m.Y',
+		//    i18n: {
+		//        tr: {
+		//            months: [
+		//                'Ocak', 'Şubat', 'Mart', 'Nisan',
+		//                'Mayıs', 'Haziran', 'Temmuz', 'Ağustos',
+		//                'Eylül', 'Ekim', 'Kasım', 'Aralık'
+		//            ],
+		//            dayOfWeek: [
+		//                "Paz", "Pzt", "Sal", "Çar",
+		//                "Per", "Cum", "Cmt"
+		//            ]
+		//        }
+		//    }
+		// });
+		// English:
+		$('.datetimepicker').datetimepicker({
+			timepicker: false,
+			format: 'm/d/Y'
+		});
+	});
+</script>

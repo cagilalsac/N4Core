@@ -1,0 +1,88 @@
+﻿<script>
+	var language = 'en';
+
+	var filter = "Filtre";
+	var search = "Ara";
+	var clear = "Temizle";
+	var pageNumber = "Sayfa";
+	var recordsPerPageCount = "Kayıt Sayısı";
+	var orderExpression = "Sıra";
+	var orderDirectionDescending = "Azalan";
+
+	$(function () {
+		if (language == "en") {
+			filter = "Filter";
+			search = "Search";
+			clear = "Clear";
+			pageNumber = "Page";
+			recordsPerPageCount = "Record Count";
+			orderExpression = "Order";
+			orderDirectionDescending = "Descending";
+		}
+
+		$("#filter").prop("placeholder", filter);
+		$("#search").prop("title", search);
+		$("#clear").prop("title", clear);
+		$("#pagenumber").html(pageNumber);
+		$("#recordsperpagecount").html(recordsPerPageCount);
+		$("#orderexpression").html(orderExpression);
+		$("#orderdirectiondescendinglabel").html(orderDirectionDescending);
+
+		var caretDown = '<i class="bi bi-caret-down"></i>';
+		var caretUp = '<i class="bi bi-caret-up"></i>';
+		$(".orderexpressionlink").each(function () {
+			var orderExpressionLinkHtml = $(this).html();
+			var orderExpression = $(".orderexpression option:selected").text();
+			var descending = $(".orderdirectiondescending").prop("checked");
+			if (orderExpressionLinkHtml.trim() == orderExpression) {
+				if (descending) {
+					$(this).html(orderExpressionLinkHtml + caretDown);
+				} else {
+					$(this).html(orderExpressionLinkHtml + caretUp);
+				}
+			}
+		});
+
+		$(".pagenumber").change(function () {
+			$("#form").submit();
+		});
+		$(".recordsperpagecount").change(function () {
+			$(".pagenumber").val("1");
+			$("#form").submit();
+		});
+		$(".orderexpression").change(function () {
+			$("#form").submit();
+		});
+		$(".orderdirectiondescending").change(function () {
+			$("#form").submit();
+		});
+		$(".filter").blur(function () {
+			$(".pagenumber").val("1");
+		});
+		$(".clear").click(function (event) {
+			event.preventDefault();
+			$(".pagenumber").val("1");
+			$(".filter").val("");
+			$("#form").submit();
+		});
+		$(".orderexpressionlink").click(function (event) {
+			event.preventDefault();
+		});
+		$(".input").blur(function () {
+			$(".pagenumber").prop("disabled", true);
+			$(".pagenumber").val("1");
+		});
+		$(".search").click(function (event) {
+			event.preventDefault();
+			$(".pagenumber").val("1");
+			$("#form").submit();
+		});
+		$(".export").click(function (event) {
+			event.preventDefault();
+			var formAction = $("#form").prop("action");
+			$("#form").prop("action", $(this).prop("href"));
+			$("#form").submit();
+			$("#form").prop("action", formAction);
+		});
+	});
+</script>
