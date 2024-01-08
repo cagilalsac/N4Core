@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using N4Core.Configurations;
 using N4Core.Enums;
 using N4Core.Messages;
@@ -11,6 +12,7 @@ using N4Core.Records.Bases;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results;
 using N4Core.Results.Bases;
+using N4Core.Texts;
 using N4Core.Utilities;
 using N4Core.Utilities.Bases;
 
@@ -23,6 +25,7 @@ namespace N4Core.Services.Bases
         protected readonly RecordFileServiceBase _recordFileService;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
+        protected CultureUtil _cultureUtil;
         protected AccountUtil _accountUtil;
         protected SessionUtil _sessionUtil;
         protected string _pageOrderFilterSessionKey = "PageOrderFilterSessionKey";
@@ -31,6 +34,7 @@ namespace N4Core.Services.Bases
         protected List<ReflectionPropertyModel> _reflectionFilteringProperties;
 
         public ViewModel ViewModel { get; private set; }
+        public ViewTexts ViewTexts { get; private set; }
         public ServiceMessages ServiceMessages { get; private set; }
         public ServiceBaseConfig Config { get; private set; }
 
@@ -44,16 +48,18 @@ namespace N4Core.Services.Bases
                 })
             };
             _mapper = new Mapper(Config.MapperConfiguration);
-            _sessionUtil = new SessionUtil(httpContextAccessor);
             _httpContextAccessor = httpContextAccessor;
+            _cultureUtil = new CultureUtil(_httpContextAccessor);
+            Config.Language = _cultureUtil.GetLanguage();
+            _sessionUtil = new SessionUtil(_httpContextAccessor);
             _accountUtil = new AccountUtil(_httpContextAccessor);
-            ServiceMessages = new ServiceMessages();
-            ViewModel = new ViewModel(ServiceMessages)
+            ViewModel = new ViewModel(Config.Language)
             {
                 PageOrderFilter = Config.PageOrderFilter,
                 Modal = Config.Modal,
                 FileOperations = Config.FileOperations,
-                ExportOperation = Config.ExportOperation
+                ExportOperation = Config.ExportOperation,
+                TimePicker = Config.TimePicker
             };
             _repo = repo;
             _recordFileService = recordFileService;
@@ -68,13 +74,20 @@ namespace N4Core.Services.Bases
         {
             config.Invoke(Config);
             _mapper = new Mapper(Config.MapperConfiguration);
+            if (Config.Language == Language.None)
+            {
+                _cultureUtil = new CultureUtil(_httpContextAccessor);
+                Config.Language = _cultureUtil.GetLanguage();
+            }
+            ViewTexts = new ViewTexts(Config.Language);
             ServiceMessages = new ServiceMessages(Config.Language);
-            ViewModel = new ViewModel(ServiceMessages)
+            ViewModel = new ViewModel(Config.Language)
             {
                 PageOrderFilter = Config.PageOrderFilter,
                 Modal = Config.Modal,
                 FileOperations = Config.FileOperations,
-                ExportOperation = Config.ExportOperation
+                ExportOperation = Config.ExportOperation,
+                TimePicker = Config.TimePicker
             };
             _recordFileService.Set(config =>
             {

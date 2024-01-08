@@ -3,10 +3,12 @@
 using AutoMapper.QueryableExtensions;
 using LinqKit;
 using Microsoft.AspNetCore.Http;
+using N4Core.Enums;
 using N4Core.Models;
 using N4Core.Records.Bases;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results.Bases;
+using N4Core.Utilities;
 using N4Core.Utilities.Bases;
 using System.Linq.Expressions;
 
@@ -37,6 +39,10 @@ namespace N4Core.Services.Bases
                 pageOrderFilterModel.Filter = pageOrderFilterSession.Filter;
             }
             ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? new List<string>() : _reflectionOrderingProperties.Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
+            for (int i = 0; i < ViewModel.OrderExpressions.Count; i++)
+            {
+                ViewModel.OrderExpressions[i] = HelperUtil.GetDisplayName(ViewModel.OrderExpressions[i], '{', '}', ';', Config.Language);
+            }
             if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageOrderFilterModel.OrderExpression))
             {
                 var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.DisplayName == pageOrderFilterModel.OrderExpression);

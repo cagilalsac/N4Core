@@ -13,10 +13,10 @@ namespace N4Core.Messages
 
         public AccountServiceMessages(Language language = Language.English)
         {
-            UserNotFound = language == Language.Turkish ? "Kullanıcı bulunamadı!" : "User not found!";
-            UserFound = language == Language.Turkish ? "Kullanıcı bulundu." : "User found.";
-            UserRegistered = language == Language.Turkish ? "Kullanıcı kaydedildi." : "User registered.";
-            RoleNotFound = language == Language.Turkish ? "Rol bulunamadı!" : "Role not found!";
+            UserNotFound = language == Language.Turkish ? "Kullanıcı bulunamadı!" : language == Language.English ? "User not found!" : "";
+            UserFound = language == Language.Turkish ? "Kullanıcı bulundu." : language == Language.English ? "User found." : "";
+            UserRegistered = language == Language.Turkish ? "Kullanıcı kaydedildi." : language == Language.English ? "User registered." : "";
+            RoleNotFound = language == Language.Turkish ? "Rol bulunamadı!" : language == Language.English ? "Role not found!" : "";
         }
     }
 }

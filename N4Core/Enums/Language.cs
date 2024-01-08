@@ -2,7 +2,8 @@
 {
 	public enum Language
 	{
-		Turkish = 1,
+		None,
+		Turkish,
 		English
 	}
 }

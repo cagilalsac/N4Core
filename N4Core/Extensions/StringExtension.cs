@@ -78,5 +78,12 @@
 			}
 			return englishValue;
 		}
+
+		public static int GetCount(this string value, char character)
+		{
+			if (!string.IsNullOrWhiteSpace(value))
+				return value.Count(v => v == character);
+			return 0;
+		}
 	}
 }

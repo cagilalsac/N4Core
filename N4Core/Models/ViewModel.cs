@@ -1,12 +1,16 @@
 ﻿#nullable disable
 
+using N4Core.Enums;
 using N4Core.Messages;
+using N4Core.Texts;
 
 namespace N4Core.Models
 {
     public class ViewModel
     {
-        protected RecordMessages _recordMessages;
+        public Language Language { get; private set; }
+        public RecordMessages RecordMessages { get; private set; }
+        public ViewTexts ViewTexts { get; private set; }
 
         public bool PageOrderFilter { get; set; }
         public int TotalRecordsCount { get; set; }
@@ -14,13 +18,13 @@ namespace N4Core.Models
         {
             get
             {
-                if (_recordMessages is null)
+                if (RecordMessages is null)
                 {
                     return TotalRecordsCount.ToString();
                 }
-                return TotalRecordsCount == 0 ? _recordMessages.RecordNotFound
-                    : TotalRecordsCount == 1 ? (TotalRecordsCount + " " + _recordMessages.RecordFound).ToLower()
-                    : (TotalRecordsCount + " " + _recordMessages.RecordsFound).ToLower();
+                return TotalRecordsCount == 0 ? RecordMessages.RecordNotFound
+                    : TotalRecordsCount == 1 ? (TotalRecordsCount + " " + RecordMessages.RecordFound).ToLower()
+                    : (TotalRecordsCount + " " + RecordMessages.RecordsFound).ToLower();
             }
         }
         public List<string> RecordsPerPageCounts { get; }
@@ -53,11 +57,14 @@ namespace N4Core.Models
         public bool Modal { get; set; }
         public bool FileOperations { get; set; }
         public bool ExportOperation { get; set; }
+        public bool TimePicker { get; set; }
 
-        public ViewModel(RecordMessages recordMessages)
+        public ViewModel(Language language = Language.English)
         {
-            _recordMessages = recordMessages;
-            RecordsPerPageCounts = new List<string>() { "5", "10", "25", "50", "100", _recordMessages.AllRecords };
+            Language = language;
+            RecordMessages = new ServiceMessages(Language);
+            ViewTexts = new ViewTexts(Language);
+            RecordsPerPageCounts = new List<string>() { "5", "10", "25", "50", "100", RecordMessages.AllRecords };
         }
     }
 }

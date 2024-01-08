@@ -12,8 +12,8 @@ namespace N4Core.Messages
 
         public ExportServiceMessages(Language language = Language.English, bool isExcelLicenseCommercial = false)
         {
-            FileNameWithoutExtension = language == Language.Turkish ? DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "_").Replace(":", "") + "_Rapor" : DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "_").Replace(":", "") + "_Report";
-            ExcelWorksheetName = language == Language.Turkish ? "Sayfa1" : "Sheet1";
+            FileNameWithoutExtension = language == Language.Turkish ? DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "_").Replace(":", "") + "_Rapor" : language == Language.English ? DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss").Replace("/", "").Replace(" ", "_").Replace(":", "") + "_Report" : "";
+            ExcelWorksheetName = language == Language.Turkish ? "Sayfa1" : language == Language.English ? "Sheet1" : "";
             IsExcelLicenseCommercial = isExcelLicenseCommercial;
         }
     }
