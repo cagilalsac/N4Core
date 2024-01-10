@@ -2,23 +2,23 @@
 
 using AutoMapper.QueryableExtensions;
 using LinqKit;
-using Microsoft.AspNetCore.Http;
-using N4Core.Enums;
+using N4Core.Managers.Bases;
 using N4Core.Models;
 using N4Core.Records.Bases;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results.Bases;
 using N4Core.Utilities;
-using N4Core.Utilities.Bases;
 using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
     public abstract class ServiceBase<TModel, TEntity> : ServiceBaseBase<TModel, TEntity> where TModel : RecordBase, new() where TEntity : RecordBase, new()
     {
-        protected ServiceBase(RepoBase<TEntity> repo, RecordFileServiceBase recordFileService, IReflectionUtil reflectionUtil, IHttpContextAccessor httpContextAccessor) : base(repo, recordFileService, reflectionUtil, httpContextAccessor)
+        protected ServiceBase(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, 
+            CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
+            AccountManagerBase accountManager, RecordFileServiceBase recordFileService) 
+            : base(repo, reflectionManager, cultureManager, sessionManager, accountManager, recordFileService)
         {
-
         }
 
         public override IQueryable<TModel> Query()
@@ -29,7 +29,7 @@ namespace N4Core.Services.Bases
         public virtual IQueryable<TModel> Query(PageOrderFilterModel pageOrderFilterModel)
         {
             var query = Query();
-            var pageOrderFilterSession = _sessionUtil?.GetSession<PageOrderFilterModel>(_pageOrderFilterSessionKey);
+            var pageOrderFilterSession = _sessionManager?.GetSession<PageOrderFilterModel>(_pageOrderFilterSessionKey);
             if (Config.PageOrderFilterSession && pageOrderFilterSession != null)
             {
                 pageOrderFilterModel.PageNumber = pageOrderFilterSession.PageNumber;
@@ -50,18 +50,18 @@ namespace N4Core.Services.Bases
                     propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageOrderFilterModel.OrderExpression);
                 if (propertyForOrdering != null)
                 {
-                    query = pageOrderFilterModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionUtil.GetExpression<TModel>(propertyForOrdering.Name))
-                        : query.OrderBy(_reflectionUtil.GetExpression<TModel>(propertyForOrdering.Name));
+                    query = pageOrderFilterModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionManager.GetExpression<TModel>(propertyForOrdering.Name))
+                        : query.OrderBy(_reflectionManager.GetExpression<TModel>(propertyForOrdering.Name));
                 }
             }
             if (!string.IsNullOrWhiteSpace(pageOrderFilterModel.Filter))
             {
                 if (_reflectionFilteringProperties is not null && _reflectionFilteringProperties.Any())
                 {
-                    var predicate = _reflectionUtil.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[0].Name, pageOrderFilterModel.Filter);
+                    var predicate = _reflectionManager.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[0].Name, pageOrderFilterModel.Filter);
                     for (var i = 1; i < _reflectionFilteringProperties.Count; i++)
                     {
-                        predicate = predicate.Or(_reflectionUtil.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[i].Name, pageOrderFilterModel.Filter));
+                        predicate = predicate.Or(_reflectionManager.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[i].Name, pageOrderFilterModel.Filter));
                     }
                     query = query.Where(predicate);
                 }
@@ -103,7 +103,7 @@ namespace N4Core.Services.Bases
             {
                 query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
             }
-            _sessionUtil?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
+            _sessionManager?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
             var list = query.ToList();
             UpdateImgSrc(list);
             return list;
@@ -121,7 +121,7 @@ namespace N4Core.Services.Bases
             {
                 query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
             }
-            _sessionUtil?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
+            _sessionManager?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
             var list = query.ToList();
             UpdateImgSrc(list);
             return list;
@@ -165,7 +165,7 @@ namespace N4Core.Services.Bases
                 recordFile = entity as IRecordFile;
                 _recordFileService.UpdateRecordFile(recordFileModel.FormFileInput, recordFile);
             }
-            _reflectionUtil.TrimStringProperties(entity);
+            _reflectionManager.TrimStringProperties(entity);
             _repo.Add(entity);
             model.Id = entity.Id;
             if (recordFileModel is not null && recordFile is not null)
@@ -180,7 +180,7 @@ namespace N4Core.Services.Bases
             IRecordFileModel recordFileModel = null;
             IRecordFile recordFile = null;
             var entity = _mapper.Map<TEntity>(model);
-            _reflectionUtil.TrimStringProperties(entity);
+            _reflectionManager.TrimStringProperties(entity);
             if (_repo.ReflectionRecordModel.HasFile && model is IRecordFileModel)
             {
                 recordFileModel = model as IRecordFileModel;

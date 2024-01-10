@@ -12,8 +12,8 @@ using Newtonsoft.Json.Converters;
 var builder = WebApplication.CreateBuilder(args);
 
 #region Culture
-var cultureUtil = new CultureUtil();
-builder.Services.Configure(cultureUtil.AddCulture());
+var cultureManager = new CultureManager();
+builder.Services.Configure(cultureManager.AddCulture());
 #endregion
 
 // Add services to the container.
@@ -41,7 +41,6 @@ builder.Services.AddSession(config =>
 #region IoC Container
 builder.Services.AddDbContext<Db>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped(typeof(RepoBase<>), typeof(Repo<>));
-builder.Services.AddSingleton<IReflectionUtil, ReflectionUtil>();
 builder.Services.AddScoped<RecordFileServiceBase, RecordFileService>();
 // Inversion of Control for services:
 #endregion
@@ -61,7 +60,7 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
 var app = builder.Build();
 
 #region Culture
-app.UseRequestLocalization(cultureUtil.UseCulture());
+app.UseRequestLocalization(cultureManager.UseCulture());
 #endregion
 
 // Configure the HTTP request pipeline.

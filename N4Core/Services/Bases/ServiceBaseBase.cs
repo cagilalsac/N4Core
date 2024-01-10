@@ -2,9 +2,9 @@
 
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using N4Core.Configurations;
 using N4Core.Enums;
+using N4Core.Managers.Bases;
 using N4Core.Messages;
 using N4Core.Models;
 using N4Core.Profiles;
@@ -13,21 +13,18 @@ using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results;
 using N4Core.Results.Bases;
 using N4Core.Texts;
-using N4Core.Utilities;
-using N4Core.Utilities.Bases;
 
 namespace N4Core.Services.Bases
 {
     public abstract class ServiceBaseBase<TModel, TEntity> : IServiceBaseBase<TModel, TEntity> where TModel : RecordBase, new() where TEntity : RecordBase, new()
     {
         protected readonly RepoBase<TEntity> _repo;
-        protected readonly IReflectionUtil _reflectionUtil;
+        protected readonly CultureManagerBase _cultureManager;
+        protected readonly SessionManagerBase _sessionManager;
+        protected readonly AccountManagerBase _accountManager;
+        protected readonly ReflectionManagerBase _reflectionManager;
         protected readonly RecordFileServiceBase _recordFileService;
-        protected readonly IHttpContextAccessor _httpContextAccessor;
-
-        protected CultureUtil _cultureUtil;
-        protected AccountUtil _accountUtil;
-        protected SessionUtil _sessionUtil;
+        
         protected string _pageOrderFilterSessionKey = "PageOrderFilterSessionKey";
         protected Mapper _mapper;
         protected List<ReflectionPropertyModel> _reflectionOrderingProperties;
@@ -38,7 +35,9 @@ namespace N4Core.Services.Bases
         public ServiceMessages ServiceMessages { get; private set; }
         public ServiceBaseConfig Config { get; private set; }
 
-        protected ServiceBaseBase(RepoBase<TEntity> repo, RecordFileServiceBase recordFileService, IReflectionUtil reflectionUtil, IHttpContextAccessor httpContextAccessor)
+        protected ServiceBaseBase(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, 
+            CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
+            AccountManagerBase accountManager, RecordFileServiceBase recordFileService)
         {
             Config = new ServiceBaseConfig()
             {
@@ -48,11 +47,10 @@ namespace N4Core.Services.Bases
                 })
             };
             _mapper = new Mapper(Config.MapperConfiguration);
-            _httpContextAccessor = httpContextAccessor;
-            _cultureUtil = new CultureUtil(_httpContextAccessor);
-            Config.Language = _cultureUtil.GetLanguage();
-            _sessionUtil = new SessionUtil(_httpContextAccessor);
-            _accountUtil = new AccountUtil(_httpContextAccessor);
+            _cultureManager = cultureManager;
+            Config.Language = _cultureManager.GetLanguage();
+            _sessionManager = sessionManager;
+            _accountManager = accountManager;
             ViewModel = new ViewModel(Config.Language)
             {
                 PageOrderFilter = Config.PageOrderFilter,
@@ -63,22 +61,20 @@ namespace N4Core.Services.Bases
             };
             _repo = repo;
             _recordFileService = recordFileService;
-            _reflectionUtil = reflectionUtil;
-			_repo.ReflectionRecordModel = _reflectionUtil.GetReflectionRecordModel<TEntity>();
-			_reflectionOrderingProperties = _reflectionUtil.GetReflectionPropertyModelProperties<TModel>(TagAttribute.Order);
-            _reflectionFilteringProperties = _reflectionUtil.GetReflectionPropertyModelProperties<TModel>(TagAttribute.StringFilter);
-            _repo.ModifiedBy = _accountUtil.GetUser()?.UserName;
+            _reflectionManager = reflectionManager;
+            _repo.ReflectionRecordModel = _reflectionManager.GetReflectionRecordModel<TEntity>();
+            _reflectionOrderingProperties = _reflectionManager.GetReflectionPropertyModelProperties<TModel>(TagAttribute.Order);
+            _reflectionFilteringProperties = _reflectionManager.GetReflectionPropertyModelProperties<TModel>(TagAttribute.StringFilter);
+            _repo.ModifiedBy = _accountManager.GetUser()?.UserName;
+            _sessionManager = sessionManager;
+            _cultureManager = cultureManager;
         }
 
         public void Set(Action<ServiceBaseConfig> config)
         {
             config.Invoke(Config);
             _mapper = new Mapper(Config.MapperConfiguration);
-            if (Config.Language == Language.None)
-            {
-                _cultureUtil = new CultureUtil(_httpContextAccessor);
-                Config.Language = _cultureUtil.GetLanguage();
-            }
+            Config.Language = _cultureManager.GetLanguage();
             ViewTexts = new ViewTexts(Config.Language);
             ServiceMessages = new ServiceMessages(Config.Language);
             ViewModel = new ViewModel(Config.Language)
@@ -112,9 +108,9 @@ namespace N4Core.Services.Bases
                     var entity = _repo.Query().SingleOrDefault(q => q.Id == id);
                     if (entity == null)
                         return null;
-                    var fileDataPropertyInfo = _reflectionUtil.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileData);
+                    var fileDataPropertyInfo = _reflectionManager.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileData);
                     var fileData = fileDataPropertyInfo?.GetValue(entity);
-                    var fileContentPropertyInfo = _reflectionUtil.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileContent);
+                    var fileContentPropertyInfo = _reflectionManager.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileContent);
                     var fileContent = fileContentPropertyInfo?.GetValue(entity);
                     file = new RecordFileToDownloadModel()
                     {

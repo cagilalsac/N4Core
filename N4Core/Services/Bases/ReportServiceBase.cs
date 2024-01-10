@@ -2,23 +2,23 @@
 
 using Microsoft.AspNetCore.Http;
 using N4Core.Configurations;
-using N4Core.Utilities;
+using N4Core.Managers.Bases;
 using OfficeOpenXml;
 
 namespace N4Core.Services.Bases
 {
     public abstract class ReportServiceBase
     {
-        private readonly ReflectionUtil _reflectionUtil;
+        private readonly ReflectionManagerBase _reflectionManager;
 
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
         public ReportServiceConfig Config { get; private set; }
 
-        protected ReportServiceBase(IHttpContextAccessor httpContextAccessor)
+        protected ReportServiceBase(ReflectionManagerBase reflectionManager, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _reflectionUtil = new ReflectionUtil();
+            _reflectionManager = reflectionManager;
             Config = new ReportServiceConfig();
         }
 
@@ -47,7 +47,7 @@ namespace N4Core.Services.Bases
             byte[] data = null;
             if (list is not null && list.Any())
             {
-                var dataTable = _reflectionUtil.ConvertToDataTable(list);
+                var dataTable = _reflectionManager.ConvertToDataTable(list);
                 if (dataTable is not null && dataTable.Rows.Count > 0)
                 {
                     ExcelPackage.LicenseContext = Config.IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;

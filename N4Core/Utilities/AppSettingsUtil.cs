@@ -13,7 +13,7 @@ namespace N4Core.Utilities
 			_configuration = configuration;
 		}
 
-		public virtual void Bind<T>() where T : class, new()
+		public void Bind<T>() where T : class, new()
 		{
 			T t = null;
 			IConfigurationSection section = _configuration.GetSection(typeof(T).Name);
@@ -24,7 +24,7 @@ namespace N4Core.Utilities
 			}
 		}
 
-        public virtual void Bind<T>(string sectionKey) where T : class, new()
+        public void Bind<T>(string sectionKey) where T : class, new()
         {
             T t = null;
             IConfigurationSection section = _configuration.GetSection(sectionKey);
