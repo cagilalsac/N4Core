@@ -29,7 +29,7 @@ namespace N4Core.TagHelpers.Bases
             {
                 if (value.Contains(NOTVALID, StringComparison.OrdinalIgnoreCase) || value.Contains(INVALID, StringComparison.OrdinalIgnoreCase))
                 {
-                    result = language == Language.Turkish ? INVALIDRESULTTR : INVALIDRESULTEN;
+                    result = language == Language.Türkçe ? INVALIDRESULTTR : INVALIDRESULTEN;
                 }
                 else
                 {
@@ -38,7 +38,7 @@ namespace N4Core.TagHelpers.Bases
                         displayName = value.Substring(value.IndexOf('{'), value.IndexOf('}') + 1);
                         value = value.Replace(displayName, GetDisplayName(displayName, language));
                         valueParts = value.Split(SEPERATOR);
-                        if (language == Language.Turkish)
+                        if (language == Language.Türkçe)
                         {
                             result = valueParts.Last();
                         }

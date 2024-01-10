@@ -11,13 +11,13 @@ namespace N4Core.Models
 
         public ErrorModel(Language language = Language.English)
         {
-            Title = language == Language.English ? "Error!" : language == Language.Turkish ? "Hata!" : "";
-            Message = language == Language.English ? "An error occurred while processing your request!" : language == Language.Turkish ? "İşlem sırasında hata meydana geldi!" : "";
+            Title = language == Language.English ? "Error!" : language == Language.Türkçe ? "Hata!" : "";
+            Message = language == Language.English ? "An error occurred while processing your request!" : language == Language.Türkçe ? "İşlem sırasında hata meydana geldi!" : "";
         }
 
         public ErrorModel(string message, Language language = Language.English)
         {
-            Title = language == Language.English ? "Error!" : language == Language.Turkish ? "Hata!" : "";
+            Title = language == Language.English ? "Error!" : language == Language.Türkçe ? "Hata!" : "";
             Message = message;
         }
     }

@@ -9,19 +9,21 @@ namespace N4Core.Utilities
             string currentRoute = $"/{viewContext.RouteData.Values["Controller"]}/{viewContext.RouteData.Values["Action"]}";
             if (viewContext.RouteData.Values["Area"] is not null)
                 currentRoute = $"/{viewContext.RouteData.Values["Area"]}" + currentRoute;
+            if (viewContext.RouteData.Values["id"] is not null)
+                currentRoute += $"/{viewContext.RouteData.Values["id"]}";
             return currentRoute;
         }
 
+        public static string GetHomeRoute() => $"/Home/Index";
+
+        public static string GetHomeRoute(string area) => $"/{area}{GetHomeRoute()}";
+
         public static string GetHomeRoute(ViewContext viewContext)
         {
-            string homeRoute = "/Home/Index";
+            string homeRoute = GetHomeRoute();
             if (viewContext.RouteData.Values["Area"] is not null)
                 homeRoute = $"/{viewContext.RouteData.Values["Area"]}" + homeRoute;
             return homeRoute;
         }
-
-        public static string GetHomeRoute(string area) => $"/{area}/Home/Index";
-
-        public static string GetHomeRoute() => $"/Home/Index";
     }
 }

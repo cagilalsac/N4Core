@@ -16,7 +16,7 @@ namespace N4Core.Managers.Bases
         public virtual Language GetLanguage()
         {
             var currentCulture = Thread.CurrentThread.CurrentCulture;
-            return currentCulture.Name == _cultures[0].Name ? Language.English : Language.Turkish;
+            return currentCulture.Name == _cultures[0].Name ? Language.English : Language.Türkçe;
         }
 
         public virtual CultureInfo GetCulture(string language)

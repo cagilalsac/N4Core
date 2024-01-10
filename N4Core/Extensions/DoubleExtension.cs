@@ -5,11 +5,11 @@ namespace N4Core.Extensions
     public static class DoubleExtension
     {
         /// <summary>
-        /// Supports to a maximum value of 10 trillion. Automatically rounds decimals to 2 digits. Only supports Turkish for now.
+        /// Supports to a maximum value of 10 trillion. Automatically rounds decimals to 2 digits. Only supports Turkish (Türkçe) for now.
         /// </summary>
-        public static string ConvertMoneyToString(this double value, Language language = Language.Turkish, bool adjoint = false)
+        public static string ConvertMoneyToString(this double value, Language language = Language.Türkçe, bool adjoint = false)
         {
-            if (language != Language.Turkish)
+            if (language != Language.Türkçe)
                 return "";
             if (value > 10000000000000.0)
                 return "";

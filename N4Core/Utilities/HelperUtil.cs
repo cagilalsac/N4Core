@@ -16,7 +16,7 @@ namespace N4Core.Utilities
                 {
                     value = value.Substring(1, value.Length - 2);
                     valueParts = value.Split(seperator);
-                    if (language == Language.Turkish)
+                    if (language == Language.Türkçe)
                         result = valueParts.Last();
                     else
                         result = valueParts.First();
