@@ -28,11 +28,12 @@
     else if (Model.IsLayoutPageSelected)
     {
 @:@@{
-    @:ViewData["Title"] = "@Model.ViewName";
-        if (!string.IsNullOrEmpty(Model.LayoutPageFile))
-        {
+    @:ViewModel viewModel = ViewBag.ViewModel as ViewModel;
+    @:ViewData["Title"] = @@viewModel.ViewTexts.Delete;
+    if (!string.IsNullOrEmpty(Model.LayoutPageFile))
+    {
     @:Layout = "@Model.LayoutPageFile";
-        }
+    }
 @:}
 @:
 @:
@@ -48,11 +49,11 @@
 @:<html>
 @:<head>
     @:<meta name="viewport" content="width=device-width" />
-    @:<title>@Model.ViewName</title>
+    @:<title>@@ViewData["Title"]</title>
 @:</head>
 @:<body>
 @:
-        //    PushIndent("    ");
+    //    PushIndent("    ");
     }
 }
 @{
@@ -64,43 +65,27 @@
 @openCurlyBraceLine
     <div class="container">
         <h3 class="text-light bg-primary p-2"><i class="bi bi-trash"></i> @@ViewData["Title"]</h3>
-        <h4>@Model.ViewDataTypeShortName</h4>
 @message
-        <h3 class="text-danger">Are you sure you want to delete?</h3>
+        <h3 class="text-danger">@@viewModel.ViewTexts.DeleteQuestion</h3>
         <hr />
     @{
-        Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
-        Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
+            Dictionary<string, IPropertyMetadata> propertyLookup = ((IModelMetadata)Model.ModelMetadata).Properties.ToDictionary(x => x.PropertyName, x => x);
+            Dictionary<string, INavigationMetadata> navigationLookup = ((IModelMetadata)Model.ModelMetadata).Navigations.ToDictionary(x => x.AssociationPropertyName, x => x);
 
-        foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
-        {
-            if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
-                && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
+            foreach (var item in Model.ModelMetadata.ModelType.GetProperties())
             {
-                bool isFile = property.TypeName.Equals(typeof(byte[]).FullName);
-                if (!isFile)
+                if (propertyLookup.TryGetValue(item.Name, out IPropertyMetadata property)
+                    && property.Scaffold && !property.IsForeignKey && !property.IsPrimaryKey)
                 {
-                    bool isDateTime = property.TypeName.Equals(typeof(DateTime).FullName) || property.TypeName.Equals(typeof(DateTime?).FullName);
-                    if (isDateTime)
+                    bool isFile = property.TypeName.Equals(typeof(byte[]).FullName);
+                    if (!isFile)
                     {
-        @:<div class="row mb-3">
-            <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
-            </div>
-            <div class="col-10">
-                @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
-            </div>
-        @:</div>
-                    }
-                    else
-                    {
-                        bool isDecimal = property.TypeName.Equals(typeof(decimal).FullName) || property.TypeName.Equals(typeof(decimal?).FullName)
-                            || property.TypeName.Equals(typeof(double).FullName) || property.TypeName.Equals(typeof(double?).FullName);
-                        if (isDecimal)
+                        bool isDateTime = property.TypeName.Equals(typeof(DateTime).FullName) || property.TypeName.Equals(typeof(DateTime?).FullName);
+                        if (isDateTime)
                         {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
@@ -109,44 +94,59 @@
                         }
                         else
                         {
-                            bool isBoolean = property.TypeName.Equals(typeof(bool).FullName) || property.TypeName.Equals(typeof(bool?).FullName);
-                            if (isBoolean)
+                            bool isDecimal = property.TypeName.Equals(typeof(decimal).FullName) || property.TypeName.Equals(typeof(decimal?).FullName)
+                                || property.TypeName.Equals(typeof(double).FullName) || property.TypeName.Equals(typeof(double?).FullName);
+                            if (isDecimal)
                             {
-                                bool isPropertyNameIsDeleted = property.PropertyName.Equals("IsDeleted");
-                                if (!isPropertyNameIsDeleted)
-                                {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
             </div>
         @:</div>
-                                }
                             }
                             else
                             {
-                                if (!property.PropertyName.Equals("FileContent") && !property.PropertyName.Equals("FilePath") && !property.PropertyName.Equals("Guid"))
+                                bool isBoolean = property.TypeName.Equals(typeof(bool).FullName) || property.TypeName.Equals(typeof(bool?).FullName);
+                                if (isBoolean)
                                 {
+                                    bool isPropertyNameIsDeleted = property.PropertyName.Equals("IsDeleted");
+                                    if (!isPropertyNameIsDeleted)
+                                    {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property))</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
+            </div>
+            <div class="col-10">
+                @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
+            </div>
+        @:</div>
+                                    }
+                                }
+                                else
+                                {
+                                    if (!property.PropertyName.Equals("FileContent") && !property.PropertyName.Equals("FilePath") && !property.PropertyName.Equals("Guid"))
+                                    {
+        @:<div class="row mb-3">
+            <div class="col-2">
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property), viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property))
             </div>
         @:</div>
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
+                    else
+                    {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.ImgSrcOutput)</b>
+                <b>@@Html.DisplayNameFor(model => model.ImgSrcOutput, viewModel.Language)</b>
             </div>
             <div class="col-5">
             @{
@@ -161,53 +161,57 @@
             }
             </div>
         @:</div>
+                    }
                 }
-            }
-            else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
-            {
+                else if (navigationLookup.TryGetValue(item.Name, out INavigationMetadata navigation))
+                {
         <div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(navigation)Output)
             </div>
         </div>
+                }
             }
-        }
         @:@@*
         <div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.ManyToManyOutput)</b>
+                <b>@@Html.DisplayNameFor(model => model.ManyToManyOutput, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@if (!string.IsNullOrWhiteSpace(Model.ManyToManyOutput))
                 {
-                    <div style="overflow-y:auto;border-style:solid;border-width:1px;padding-left:7px;height:100px;">
-                        @@Html.Raw(Model.ManyToManyOutput)
-                    </div>
+                <div style="overflow-y:auto;border-style:solid;border-width:1px;padding-left:7px;height:100px;">
+                    @@Html.Raw(Model.ManyToManyOutput)
+                </div>
                 }
             </div>
         </div>
         @:*@@
+    }
+    @{
         @:<hr />
         @:<div class="row">
             @:<div class="col-12">
                 @:<form asp-action="@Model.ViewName">
-	            @:@@Html.AntiForgeryToken()
+                    @:@@Html.AntiForgeryToken()
                     foreach (var property in Model.ModelMetadata.Properties)
                     {
-                        if(property.IsPrimaryKey){
+                        if(property.IsPrimaryKey) {
                     @:<input type="hidden" asp-for="@GetValueExpression(property)" />
                         }
                     }
-                    @:<button type="submit" class="btn btn-danger"><i class="bi bi-check"></i> Yes</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                    @:<a asp-action="Index" asp-route-s="true" class="btn btn-outline-primary"><i class="bi bi-x"></i> No</a>
+                    @:<button type="submit" class="btn btn-danger"><i class="bi bi-check"></i> @@viewModel.ViewTexts.DeleteYes</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    @:<a asp-action="Index" asp-route-s="true" class="btn btn-outline-primary"><i class="bi bi-x"></i> @@viewModel.ViewTexts.DeleteNo</a>
                 @:</form>
             @:</div>
         @:</div>
-    @:</div>
+    }
+    </div>
 @closeCurlyBraceLine
+@{
     if (!Model.IsPartialView && !Model.IsLayoutPageSelected)
     {
         //ClearIndent();

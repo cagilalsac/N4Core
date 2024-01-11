@@ -1,37 +1,22 @@
-﻿<script>
-	var language = 'en';
+﻿@model ViewTexts
 
-	var filter = "Filtre";
-	var search = "Ara";
-	var clear = "Temizle";
-	var pageNumber = "Sayfa";
-	var recordsPerPageCount = "Kayıt Sayısı";
-	var orderExpression = "Sıra";
-	var orderDirectionDescending = "Azalan";
+<script>
+	var filter = '@Model.Filter';
+	var pageNumber = '@Model.PageNumber';
+	var recordsPerPageCount = '@Model.RecordsPerPageCount';
+	var orderExpression = '@Model.OrderExpression';
+	var orderDirectionDescending = '@Model.OrderDirectionDescending';
 
 	$(function () {
-		if (language == "en") {
-			filter = "Filter";
-			search = "Search";
-			clear = "Clear";
-			pageNumber = "Page";
-			recordsPerPageCount = "Record Count";
-			orderExpression = "Order";
-			orderDirectionDescending = "Descending";
-		}
-
 		$("#filter").prop("placeholder", filter);
-		$("#search").prop("title", search);
-		$("#clear").prop("title", clear);
 		$("#pagenumber").html(pageNumber);
 		$("#recordsperpagecount").html(recordsPerPageCount);
 		$("#orderexpression").html(orderExpression);
 		$("#orderdirectiondescendinglabel").html(orderDirectionDescending);
-
 		var caretDown = '<i class="bi bi-caret-down"></i>';
 		var caretUp = '<i class="bi bi-caret-up"></i>';
 		$(".orderexpressionlink").each(function () {
-			var orderExpressionLinkHtml = $(this).html();
+			var orderExpressionLinkHtml = $($(this).contents()[1]).html();
 			var orderExpression = $(".orderexpression option:selected").text();
 			var descending = $(".orderdirectiondescending").prop("checked");
 			if (orderExpressionLinkHtml.trim() == orderExpression) {

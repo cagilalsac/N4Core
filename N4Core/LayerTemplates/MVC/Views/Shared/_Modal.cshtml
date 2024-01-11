@@ -1,5 +1,7 @@
-﻿<script>
-    var errorMessage = "An error occurred while processing your request!";
+﻿@model ViewTexts
+
+<script>
+    var errorMessage = '@Model.Error';
     var currentUrl;
     $(function () {
         $(".showModalLink").click(function (event) {
@@ -16,15 +18,21 @@
                     $(".modal .modal-body").html(response);
                 })
                 .fail(function (response) {
-                    $(".modal .modal-body").html('<span class="text-danger">' + response.responseText + '</span>');
+                    $(".modal .modal-body").html('<span class="text-danger">' + errorMessage + '</span>');
                 });
             $(".modal").show();
         });
         $(".hideModalButton").click(function () {
+            if ($(".datetimepicker").length) {
+                $(".xdsoft_datetimepicker").empty();
+            }
             $(".modal").hide();
         });
         window.onclick = function (event) {
             if (event.target == $(".modal")[0]) {
+                if ($(".datetimepicker").length) {
+                    $(".xdsoft_datetimepicker").empty();
+                }
                 $(".modal").hide();
             }
         }

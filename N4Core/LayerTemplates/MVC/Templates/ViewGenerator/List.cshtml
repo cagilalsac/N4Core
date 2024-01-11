@@ -30,15 +30,15 @@
     else if (Model.IsLayoutPageSelected)
     {
 @:@@{
-    @:ViewData["Title"] = "@Model.ViewName";
+    @:ViewModel viewModel = ViewBag.ViewModel as ViewModel;
+    @:ViewData["Title"] = @@viewModel.ViewTexts.List;
         if (!string.IsNullOrEmpty(Model.LayoutPageFile))
         {
     @:Layout = "@Model.LayoutPageFile";
         }
 @:}
 @:
-@:<h3 class="text-light bg-primary p-2"><i class="bi bi-card-list"></i> @@ViewData["Title"]</h3>
-@:<h4>@Model.ViewDataTypeShortName</h4>
+@:<h3 class="text-light bg-primary p-2"><i class="bi bi-card-list"></i> <span id="menulinktitle">@@ViewData["Title"]</span></h3>
 @:
     }
     else
@@ -61,9 +61,9 @@ var openCurlyBraceLine = "{\n";
 var closeCurlyBraceLine = "}\n";
 var ifLine = "@if (Model != null && Model.Count() > 0)\n";
 @:<form asp-action="@Model.ViewName" id="form" autocomplete="off">
-@:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).PageOrderFilter)
+@:@@if (viewModel is not null && viewModel.PageOrderFilter)
 @:{
-    @:<partial name="_PageOrderFilter" model="ViewBag.ViewModel as ViewModel" />
+    @:<partial name="_PageOrderFilter" model="viewModel" />
 @:}
 @:<div class="row">
     @:<div class="col-6 ps-3">
@@ -71,24 +71,24 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
     @:</div>
     @:<div class="col-6 text-end pe-4">
         @:<p>
-            @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).ExportOperation)
+            @:@@if (viewModel is not null && viewModel.ExportOperation)
             @:{
-                @:<a asp-action="Export" asp-route-pof="false" data-bs-toggle="tooltip" title="Export"><i class="bi bi-file-earmark-excel" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                @:<a asp-action="Export" asp-route-pof="false" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Export"><i class="bi bi-file-earmark-excel" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
             @:}
-            @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).Modal)
+            @:@@if (viewModel is not null && viewModel.Modal)
             @:{
                 @:if (ViewContext.RouteData.Values["Area"] is null)
                 @:{
-                @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
+                @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
                 @:}
                 @:else
                 @:{
-                @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
+                @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Create" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
                 @:}
             @:}
             @:else
             @:{
-                @:<a asp-action="Create" data-bs-toggle="tooltip" title="Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
+                @:<a asp-action="Create" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Create"><i class="bi bi-plus-square" style="font-size:larger;"></i></a>
             @:}
         @:</p>
     @:</div>
@@ -115,7 +115,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                         {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().@GetValueExpression(property)Output, viewModel.Language)
                     </a>
                 </th>
                         }
@@ -127,7 +127,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                             {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().@GetValueExpression(property)Output, viewModel.Language)
                     </a>
                 </th>
                             }
@@ -141,7 +141,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                                     {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().@GetValueExpression(property)Output, viewModel.Language)
                     </a>
                 </th>
                                     }
@@ -154,7 +154,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                                         {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(property))
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().@GetValueExpression(property), viewModel.Language)
                     </a>
                 </th>
                                         }
@@ -167,7 +167,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                     {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.ImgSrcOutput)
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().ImgSrcOutput, viewModel.Language)
                     </a>
                 </th>
                     }
@@ -176,7 +176,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                 {
                 <th>
                     <a href="#" class="orderexpressionlink">
-                        @@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output)
+                        @@Html.DisplayNameFor(model => model.FirstOrDefault().@GetValueExpression(navigation)Output, viewModel.Language)
                     </a>
                 </th>
                 }
@@ -268,35 +268,27 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
 				if (pkName1 != null)
 				{
 					@:<td style="text-align:center;width:11%;">
-                    @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).Modal)
+                    @:@@if (viewModel is not null && viewModel.Modal)
                     @:{
                          @:if (ViewContext.RouteData.Values["Area"] is null)
                          @:{
-                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
                          @:}
                          @:else
                          @:{
-                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Details/@@item.Id" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                         @:<a href="#" class="showModalLink" data-url="/@@ViewContext.RouteData.Values["Area"]/@@ViewContext.RouteData.Values["Controller"].ToString()/Edit/@@item.Id" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
                          @:}
-                        @:<a href="#" class="deleteItem" onclick="deleteItem(@@item.@pkName1);" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
+                        @:<a href="#" class="deleteItem" onclick="deleteItem(@@item.@pkName1);" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
                     @:}
                     @:else
                     @:{
-                        @:<a asp-action="Details" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                        @:<a asp-action="Edit" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                        @:<a asp-action="Delete" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
+                        @:<a asp-action="Details" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                        @:<a asp-action="Edit" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                        @:<a asp-action="Delete" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
                     @:}
                     @:</td>
-				}
-				else
-				{
-					<td style="text-align:center;width:11%;">
-						@@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ })&nbsp;|&nbsp;
-						@@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ })&nbsp;|&nbsp;
-						@@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-					</td>
 				}
 				@:</tr>
 		    @:}
@@ -307,14 +299,14 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
 @:</form>
 @:
 @:@@section Scripts {
-    @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).Modal)
+    @:@@if (viewModel is not null && viewModel.Modal)
     @:{
-        @:<partial name="_Modal" />
-        @:<partial name="_AlertifyJS" />
+        @:<partial name="_Modal" model="viewModel.ViewTexts" />
+        @:<partial name="_AlertifyJS" model="viewModel.ViewTexts" />
     @:}
-    @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).PageOrderFilter)
+    @:@@if (viewModel is not null && viewModel.PageOrderFilter)
     @:{
-        @:<partial name="_PageOrderFilterScript" />
+        @:<partial name="_PageOrderFilterScript" model="viewModel.ViewTexts" />
     @:}
     @:else
     @:{
@@ -327,6 +319,14 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
             });
         </script>
     @:}
+    <script>
+        $(function () {
+            var menuLinkText = localStorage.getItem("menulinktext");
+            if (menuLinkText != null) {
+                $("#menulinktitle").text(menuLinkText);
+            }
+        });
+    </script>
 @:}
     if(!Model.IsPartialView && !Model.IsLayoutPageSelected)
     {

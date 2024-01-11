@@ -38,14 +38,17 @@ namespace N4Core.Services.Bases
                 pageOrderFilterModel.OrderDirectionDescending = pageOrderFilterSession.OrderDirectionDescending;
                 pageOrderFilterModel.Filter = pageOrderFilterSession.Filter;
             }
-            ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? new List<string>() : _reflectionOrderingProperties.Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
+            ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? 
+                new List<string>() : 
+                _reflectionOrderingProperties
+                    .Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
             for (int i = 0; i < ViewModel.OrderExpressions.Count; i++)
             {
                 ViewModel.OrderExpressions[i] = HelperUtil.GetDisplayName(ViewModel.OrderExpressions[i], '{', '}', ';', Config.Language);
             }
             if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageOrderFilterModel.OrderExpression))
             {
-                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.DisplayName == pageOrderFilterModel.OrderExpression);
+                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => HelperUtil.GetDisplayName(p.DisplayName, '{', '}', ';', Config.Language) == pageOrderFilterModel.OrderExpression);
                 if (propertyForOrdering == null)
                     propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageOrderFilterModel.OrderExpression);
                 if (propertyForOrdering != null)

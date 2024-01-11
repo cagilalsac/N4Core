@@ -3,11 +3,12 @@
 using Microsoft.AspNetCore.Http;
 using N4Core.Configurations;
 using N4Core.Managers.Bases;
+using N4Core.Utilities;
 using OfficeOpenXml;
 
 namespace N4Core.Services.Bases
 {
-    public abstract class ReportServiceBase
+	public abstract class ReportServiceBase
     {
         private readonly ReflectionManagerBase _reflectionManager;
 
@@ -50,6 +51,10 @@ namespace N4Core.Services.Bases
                 var dataTable = _reflectionManager.ConvertToDataTable(list);
                 if (dataTable is not null && dataTable.Rows.Count > 0)
                 {
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        dataTable.Columns[i].ColumnName = HelperUtil.GetDisplayName(dataTable.Columns[i].ColumnName, '{', '}', ';', Config.Language);
+					}
                     ExcelPackage.LicenseContext = Config.IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();
                     ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");

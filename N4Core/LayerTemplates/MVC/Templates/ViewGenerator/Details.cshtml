@@ -28,7 +28,8 @@
     else if (Model.IsLayoutPageSelected)
     {
 @:@@{
-    @:ViewData["Title"] = "@Model.ViewName";
+    @:ViewModel viewModel = ViewBag.ViewModel as ViewModel;
+    @:ViewData["Title"] = @@viewModel.ViewTexts.Details;
         if (!string.IsNullOrEmpty(Model.LayoutPageFile))
         {
     @:Layout = "@Model.LayoutPageFile";
@@ -48,7 +49,7 @@
 @:<html>
 @:<head>
     @:<meta name="viewport" content="width=device-width" />
-    @:<title>@Model.ViewName</title>
+    @:<title>@@ViewData["Title"]</title>
 @:</head>
 @:<body>
 @:
@@ -63,10 +64,9 @@
 @ifLine
 @openCurlyBraceLine
     <div class="container">
-    @@if (ViewBag.ViewModel is null || !(ViewBag.ViewModel as ViewModel).Modal)
+    @@if (viewModel is null || !viewModel.Modal)
     {
         <h3 class="text-light bg-primary p-2"><i class="bi bi-info-circle"></i> @@ViewData["Title"]</h3>
-        <h4>@Model.ViewDataTypeShortName</h4>
 @message
         <hr />
     }
@@ -87,7 +87,7 @@
                     {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
@@ -102,7 +102,7 @@
                         {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
@@ -119,7 +119,7 @@
                                 {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property)Output)
@@ -133,7 +133,7 @@
                                 {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property))</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(property), viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(property))
@@ -148,7 +148,7 @@
                 {
         @:<div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.ImgSrcOutput)</b>
+                <b>@@Html.DisplayNameFor(model => model.ImgSrcOutput, viewModel.Language)</b>
             </div>
             <div class="col-5">
             @{
@@ -158,9 +158,9 @@
                 @:}
                 @:else
                 @:{
-                @:@@if (ViewBag.ViewModel is not null && (ViewBag.ViewModel as ViewModel).FileOperations)
+                @:@@if (viewModel is not null && viewModel.FileOperations)
                 @:{
-                @:<a asp-action="DownloadFile" asp-route-id="@@Model.Id" title="Download">
+                @:<a asp-action="DownloadFile" asp-route-id="@@Model.Id" title="@@viewModel.ViewTexts.DownloadFile">
                     @:<img src="@@Model.ImgSrcOutput" class="img-fluid" />
                 @:</a>
                 @:}
@@ -178,7 +178,7 @@
             {
         <div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output)</b>
+                <b>@@Html.DisplayNameFor(model => model.@GetValueExpression(navigation)Output, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@Html.DisplayFor(model => model.@GetValueExpression(navigation)Output)
@@ -189,7 +189,7 @@
         @:@@*
         <div class="row mb-3">
             <div class="col-2">
-                <b>@@Html.DisplayNameFor(model => model.ManyToManyOutput)</b>
+                <b>@@Html.DisplayNameFor(model => model.ManyToManyOutput, viewModel.Language)</b>
             </div>
             <div class="col-10">
                 @@if (!string.IsNullOrWhiteSpace(Model.ManyToManyOutput))
@@ -203,7 +203,7 @@
         @:*@@
     }       
     @{
-        @:@@if (ViewBag.ViewModel is null || !(ViewBag.ViewModel as ViewModel).Modal)
+        @:@@if (viewModel is null || !viewModel.Modal)
         @:{
         @:<hr />
         @:<div class="row">
@@ -211,13 +211,8 @@
             string pkName = GetPrimaryKeyName();
             if (pkName != null)
             {
-                @:<a asp-action="Edit" asp-route-id="@@Model?.@pkName" class="btn btn-outline-warning text-dark"><i class="bi bi-pencil-square"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                @:<a asp-action="Index" asp-route-s="true" class="btn btn-outline-primary"><i class="bi bi-list"></i> Back to List</a>
-            }
-            else
-            {
-                @:@@Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ })&nbsp;|&nbsp;
-                @:<a asp-action="Index" asp-route-s="true">Back to List</a>
+                @:<a asp-action="Edit" asp-route-id="@@Model?.@pkName" class="btn btn-outline-warning text-dark"><i class="bi bi-pencil-square"></i> @@viewModel.ViewTexts.Edit</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                @:<a asp-action="Index" asp-route-s="true" class="btn btn-outline-primary"><i class="bi bi-list"></i> @@viewModel.ViewTexts.BackToList</a>
             }
             @:</div>
         @:</div>
