@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using System.ComponentModel;
+
 namespace N4Core.Records.Bases
 {
 	public interface IModifiedBy

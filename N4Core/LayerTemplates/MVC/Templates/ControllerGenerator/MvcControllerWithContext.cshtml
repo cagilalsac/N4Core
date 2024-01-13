@@ -81,27 +81,30 @@ namespace @Model.ControllerNamespace
 
     var serviceAbstractClassType = Model.ModelTypeName + "ServiceBase";
     var serviceAbstractClassName = Model.ModelVariable + "Service";
-    var constructorLine = "public " + Model.ControllerName + "(" + serviceAbstractClassType + " " + serviceAbstractClassName + ",";
+    var constructorLine = "public " + Model.ControllerName + "(" + serviceAbstractClassType + " " + serviceAbstractClassName;
     var relatedServiceAbstractClassTypeDeclarations = "";
-    var reportServiceAbstractClassDeclarations = "";
     var constructorParameters = "";
     var constructorAssignments = "";
-    var reportServiceConstructorAssignments = "";
     foreach (var relatedProperty in relatedProperties.Keys)
     {
         relatedServiceAbstractClassTypeDeclarations += "private readonly " + relatedProperty + "ServiceBase _" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service;\n";
-        constructorParameters += "\n\t\t\t" + relatedProperty + "ServiceBase " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service";
+        constructorParameters += "\n\t\t\t, " + relatedProperty + "ServiceBase " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service";
         constructorLine += constructorParameters;
         constructorAssignments += "_" + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service = " + relatedProperty.Substring(0, 1).ToLower() + relatedProperty.Substring(1) + "Service;\n";
     }
-    relatedServiceAbstractClassTypeDeclarations += "\t\t/* Replace many to many with the service base name in the current project for using many to many relational services. */";
-    relatedServiceAbstractClassTypeDeclarations += "\n\t\t//private readonly ManyToManyServiceBase _manyToManyService;";
-    reportServiceAbstractClassDeclarations = "private readonly ReportServiceBase _reportService;";
-    constructorAssignments += "\t\t\t//_manyToManyService = manyToManyService;";
-    constructorAssignments += "\n\t\t\t_reportService = reportService;";
-    constructorLine += ",\n\t\t\t/*ManyToManyServiceBase manyToManyService,*/\n\t\t\tReportServiceBase reportService,";
-    constructorLine += "\n\t\t\tCultureManagerBase cultureManager,\n\t\t\tCookieManagerBase cookieManager)";
+    if (relatedProperties.Keys.Any())
+        relatedServiceAbstractClassTypeDeclarations += "\t\t";
+    relatedServiceAbstractClassTypeDeclarations += "private readonly ReportServiceBase _reportService;\n";
+    relatedServiceAbstractClassTypeDeclarations += "\t\t/* Replace many to many with the service base name in the current project for using many to many relational services. */\n";
+    relatedServiceAbstractClassTypeDeclarations += "\t\t//private readonly ManyToManyServiceBase _manyToManyService;";
+    constructorLine += "\n\t\t\t, ReportServiceBase reportService";
+    constructorLine += "\n\t\t\t/*, ManyToManyServiceBase manyToManyService */";
+    constructorLine += "\n\t\t\t, CultureManagerBase cultureManager, CookieManagerBase cookieManager)";
     constructorLine += " : base(cultureManager, cookieManager)";
+    if (relatedProperties.Keys.Any())
+        constructorAssignments += "\t\t\t";
+    constructorAssignments += "_reportService = reportService;";
+    constructorAssignments += "\n\t\t\t//_manyToManyService = manyToManyService;\n";
     var declareListLine = "List<" + Model.ModelTypeName + "Model> " + Model.ModelVariable + "List;";
     var listLine = Model.ModelVariable + "List = " + ("_" + serviceAbstractClassName) + ".GetList();";
     var pageOrderFilterListLine = Model.ModelVariable + "List = " + ("_" + serviceAbstractClassName) + ".GetList(pageOrderFilterModel);";
@@ -131,13 +134,11 @@ namespace @Model.ControllerNamespace
     {
         private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
         @relatedServiceAbstractClassTypeDeclarations
-        @reportServiceAbstractClassDeclarations
 
         @constructorLine
         {
             @("_" + serviceAbstractClassName) = @serviceAbstractClassName;
             @constructorAssignments
-            @reportServiceConstructorAssignments
             @("_" + serviceAbstractClassName).Set(config => // Configurations
             {
                 config.NoTracking = true;

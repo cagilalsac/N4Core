@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using N4Core.Utilities
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item p-2">
+        <span class="text-info">"Account: @User.Identity?.Name"</span>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Logout</a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Login</a>
+    </li>
+}
+</ul>

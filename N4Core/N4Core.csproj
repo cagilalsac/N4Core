@@ -11,6 +11,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\AccessDenied.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Login.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Logout.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Register.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\_ViewImports.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ViewImports.cshtml" />
+    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ViewStart.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithActions.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithContext.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiEmptyController.cshtml" />
@@ -26,12 +34,50 @@
     <None Remove="LayerTemplates\MVC\Templates\ViewGenerator\_ValidationScriptsPartial.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\Error.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_AlertifyJS.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_DateTimePicker.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_Language.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_Layout.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_LayoutScript.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_LoginPartial.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_Modal.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_PageOrderFilter.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_Select2.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\_ViewImports.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\AccessDenied.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Login.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Logout.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Register.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ViewStart.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithActions.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -92,6 +138,26 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_DateTimePicker.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_Language.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_Layout.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_LayoutScript.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_LoginPartial.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="LayerTemplates\MVC\Views\Shared\_Modal.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -104,10 +170,14 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Include="LayerTemplates\MVC\Views\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="LayerTemplates\MVC\Program.cs" />
+    <None Include="LayerTemplates\Manager\Contexts\DbFactory.cs" />
   </ItemGroup>
 
   <ItemGroup>

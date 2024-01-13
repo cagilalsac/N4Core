@@ -1,11 +1,6 @@
 ﻿<script>
     $(function () {
-        $(".nav-link").click(function (event) {
-            event.preventDefault();
-            localStorage.setItem("menulinktext", $(this).text());
-            window.location.href = $(this).attr("href");
-        });
-        $(".dropdown-item").click(function (event) {
+        $(".menulink").click(function (event) {
             event.preventDefault();
             localStorage.setItem("menulinktext", $(this).text());
             window.location.href = $(this).attr("href");
