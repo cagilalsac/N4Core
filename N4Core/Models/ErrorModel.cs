@@ -20,5 +20,11 @@ namespace N4Core.Models
             Title = language == Language.English ? "Error!" : language == Language.Türkçe ? "Hata!" : "";
             Message = message;
         }
+
+        public ErrorModel(string message, string title)
+        {
+            Title = title;
+            Message = message;
+        }
     }
 }

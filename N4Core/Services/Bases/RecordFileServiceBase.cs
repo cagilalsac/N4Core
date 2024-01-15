@@ -7,7 +7,7 @@ using N4Core.Records.Bases;
 
 namespace N4Core.Services.Bases
 {
-	public abstract class RecordFileServiceBase
+    public abstract class RecordFileServiceBase
     {
         protected char _acceptedExtensionsSeperator = ',';
 
@@ -88,7 +88,7 @@ namespace N4Core.Services.Bases
 
         public virtual void DeleteFiles(params int[] ids)
         {
-            var path = CreatePath();
+            var path = Config.Path;
             if (path != "")
             {
                 var filePaths = Directory.GetFiles(path).Where(file => ids.Select(id => id.ToString()).Contains(Path.GetFileNameWithoutExtension(file)));
@@ -131,7 +131,7 @@ namespace N4Core.Services.Bases
         public virtual RecordFileToDownloadModel GetFile(int entityId, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false)
         {
             RecordFileToDownloadModel file = null;
-            string filePath = CreatePath();
+            string filePath = Config.Path;
             if (filePath != "")
             {
                 string fileNameWithoutPath = GetFileNameWithoutPath(entityId.ToString(), filePath);
@@ -159,20 +159,9 @@ namespace N4Core.Services.Bases
             return Path.GetFileName(file);
         }
 
-        private string CreatePath()
-        {
-            if (Config.Directories.Any())
-            {
-                List<string> path = Config.Directories.ToList();
-                path.Insert(0, "wwwroot");
-                return Path.Combine(path.ToArray());
-            }
-            return "";
-        }
-
         private string CreatePath(string fileName)
         {
-            string path = CreatePath();
+            string path = Config.Path;
             if (path != "")
                 return path + @"\" + fileName;
             return "";

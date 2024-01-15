@@ -87,9 +87,9 @@ namespace N4Core.Services.Bases
             };
             _recordFileService.Set(config =>
             {
-                config.AcceptedExtensions = Config.RecordFileExtensions;
-                config.AcceptedLengthInMegaBytes = Config.RecordFileLengthInMegaBytes;
-                config.Directories = Config.RecordFileDirectories;
+                config.AcceptedExtensions = Config.FileExtensions;
+                config.AcceptedLengthInMegaBytes = Config.FileLengthInMegaBytes;
+                config.Directories = Config.Directories;
             });
         }
 

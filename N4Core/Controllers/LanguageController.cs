@@ -16,7 +16,7 @@ namespace N4Core.Controllers
             _cookieManager = cookieManager;
         }
 
-        public IActionResult Set(int language, string returnUrl = null)
+        public virtual IActionResult Index(int language, string returnUrl = null)
         {
             _cookieManager.SetCookie(nameof(Language), language.ToString());
             if (returnUrl is null)

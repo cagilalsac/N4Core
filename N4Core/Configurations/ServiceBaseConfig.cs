@@ -1,11 +1,12 @@
 ﻿#nullable disable
 
 using AutoMapper;
+using N4Core.Configurations.Bases;
 using N4Core.Enums;
 
 namespace N4Core.Configurations
 {
-    public class ServiceBaseConfig
+    public class ServiceBaseConfig : DirectoryConfigBase
 	{
         public bool NoTracking { get; set; } = true;
         public MapperConfiguration MapperConfiguration { get; set; } = null!;
@@ -16,13 +17,7 @@ namespace N4Core.Configurations
         public bool FileOperations { get; set; }
         public bool ExportOperation { get; set; }
         public bool TimePicker { get; set; }
-        public string RecordFileExtensions { get; set; } = ".jpg, .jpeg, .png";
-        public double RecordFileLengthInMegaBytes { get; set; } = 0.5;
-        public List<string> RecordFileDirectories { get; private set; } = new List<string>();
-
-        public void SetRecordFileDirectories(params string[] recordFileDirectories)
-		{
-            RecordFileDirectories = recordFileDirectories.ToList();
-		}
+        public string FileExtensions { get; set; } = ".jpg, .jpeg, .png";
+        public double FileLengthInMegaBytes { get; set; } = 0.5;
     }
 }
