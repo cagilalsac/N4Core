@@ -4,7 +4,7 @@ using N4Core.Records.Bases;
 
 namespace N4Core.Entities.Account
 {
-	public class AccountUser : RecordBase, ISoftDelete, IModifiedBy
+	public class AccountUser : Record, ISoftDelete, IModifiedBy
 	{
 		public string UserName { get; set; } = null!;
 		public string Password { get; set; } = null!;

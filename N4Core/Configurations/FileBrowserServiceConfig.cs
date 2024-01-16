@@ -4,7 +4,7 @@ using N4Core.Configurations.Bases;
 
 namespace N4Core.Configurations
 {
-    public class FileBrowserServiceBaseConfig : DirectoryConfigBase
+    public class FileBrowserServiceConfig : DirectoryConfigBase
     {
         public string Controller { get; set; } = "Home";
         public string Action { get; set; } = "Index";

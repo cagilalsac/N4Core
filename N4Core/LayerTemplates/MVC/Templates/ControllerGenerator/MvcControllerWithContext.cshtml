@@ -124,11 +124,11 @@ namespace @Model.ControllerNamespace
     var redirectToDetailsByIdLine = "return RedirectToAction(nameof(Details), new { id = id });";
     var closeCurlyBraceLine = "}";
     var modelStateLine = "ModelState.AddModelError(\"\", result.Message);";
-    var listCountLine = "ViewBag.Message = _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 0 ? _" + serviceAbstractClassName + ".ServiceMessages.RecordNotFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 1 ? _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".ServiceMessages.RecordFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".ServiceMessages.RecordsFound;";
-    var itemNotFoundLine = "ViewBag.Message = _" + serviceAbstractClassName + ".ServiceMessages.RecordNotFound;";
+    var listCountLine = "ViewBag.Message = _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 0 ? _" + serviceAbstractClassName + ".Messages.RecordNotFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount == 1 ? _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".Messages.RecordFound : _" + serviceAbstractClassName + ".ViewModel.TotalRecordsCount + \" \" + _" + serviceAbstractClassName + ".Messages.RecordsFound;";
+    var itemNotFoundLine = "ViewBag.Message = _" + serviceAbstractClassName + ".Messages.RecordNotFound;";
     var modelType = Model.ModelTypeName + "Model";
     var viewModelLine = "ViewBag.ViewModel = _" + serviceAbstractClassName + ".ViewModel;";
-    var report = "DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\") + \"_\" + " + "_" + serviceAbstractClassName + ".ServiceMessages.Report";
+    var report = "DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\") + \"_\" + " + "_" + serviceAbstractClassName + ".Messages.Report";
 }
     public class @Model.ControllerName : MvcControllerBase
     {
@@ -332,7 +332,7 @@ namespace @Model.ControllerNamespace
             }
             else
             {
-                return View("Error", new ErrorModel(@("_" + serviceAbstractClassName).ServiceMessages.FileOperationsNotConfigured));
+                return View("Error", new ErrorModel(@("_" + serviceAbstractClassName).Messages.FileOperationsNotConfigured));
             }
         }
 
@@ -345,7 +345,7 @@ namespace @Model.ControllerNamespace
             }
             else
             {
-                return View("Error", new ErrorModel(@("_" + serviceAbstractClassName).ServiceMessages.FileOperationsNotConfigured));
+                return View("Error", new ErrorModel(@("_" + serviceAbstractClassName).Messages.FileOperationsNotConfigured));
             }
         }
         #endregion

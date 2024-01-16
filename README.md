@@ -10,6 +10,7 @@ Features:
 5. English and Turkish languages support.
 6. Displaying a money decimal value into text format (Only supported in Turkish for now).
 7. Checking intersections in a list of date time for start and end date time values.
+8. Built-in simple account managing with users and roles.
 
 ASP.NET Core MVC Features:
 1. Excel export support.

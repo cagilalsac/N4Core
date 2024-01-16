@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace N4Core.Repositories.EntityFramework.Bases
 {
-    public abstract class RepoBase<TEntity> : IRepoBase<TEntity> where TEntity : RecordBase, new()
+    public abstract class RepoBase<TEntity> : IRepoBase<TEntity> where TEntity : Record, new()
     {
         protected readonly DbContext _db;
 

@@ -18,15 +18,15 @@ namespace N4Core.Messages
 
         public ServiceMessages(Language language = Language.English) : base(language)
         {
-            AddedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla eklendi." : language == Language.English ? "Record added successfuly." : "";
-            UpdatedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla güncellendi." : language == Language.English ? "Record updated successfuly." : "";
-            DeletedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla silindi." : language == Language.English ? "Record deleted successfuly." : "";
-            OperationFailed = language == Language.Türkçe ? "İşlem gerçekleştirilemedi!" : language == Language.English ? "Operation failed!" : "";
-            InvalidFileExtensionOrFileLength = language == Language.Türkçe ? "Geçersiz dosya uzantısı veya boyutu!" : language == Language.English ? "Invalid file extension or length!" : "";
-            RelatedRecordsFound = language == Language.Türkçe ? "İlişkili kayıtlar bulundu." : language == Language.English ? "Related records found." : "";
-            RelatedRecordsDeletedSuccessfully = language == Language.Türkçe ? "İlişkili kayıtlar başarıyla silindi." : language == Language.English ? "Related records deleted successfully." : "";
-            FileOperationsNotConfigured = language == Language.Türkçe ? "Dosya işlemleri konfigüre edilmemiştir!" : language == Language.English ? "File operations is not configured!" : "";
-            Report = language == Language.Türkçe ? "Rapor" : language == Language.English ? "Report" : "";
+            AddedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla eklendi." : "Record added successfuly.";
+            UpdatedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla güncellendi." : "Record updated successfuly.";
+            DeletedSuccessfuly = language == Language.Türkçe ? "Kayıt başarıyla silindi." : "Record deleted successfuly.";
+            OperationFailed = language == Language.Türkçe ? "İşlem gerçekleştirilemedi!" : "Operation failed!";
+            InvalidFileExtensionOrFileLength = language == Language.Türkçe ? "Geçersiz dosya uzantısı veya boyutu!" : "Invalid file extension or length!";
+            RelatedRecordsFound = language == Language.Türkçe ? "İlişkili kayıtlar bulundu." : "Related records found.";
+            RelatedRecordsDeletedSuccessfully = language == Language.Türkçe ? "İlişkili kayıtlar başarıyla silindi." : "Related records deleted successfully.";
+            FileOperationsNotConfigured = language == Language.Türkçe ? "Dosya işlemleri konfigüre edilmemiştir!" : "File operations is not configured!";
+            Report = language == Language.Türkçe ? "Rapor" : "Report";
         }
     }
 }

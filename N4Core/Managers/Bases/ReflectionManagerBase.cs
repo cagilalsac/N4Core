@@ -194,7 +194,7 @@ namespace N4Core.Managers.Bases
             reflectionRecordModel.UpdateDate = GetReflectionPropertyModelProperties<T>()?.FirstOrDefault(pm => pm.Name == property?.Name)?.Name;
             property = GetReflectionPropertyModelProperties<IModifiedBy>()?[3];
             reflectionRecordModel.UpdatedBy = GetReflectionPropertyModelProperties<T>()?.FirstOrDefault(pm => pm.Name == property?.Name)?.Name;
-            reflectionRecordModel.Guid = GetReflectionPropertyModelProperties<RecordBase>()?[1]?.Name;
+            reflectionRecordModel.Guid = GetReflectionPropertyModelProperties<Record>()?[1]?.Name;
             property = GetReflectionPropertyModelProperties<IRecordFile>()?[1];
             reflectionRecordModel.FileData = GetReflectionPropertyModelProperties<T>()?.FirstOrDefault(pm => pm.Name == property?.Name)?.Name;
             property = GetReflectionPropertyModelProperties<IRecordFile>()?[2];

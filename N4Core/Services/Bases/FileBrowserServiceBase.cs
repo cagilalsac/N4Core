@@ -53,16 +53,16 @@ namespace N4Core.Services.Bases
 
         protected readonly SessionManagerBase _sessionManager;
 
-        public FileBrowserServiceBaseConfig Config { get; private set; }
+        public FileBrowserServiceConfig Config { get; private set; }
 
         protected FileBrowserServiceBase(SessionManagerBase sessionManager)
         {
             _sessionManager = sessionManager;
-            Config = new FileBrowserServiceBaseConfig();
+            Config = new FileBrowserServiceConfig();
             _routePath = Config.Path;
         }
 
-        public void Set(Action<FileBrowserServiceBaseConfig> config)
+        public void Set(Action<FileBrowserServiceConfig> config)
         {
             config.Invoke(Config);
             _routePath = Config.Path;

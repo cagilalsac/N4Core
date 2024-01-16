@@ -9,7 +9,7 @@ namespace N4Core.Models
     public class ViewModel
     {
         public Language Language { get; private set; }
-        public RecordMessages RecordMessages { get; private set; }
+        public RecordMessages Messages { get; private set; }
         public ViewTexts ViewTexts { get; private set; }
 
         public bool PageOrderFilter { get; set; }
@@ -18,13 +18,13 @@ namespace N4Core.Models
         {
             get
             {
-                if (RecordMessages is null)
+                if (Messages is null)
                 {
                     return TotalRecordsCount.ToString();
                 }
-                return TotalRecordsCount == 0 ? RecordMessages.RecordNotFound
-                    : TotalRecordsCount == 1 ? (TotalRecordsCount + " " + RecordMessages.RecordFound).ToLower()
-                    : (TotalRecordsCount + " " + RecordMessages.RecordsFound).ToLower();
+                return TotalRecordsCount == 0 ? Messages.RecordNotFound
+                    : TotalRecordsCount == 1 ? (TotalRecordsCount + " " + Messages.RecordFound).ToLower()
+                    : (TotalRecordsCount + " " + Messages.RecordsFound).ToLower();
             }
         }
         public List<string> RecordsPerPageCounts { get; }
@@ -62,9 +62,9 @@ namespace N4Core.Models
         public ViewModel(Language language = Language.English)
         {
             Language = language;
-            RecordMessages = new ServiceMessages(Language);
+            Messages = new RecordMessages(Language);
             ViewTexts = new ViewTexts(Language);
-            RecordsPerPageCounts = new List<string>() { "5", "10", "25", "50", "100", RecordMessages.AllRecords };
+            RecordsPerPageCounts = new List<string>() { "5", "10", "25", "50", "100", Messages.AllRecords };
         }
     }
 }

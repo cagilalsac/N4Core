@@ -2,7 +2,7 @@
 
 namespace N4Core.Services.Bases
 {
-    public interface IServiceBaseBase<TModel, TEntity> : IService<TModel> where TModel : RecordBase, new() where TEntity : RecordBase, new()
+    public interface IServiceBaseBase<TModel, TEntity> : IService<TModel> where TModel : Record, new() where TEntity : Record, new()
 	{
     }
 }

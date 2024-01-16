@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Http;
 using N4Core.Configurations;
+using N4Core.Enums;
 using N4Core.Managers.Bases;
 using N4Core.Utilities;
 using OfficeOpenXml;
@@ -57,7 +58,7 @@ namespace N4Core.Services.Bases
 					}
                     ExcelPackage.LicenseContext = Config.IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();
-                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Config.Language == Language.English ? "Sheet1" : "Sayfa1");
                     excelWorksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
                     excelWorksheet.Cells["A:AZ"].AutoFitColumns();
                     data = excelPackage.GetAsByteArray();

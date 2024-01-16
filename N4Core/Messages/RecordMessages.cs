@@ -15,10 +15,10 @@ namespace N4Core.Messages
 		public RecordMessages(Language language = Language.English)
 		{
 			Language = language;
-			RecordFound = Language == Language.Türkçe ? "kayıt bulundu." : Language == Language.English ? "record found." : "";
-			RecordsFound = Language == Language.Türkçe ? "kayıt bulundu." : Language == Language.English ? "records found." : "";
-			RecordNotFound = Language == Language.Türkçe ? "Kayıt bulunamadı!" : Language == Language.English ? "Record not found!" : "";
-			AllRecords = Language == Language.Türkçe ? "Tümü" : Language == Language.English ? "All" : "";
+			RecordFound = Language == Language.Türkçe ? "kayıt bulundu." : "record found.";
+			RecordsFound = Language == Language.Türkçe ? "kayıt bulundu." : "records found.";
+			RecordNotFound = Language == Language.Türkçe ? "Kayıt bulunamadı!" : "Record not found!";
+			AllRecords = Language == Language.Türkçe ? "Tümü" : "All";
 		}
 	}
 }

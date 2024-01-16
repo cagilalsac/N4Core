@@ -2,7 +2,9 @@
 
 using Microsoft.AspNetCore.Mvc;
 using N4Core.Controllers.Bases;
+using N4Core.Enums;
 using N4Core.Managers.Bases;
+using N4Core.Models;
 using N4Core.Services.Bases;
 
 namespace N4Core.Controllers
@@ -20,8 +22,10 @@ namespace N4Core.Controllers
         {
             var viewModel = _fileBrowserService.GetContents(path);
             if (viewModel is null)
-                return BadRequest();
-            return Json(viewModel);
+                return View("Error", new ErrorModel(_cultureManager.GetLanguage()));
+            if (viewModel.FileType == FileType.Other)
+                return File(viewModel.FileBinaryContent, viewModel.FileContentType, viewModel.Title);
+            return View(viewModel);
         }
     }
 }

@@ -30,33 +30,39 @@ namespace N4Core.Texts
         public string RecordsPerPageCount { get; set; }
         public string OrderExpression { get; set; }
         public string OrderDirectionDescending { get; set; }
+        public string Login { get; set; }
+        public string Logout { get; set; }
+        public string Register { get; set; }
 
         public ViewTexts(Language language = Language.English)
         {
             Language = language;
-            List = Language == Language.English ? "List" : Language == Language.Türkçe ? "Liste" : "";
-            Create = Language == Language.English ? "New" : Language == Language.Türkçe ? "Yeni" : "";
-            Save = Language == Language.English ? "Save" : Language == Language.Türkçe ? "Kaydet" : "";
-            Clear = Language == Language.English ? "Clear" : Language == Language.Türkçe ? "Temizle" : "";
-            BackToList = Language == Language.English ? "Back to List" : Language == Language.Türkçe ? "Listeye Dön" : "";
-            Details = Language == Language.English ? "Details" : Language == Language.Türkçe ? "Detay" : "";
-            Edit = Language == Language.English ? "Edit" : Language == Language.Türkçe ? "Düzenle" : "";
-            Delete = Language == Language.English ? "Delete" : Language == Language.Türkçe ? "Sil" : "";
-            DeleteYes = Language == Language.English ? "Yes" : Language == Language.Türkçe ? "Evet" : "";
-            DeleteNo = Language == Language.English ? "No" : Language == Language.Türkçe ? "Hayır" : "";
-            DeleteFile = Language == Language.English ? "Delete File" : Language == Language.Türkçe ? "Dosyayı Sil" : "";
-            DeleteQuestion = Language == Language.English ? "Are you sure you want to delete this record?" : Language == Language.Türkçe ? "Bu kaydı silmek istediğinize emin misiniz?" : "";
-            Export = Language == Language.English ? "Export to Excel" : Language == Language.Türkçe ? "Excel'e Aktar" : "";
-            Select = Language == Language.English ? "Select" : Language == Language.Türkçe ? "Seçiniz" : "";
-            DownloadFile = Language == Language.English ? "Download File" : Language == Language.Türkçe ? "Dosyayı İndir" : "";
-            Warning = Language == Language.English ? "Warning!" : Language == Language.Türkçe ? "Uyarı!" : "";
-            Error = Language == Language.English ? "Error!" : Language == Language.Türkçe ? "Hata!" : "";
-            Filter = Language == Language.English ? "Filter" : Language == Language.Türkçe ? "Filtre" : "";
-            Search = Language == Language.English ? "Search" : Language == Language.Türkçe ? "Ara" : "";
-            PageNumber = Language == Language.English ? "Page" : Language == Language.Türkçe ? "Sayfa" : "";
-            RecordsPerPageCount = Language == Language.English ? "Record Count" : Language == Language.Türkçe ? "Kayıt Sayısı" : "";
-            OrderExpression = Language == Language.English ? "Order" : Language == Language.Türkçe ? "Sıra" : "";
-            OrderDirectionDescending = Language == Language.English ? "Descending" : Language == Language.Türkçe ? "Azalan" : "";
+            List = Language == Language.English ? "List" : "Liste";
+            Create = Language == Language.English ? "New" : "Yeni";
+            Save = Language == Language.English ? "Save" : "Kaydet";
+            Clear = Language == Language.English ? "Clear" : "Temizle";
+            BackToList = Language == Language.English ? "Back to List" : "Listeye Dön";
+            Details = Language == Language.English ? "Details" : "Detay";
+            Edit = Language == Language.English ? "Edit" : "Düzenle";
+            Delete = Language == Language.English ? "Delete" : "Sil";
+            DeleteYes = Language == Language.English ? "Yes" : "Evet";
+            DeleteNo = Language == Language.English ? "No" : "Hayır";
+            DeleteFile = Language == Language.English ? "Delete File" : "Dosyayı Sil";
+            DeleteQuestion = Language == Language.English ? "Are you sure you want to delete this record?" : "Bu kaydı silmek istediğinize emin misiniz?";
+            Export = Language == Language.English ? "Export to Excel" : "Excel'e Aktar";
+            Select = Language == Language.English ? "Select" : "Seçiniz";
+            DownloadFile = Language == Language.English ? "Download File" : "Dosyayı İndir";
+            Warning = Language == Language.English ? "Warning!" : "Uyarı!";
+            Error = Language == Language.English ? "Error!" : "Hata!";
+            Filter = Language == Language.English ? "Filter" : "Filtre";
+            Search = Language == Language.English ? "Search" : "Ara";
+            PageNumber = Language == Language.English ? "Page" : "Sayfa";
+            RecordsPerPageCount = Language == Language.English ? "Record Count" : "Kayıt Sayısı";
+            OrderExpression = Language == Language.English ? "Order" : "Sıra";
+            OrderDirectionDescending = Language == Language.English ? "Descending" : "Azalan";
+            Login = Language == Language.English ? "Log in" : "Giriş";
+            Logout = Language == Language.English ? "Log out" : "Çıkış";
+            Register = Language == Language.English ? "Register" : "Kayıt";
         }
     }
 }

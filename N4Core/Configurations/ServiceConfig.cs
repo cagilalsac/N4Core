@@ -6,7 +6,7 @@ using N4Core.Enums;
 
 namespace N4Core.Configurations
 {
-    public class ServiceBaseConfig : DirectoryConfigBase
+    public class ServiceConfig : DirectoryConfigBase
 	{
         public bool NoTracking { get; set; } = true;
         public MapperConfiguration MapperConfiguration { get; set; } = null!;

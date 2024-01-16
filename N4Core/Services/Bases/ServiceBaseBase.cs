@@ -12,11 +12,10 @@ using N4Core.Records.Bases;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results;
 using N4Core.Results.Bases;
-using N4Core.Texts;
 
 namespace N4Core.Services.Bases
 {
-    public abstract class ServiceBaseBase<TModel, TEntity> : IServiceBaseBase<TModel, TEntity> where TModel : RecordBase, new() where TEntity : RecordBase, new()
+    public abstract class ServiceBaseBase<TModel, TEntity> : IServiceBaseBase<TModel, TEntity> where TModel : Record, new() where TEntity : Record, new()
     {
         protected readonly RepoBase<TEntity> _repo;
         protected readonly CultureManagerBase _cultureManager;
@@ -31,15 +30,14 @@ namespace N4Core.Services.Bases
         protected List<ReflectionPropertyModel> _reflectionFilteringProperties;
 
         public ViewModel ViewModel { get; private set; }
-        public ViewTexts ViewTexts { get; private set; }
-        public ServiceMessages ServiceMessages { get; private set; }
-        public ServiceBaseConfig Config { get; private set; }
+        public ServiceMessages Messages { get; private set; }
+        public ServiceConfig Config { get; private set; }
 
         protected ServiceBaseBase(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, 
             CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
             AccountManagerBase accountManager, RecordFileServiceBase recordFileService)
         {
-            Config = new ServiceBaseConfig()
+            Config = new ServiceConfig()
             {
                 MapperConfiguration = new MapperConfiguration(c =>
                 {
@@ -70,13 +68,12 @@ namespace N4Core.Services.Bases
             _cultureManager = cultureManager;
         }
 
-        public void Set(Action<ServiceBaseConfig> config)
+        public void Set(Action<ServiceConfig> config)
         {
             config.Invoke(Config);
             _mapper = new Mapper(Config.MapperConfiguration);
             Config.Language = _cultureManager.GetLanguage();
-            ViewTexts = new ViewTexts(Config.Language);
-            ServiceMessages = new ServiceMessages(Config.Language);
+            Messages = new ServiceMessages(Config.Language);
             ViewModel = new ViewModel(Config.Language)
             {
                 PageOrderFilter = Config.PageOrderFilter,
@@ -94,9 +91,9 @@ namespace N4Core.Services.Bases
         }
 
         public abstract IQueryable<TModel> Query();
-        public abstract ResultBase Add(TModel model);
-        public abstract ResultBase Update(TModel model);
-        public abstract ResultBase Delete(params int[] ids);
+        public abstract Result Add(TModel model);
+        public abstract Result Update(TModel model);
+        public abstract Result Delete(params int[] ids);
 
         public virtual RecordFileToDownloadModel DownloadFile(int id, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false)
         {

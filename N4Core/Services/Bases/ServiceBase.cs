@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
-    public abstract class ServiceBase<TModel, TEntity> : ServiceBaseBase<TModel, TEntity> where TModel : RecordBase, new() where TEntity : RecordBase, new()
+    public abstract class ServiceBase<TModel, TEntity> : ServiceBaseBase<TModel, TEntity> where TModel : Record, new() where TEntity : Record, new()
     {
         protected ServiceBase(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, 
             CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
@@ -144,10 +144,10 @@ namespace N4Core.Services.Bases
             return item;
         }
 
-        public virtual ResultBase ItemExists(Expression<Func<TModel, bool>> predicate)
+        public virtual Result ItemExists(Expression<Func<TModel, bool>> predicate)
         {
             bool exists = Query().Any(predicate);
-            return exists ? Success(ServiceMessages.RecordFound) : Error(ServiceMessages.RecordNotFound);
+            return exists ? Success(Messages.RecordFound) : Error(Messages.RecordNotFound);
         }
 
         public virtual int GetMaxId()
@@ -155,7 +155,7 @@ namespace N4Core.Services.Bases
             return Query().Max(q => q.Id);
         }
 
-        public override ResultBase Add(TModel model)
+        public override Result Add(TModel model)
         {
             IRecordFileModel recordFileModel = null;
             IRecordFile recordFile = null;
@@ -164,7 +164,7 @@ namespace N4Core.Services.Bases
             {
                 recordFileModel = model as IRecordFileModel;
                 if (CheckFile(recordFileModel.FormFileInput) == false)
-                    return Error(ServiceMessages.InvalidFileExtensionOrFileLength);
+                    return Error(Messages.InvalidFileExtensionOrFileLength);
                 recordFile = entity as IRecordFile;
                 _recordFileService.UpdateRecordFile(recordFileModel.FormFileInput, recordFile);
             }
@@ -175,10 +175,10 @@ namespace N4Core.Services.Bases
             {
                 UploadFile(recordFileModel.FormFileInput, recordFile);
             }
-            return Success(ServiceMessages.AddedSuccessfuly);
+            return Success(Messages.AddedSuccessfuly);
         }
 
-        public override ResultBase Update(TModel model)
+        public override Result Update(TModel model)
         {
             IRecordFileModel recordFileModel = null;
             IRecordFile recordFile = null;
@@ -188,7 +188,7 @@ namespace N4Core.Services.Bases
             {
                 recordFileModel = model as IRecordFileModel;
                 if (CheckFile(recordFileModel.FormFileInput) == false)
-                    return Error(ServiceMessages.InvalidFileExtensionOrFileLength);
+                    return Error(Messages.InvalidFileExtensionOrFileLength);
                 recordFile = entity as IRecordFile;
                 _recordFileService.UpdateRecordFile(recordFileModel.FormFileInput, recordFile);
             }
@@ -197,14 +197,14 @@ namespace N4Core.Services.Bases
             {
                 UploadFile(recordFileModel.FormFileInput, recordFile);
             }
-            return Success(ServiceMessages.UpdatedSuccessfuly);
+            return Success(Messages.UpdatedSuccessfuly);
         }
 
-        public override ResultBase Delete(params int[] ids)
+        public override Result Delete(params int[] ids)
         {
             _repo.Delete(e => ids.Contains(e.Id));
             DeleteFiles(ids);
-            return Success(ServiceMessages.DeletedSuccessfuly);
+            return Success(Messages.DeletedSuccessfuly);
         }
     }
 }

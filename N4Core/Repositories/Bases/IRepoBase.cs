@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace N4Core.Repositories.Bases
 {
-    public interface IRepoBase<TEntity> : IDisposable where TEntity : RecordBase, new()
+    public interface IRepoBase<TEntity> : IDisposable where TEntity : Record, new()
 	{
 		int Save();
 		IQueryable<TEntity> Query(bool isNoTracking = false);

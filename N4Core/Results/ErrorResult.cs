@@ -4,7 +4,7 @@ using N4Core.Results.Bases;
 
 namespace N4Core.Results
 {
-	public class ErrorResult : ResultBase
+	public class ErrorResult : Result
 	{
 		public ErrorResult(string message) : base(false, message)
 		{
@@ -17,7 +17,7 @@ namespace N4Core.Results
 		}
 	}
 
-	public class ErrorResult<TResultType> : ResultBase<TResultType>
+	public class ErrorResult<TResultType> : Result<TResultType>
 	{
 		public ErrorResult(string message, TResultType data) : base(false, message, data)
 		{

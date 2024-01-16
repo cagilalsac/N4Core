@@ -33,7 +33,19 @@ namespace N4Core.TagHelpers.Bases
                 }
                 else
                 {
-                    if (value.GetCount(BEGIN) == 2 && value.GetCount(END) == 2 && value.GetCount(SEPERATOR) == 3)
+                    if (value.GetCount(BEGIN) == 0 && value.GetCount(END) == 0 && value.GetCount(SEPERATOR) == 1)
+                    {
+                        valueParts = value.Split(SEPERATOR);
+                        if (language == Language.Türkçe)
+                        {
+                            result = valueParts.Last();
+                        }
+                        else
+                        {
+                            result = valueParts.First();
+                        }
+                    }
+                    else if (value.GetCount(BEGIN) == 2 && value.GetCount(END) == 2 && value.GetCount(SEPERATOR) == 3)
                     {
                         displayName = value.Substring(value.IndexOf('{'), value.IndexOf('}') + 1);
                         value = value.Replace(displayName, GetDisplayName(displayName, language));
