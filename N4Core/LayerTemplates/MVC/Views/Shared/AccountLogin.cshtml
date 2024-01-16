@@ -53,7 +53,18 @@
                 <div class="row mb-3">
                     <displayname asp-for="Password" asp-language="@viewModel.Language" class="col-2 col-form-label fw-bold"></displayname>
 				    <div class="col-10">
-					    <input asp-for="Password" class="form-control" type="password" />
+						<table style="width: 100%;">
+							<tr>
+								<td style="width: 95%;">
+									<input asp-for="Password" class="form-control password" type="password" />
+								</td>
+								<td class="text-end">
+									<a href="#" onclick="showHidePassword();" data-bs-toggle="tooltip" title="@viewModel.ViewTexts.ShowHidePassword">
+										<i class="bi bi-eye" style="font-size:x-large;"></i>
+									</a>
+								</td>
+							</tr>
+						</table>
 					    <validation asp-for="Password" asp-language="@viewModel.Language" class="text-danger"></validation>
 				    </div>
                 </div>
@@ -67,3 +78,5 @@
         </div>
     </div>
 </div>
+
+<partial name="_PasswordScript" />

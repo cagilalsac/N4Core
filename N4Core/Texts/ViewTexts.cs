@@ -33,6 +33,7 @@ namespace N4Core.Texts
         public string Login { get; set; }
         public string Logout { get; set; }
         public string Register { get; set; }
+        public string ShowHidePassword { get; set; }
 
         public ViewTexts(Language language = Language.English)
         {
@@ -63,6 +64,7 @@ namespace N4Core.Texts
             Login = Language == Language.English ? "Log in" : "Giriş";
             Logout = Language == Language.English ? "Log out" : "Çıkış";
             Register = Language == Language.English ? "Register" : "Kayıt";
-        }
+            ShowHidePassword = Language == Language.English ? "Show / Hide Password" : "Şifre Göster / Gizle";
+		}
     }
 }

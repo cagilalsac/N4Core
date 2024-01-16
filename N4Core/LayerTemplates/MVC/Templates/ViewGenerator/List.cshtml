@@ -324,6 +324,7 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
             var menuLinkText = localStorage.getItem("menulinktext");
             if (menuLinkText != null) {
                 $("#menulinktitle").text(menuLinkText);
+                $(document).prop("title", menuLinkText);
             }
         });
     </script>
