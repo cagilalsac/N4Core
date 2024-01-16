@@ -38,6 +38,7 @@
     <None Remove="LayerTemplates\MVC\Views\Shared\_PageOrderFilter.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_PasswordScript.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_Select2.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_ValidationScriptsPartial.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\_ViewImports.cshtml" />
   </ItemGroup>
 
@@ -147,6 +148,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="LayerTemplates\MVC\Views\Shared\_Select2.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_ValidationScriptsPartial.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
