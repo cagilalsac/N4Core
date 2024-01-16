@@ -11,14 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\AccessDenied.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Login.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Logout.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\Register.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\Account\_ViewImports.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ViewImports.cshtml" />
-    <None Remove="LayerTemplates\MVC\Areas\Identity\Pages\_ViewStart.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithActions.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithContext.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ControllerGenerator\ApiEmptyController.cshtml" />
@@ -32,7 +24,10 @@
     <None Remove="LayerTemplates\MVC\Templates\ViewGenerator\Empty.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ViewGenerator\List.cshtml" />
     <None Remove="LayerTemplates\MVC\Templates\ViewGenerator\_ValidationScriptsPartial.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\AccountLogin.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\AccountRegister.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\Error.cshtml" />
+    <None Remove="LayerTemplates\MVC\Views\Shared\_AccountLoginPartial.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_AlertifyJS.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_DateTimePicker.cshtml" />
     <None Remove="LayerTemplates\MVC\Views\Shared\_Language.cshtml" />
@@ -46,38 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\AccessDenied.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Login.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Logout.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\Register.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\Account\_ViewImports.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ViewImports.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="LayerTemplates\MVC\Areas\Identity\Pages\_ViewStart.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Include="LayerTemplates\MVC\Templates\ControllerGenerator\ApiControllerWithActions.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -130,7 +93,19 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\AccountLogin.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\AccountRegister.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="LayerTemplates\MVC\Views\Shared\Error.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="LayerTemplates\MVC\Views\Shared\_AccountLoginPartial.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

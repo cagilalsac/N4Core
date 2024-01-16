@@ -36,7 +36,14 @@
                     </ul>
                     <partial name="_Language" />
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <partial name="_LoginPartial" />
+                    @if (AppSettings.UseIdentity)
+                    {
+                        <partial name="_LoginPartial" />
+                    }
+                    else 
+                    {
+                        <partial name="_AccountLoginPartial" />
+                    }
                 </div>
             </div>
         </nav>

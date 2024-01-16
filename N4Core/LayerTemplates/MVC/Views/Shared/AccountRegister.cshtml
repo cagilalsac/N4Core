@@ -1,0 +1,76 @@
+﻿@model AccountRegisterModel
+    
+@{
+    ViewModel viewModel = ViewBag.ViewModel as ViewModel;
+    ViewData["Title"] = @viewModel.ViewTexts.Register;
+}
+
+<div class="container">
+    @{
+        <h3 class="text-light bg-primary p-2"><i class="bi bi-person-add"></i> @ViewData["Title"]</h3>
+
+	string message;
+	string color;
+
+@if (ViewBag.Message != null)
+{
+	message = ViewBag.Message.ToString();
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@message
+	</p>
+}
+@if (TempData["Message"] != null)
+{
+	message = TempData["Message"].ToString();
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@message
+	</p>
+}
+        <hr />
+    }
+    <div class="row">
+        <div class="col-12">
+            <form asp-action="AccountRegister">
+		        @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row mb-3">
+                    <displayname asp-for="UserName" asp-language="@viewModel.Language" class="col-2 col-form-label fw-bold"></displayname>
+				    <div class="col-10">
+					    <input asp-for="UserName" class="form-control" />
+					    <validation asp-for="UserName" asp-language="@viewModel.Language" class="text-danger"></validation>
+				    </div>
+                </div>
+                <div class="row mb-3">
+                    <displayname asp-for="Password" asp-language="@viewModel.Language" class="col-2 col-form-label fw-bold"></displayname>
+				    <div class="col-10">
+					    <input asp-for="Password" class="form-control" type="password" />
+					    <validation asp-for="Password" asp-language="@viewModel.Language" class="text-danger"></validation>
+				    </div>
+                </div>
+                <div class="row mb-3">
+                    <displayname asp-for="ConfirmPassword" asp-language="@viewModel.Language" class="col-2 col-form-label fw-bold"></displayname>
+                    <div class="col-10">
+                        <input asp-for="ConfirmPassword" class="form-control" type="password" />
+                        <validation asp-for="ConfirmPassword" asp-language="@viewModel.Language" class="text-danger"></validation>
+                    </div>
+                </div>
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div class="row mb-3">
+                    <div class="offset-2 col-10">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-square"></i> @viewModel.ViewTexts.Register</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

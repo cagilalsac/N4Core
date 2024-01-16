@@ -10,6 +10,6 @@
     var languageSelectList = new Language().ToSelectList(language);
 }
 
-<form asp-area="" asp-action="Set" asp-controller="Language" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">
+<form asp-area="" asp-action="Index" asp-controller="Language" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">
     <select name="language" class="form-select" onchange="this.form.submit();" asp-items="languageSelectList"></select>
 </form>
