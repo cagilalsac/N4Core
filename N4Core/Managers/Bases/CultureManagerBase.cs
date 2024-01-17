@@ -13,15 +13,15 @@ namespace N4Core.Managers.Bases
             new CultureInfo("tr-TR")
         };
 
-        public virtual Language GetLanguage()
+        public virtual Languages GetLanguage()
         {
             var currentCulture = Thread.CurrentThread.CurrentCulture;
-            return currentCulture.Name == _cultures[0].Name ? Language.English : Language.Türkçe;
+            return currentCulture.Name == _cultures[0].Name ? Languages.English : Languages.Türkçe;
         }
 
         public virtual CultureInfo GetCulture(string language)
         {
-            return string.IsNullOrWhiteSpace(language) || language == ((int)Language.English).ToString() ? _cultures[0] : _cultures[1];
+            return string.IsNullOrWhiteSpace(language) || language == ((int)Languages.English).ToString() ? _cultures[0] : _cultures[1];
         }
     }
 }

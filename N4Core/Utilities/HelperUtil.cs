@@ -5,7 +5,7 @@ namespace N4Core.Utilities
 {
     public static class HelperUtil
     {
-        public static string GetDisplayName(string value, char begin, char end, char seperator, Language language)
+        public static string GetDisplayName(string value, char begin, char end, char seperator, Languages language)
         {
             string result = string.Empty;
             string[] valueParts;
@@ -16,7 +16,7 @@ namespace N4Core.Utilities
                 {
                     value = value.Substring(1, value.Length - 2);
                     valueParts = value.Split(seperator);
-                    if (language == Language.Türkçe)
+                    if (language == Languages.Türkçe)
                         result = valueParts.Last();
                     else
                         result = valueParts.First();

@@ -59,7 +59,7 @@ namespace N4Core.Services.Bases
                 UserName = user.UserName.Trim(),
                 Password = user.Password.Trim(),
                 IsActive = true,
-                RoleId = (int)Role.User
+                RoleId = (int)Roles.User
             };
             _userRepo.Add(entity);
             return new SuccessResult(Messages.UserRegistered);

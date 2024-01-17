@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Enums
 {
-    public enum FileType
+    public enum FileTypes
     {
         None,
         Text,

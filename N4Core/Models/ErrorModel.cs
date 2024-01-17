@@ -9,15 +9,15 @@ namespace N4Core.Models
         public string Title { get; set; }
         public string Message { get; set; }
 
-        public ErrorModel(Language language = Language.English)
+        public ErrorModel(Languages language = Languages.English)
         {
-            Title = language == Language.English ? "Error!" : "Hata!";
-            Message = language == Language.English ? "An error occurred while processing your request!" : "İşlem sırasında hata meydana geldi!";
+            Title = language == Languages.English ? "Error!" : "Hata!";
+            Message = language == Languages.English ? "An error occurred while processing your request!" : "İşlem sırasında hata meydana geldi!";
         }
 
-        public ErrorModel(string message, Language language = Language.English)
+        public ErrorModel(string message, Languages language = Languages.English)
         {
-            Title = language == Language.English ? "Error!" : "Hata!";
+            Title = language == Languages.English ? "Error!" : "Hata!";
             Message = message;
         }
 

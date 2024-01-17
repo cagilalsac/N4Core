@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Configurations.Bases
 {
-    public abstract class DirectoryConfigBase
+    public abstract class DirectoryConfig
     {
         public List<string> Directories { get; set; } = new List<string>() { "files" };
 

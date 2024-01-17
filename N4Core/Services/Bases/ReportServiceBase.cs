@@ -58,7 +58,7 @@ namespace N4Core.Services.Bases
 					}
                     ExcelPackage.LicenseContext = Config.IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();
-                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Config.Language == Language.English ? "Sheet1" : "Sayfa1");
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Config.Language == Languages.English ? "Sheet1" : "Sayfa1");
                     excelWorksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
                     excelWorksheet.Cells["A:AZ"].AutoFitColumns();
                     data = excelPackage.GetAsByteArray();

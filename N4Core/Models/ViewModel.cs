@@ -8,7 +8,7 @@ namespace N4Core.Models
 {
     public class ViewModel
     {
-        public Language Language { get; private set; }
+        public Languages Language { get; private set; }
         public RecordMessages Messages { get; private set; }
         public ViewTexts ViewTexts { get; private set; }
 
@@ -59,7 +59,7 @@ namespace N4Core.Models
         public bool ExportOperation { get; set; }
         public bool TimePicker { get; set; }
 
-        public ViewModel(Language language = Language.English)
+        public ViewModel(Languages language = Languages.English)
         {
             Language = language;
             Messages = new RecordMessages(Language);

@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Enums
 {
-	public enum TagAttribute
+	public enum TagAttributes
 	{
 		None,
 		Order,

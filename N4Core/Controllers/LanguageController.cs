@@ -18,7 +18,7 @@ namespace N4Core.Controllers
 
         public virtual IActionResult Index(int language, string returnUrl = null)
         {
-            _cookieManager.SetCookie(nameof(Language), language.ToString());
+            _cookieManager.SetCookie(nameof(Languages), language.ToString());
             if (returnUrl is null)
                 return Redirect(MvcRouteUtil.GetHomeRoute());
             return Redirect(returnUrl);

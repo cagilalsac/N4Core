@@ -10,7 +10,7 @@ namespace N4Core.Models
         public string Title { get; set; }
         public string FileContent { get; set; }
         public byte[] FileBinaryContent { get; set; }
-        public FileType FileType { get; set; }
+        public FileTypes FileType { get; set; }
         public string FileContentType { get; set; }
         public string HierarchicalDirectoryLinks { get; set; }
     }

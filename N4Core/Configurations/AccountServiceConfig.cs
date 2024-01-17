@@ -6,7 +6,7 @@ namespace N4Core.Configurations
 {
     public class AccountServiceConfig
     {
-        public Language Language { get; set; }
+        public Languages Language { get; set; }
         public string AuthenticationScheme { get; set; }
     }
 }

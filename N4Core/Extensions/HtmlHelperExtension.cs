@@ -12,7 +12,7 @@ namespace N4Core.Extensions
     public static class HtmlHelperExtension
     {
         public static IHtmlContent DisplayNameFor<TModel, TResult>(this IHtmlHelper<TModel> helper,
-            Expression<Func<TModel, TResult>> expression, Language language = Language.English)
+            Expression<Func<TModel, TResult>> expression, Languages language = Languages.English)
         {
             ModelExpressionProvider modelExpressionProvider = (ModelExpressionProvider)helper.ViewContext.HttpContext.RequestServices
                 .GetService(typeof(ModelExpressionProvider));

@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Enums
 {
-    public enum Role
+    public enum Roles
     {
         System = 0,
         Admin = 1,

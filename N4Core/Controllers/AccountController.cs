@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace N4Core.Controllers
 {
-    public class AccountController : MvcControllerBase
+    public class AccountController : MvcController
     {
         protected readonly AccountServiceBase _accountService;
 

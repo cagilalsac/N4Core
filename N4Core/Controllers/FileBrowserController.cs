@@ -9,7 +9,7 @@ using N4Core.Services.Bases;
 
 namespace N4Core.Controllers
 {
-    public class FileBrowserController : MvcControllerBase
+    public class FileBrowserController : MvcController
     {
         protected readonly FileBrowserServiceBase _fileBrowserService;
 
@@ -23,7 +23,7 @@ namespace N4Core.Controllers
             var viewModel = _fileBrowserService.GetContents(path);
             if (viewModel is null)
                 return View("Error", new ErrorModel(_cultureManager.GetLanguage()));
-            if (viewModel.FileType == FileType.Other)
+            if (viewModel.FileType == FileTypes.Other)
                 return File(viewModel.FileBinaryContent, viewModel.FileContentType, viewModel.Title);
             return View(viewModel);
         }

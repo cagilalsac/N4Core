@@ -7,9 +7,9 @@ namespace N4Core.Extensions
         /// <summary>
         /// Supports to a maximum value of 10 trillion. Automatically rounds decimals to 2 digits. Only supports Turkish (Türkçe) for now.
         /// </summary>
-        public static string ConvertMoneyToString(this double value, Language language = Language.Türkçe, bool adjoint = false)
+        public static string ConvertMoneyToString(this double value, Languages language = Languages.Türkçe, bool adjoint = false)
         {
-            if (language != Language.Türkçe)
+            if (language != Languages.Türkçe)
                 return "";
             if (value > 10000000000000.0)
                 return "";

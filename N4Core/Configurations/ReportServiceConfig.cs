@@ -4,7 +4,7 @@ namespace N4Core.Configurations
 {
     public class ReportServiceConfig
     {
-		public Language Language { get; set; }
+		public Languages Language { get; set; }
 		public bool IsExcelLicenseCommercial { get; set; } = false;
         public bool PageOrderFilter { get; set; } = false;
     }

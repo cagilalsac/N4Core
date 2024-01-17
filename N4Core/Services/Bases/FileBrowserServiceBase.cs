@@ -126,7 +126,7 @@ namespace N4Core.Services.Bases
                 fileBrowserViewModel = new FileBrowserViewModel()
                 {
                     FileContent = content,
-                    FileType = FileType.Text,
+                    FileType = FileTypes.Text,
                     FileContentType = textFiles[extension]
                 };
             }
@@ -135,7 +135,7 @@ namespace N4Core.Services.Bases
                 fileBrowserViewModel = new FileBrowserViewModel()
                 {
                     FileBinaryContent = System.IO.File.ReadAllBytes(path),
-                    FileType = FileType.Image,
+                    FileType = FileTypes.Image,
                     FileContentType = imageFiles[extension]
                 };
                 fileBrowserViewModel.FileContent = "data:" + imageFiles[extension] + ";base64," + Convert.ToBase64String(fileBrowserViewModel.FileBinaryContent);
@@ -145,7 +145,7 @@ namespace N4Core.Services.Bases
                 fileBrowserViewModel = new FileBrowserViewModel()
                 {
                     FileBinaryContent = System.IO.File.ReadAllBytes(path),
-                    FileType = FileType.Other,
+                    FileType = FileTypes.Other,
                     FileContentType = otherFiles[extension]
                 };
                 fileBrowserViewModel.Title = Path.GetFileName(path);

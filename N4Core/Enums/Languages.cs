@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Enums
 {
-	public enum Language
+	public enum Languages
 	{
         English,
         Türkçe

@@ -15,7 +15,7 @@ namespace N4Core.TagHelpers
         public ModelExpression AspFor { get; set; }
 
         [HtmlAttributeName("asp-language")]
-        public Language AspLanguage { get; set; }
+        public Languages AspLanguage { get; set; }
 
         [ViewContext]
         [HtmlAttributeNotBound]

@@ -24,7 +24,7 @@ namespace N4Core.Managers.Bases
             return typeof(T).GetProperty(propertyName);
         }
 
-        public virtual List<ReflectionPropertyModel> GetReflectionPropertyModelProperties<T>(TagAttribute tagAttribute = TagAttribute.None) where T : class
+        public virtual List<ReflectionPropertyModel> GetReflectionPropertyModelProperties<T>(TagAttributes tagAttribute = TagAttributes.None) where T : class
         {
             List<ReflectionPropertyModel> reflectionPropertyModelProperties = null;
             PropertyInfo[] propertyInfoArray = typeof(T).GetProperties();
@@ -35,7 +35,7 @@ namespace N4Core.Managers.Bases
             if (propertyInfoArray != null && propertyInfoArray.Length > 0)
             {
                 reflectionPropertyModelProperties = new List<ReflectionPropertyModel>();
-                if (tagAttribute == TagAttribute.None)
+                if (tagAttribute == TagAttributes.None)
                 {
                     foreach (var propertyInfo in propertyInfoArray)
                     {
@@ -55,14 +55,14 @@ namespace N4Core.Managers.Bases
                         reflectionPropertyModelProperties.Add(new ReflectionPropertyModel(propertyInfo.Name, displayName));
                     }
                 }
-                else if (tagAttribute == TagAttribute.Order || tagAttribute == TagAttribute.StringFilter || tagAttribute == TagAttribute.Export)
+                else if (tagAttribute == TagAttributes.Order || tagAttribute == TagAttributes.StringFilter || tagAttribute == TagAttributes.Export)
                 {
                     switch (tagAttribute)
                     {
-                        case TagAttribute.Order:
+                        case TagAttributes.Order:
                             attributeType = typeof(OrderTagAttribute);
                             break;
-                        case TagAttribute.StringFilter:
+                        case TagAttributes.StringFilter:
                             attributeType = typeof(StringFilterTagAttribute);
                             break;
                         default:
@@ -156,7 +156,7 @@ namespace N4Core.Managers.Bases
             DataTable dataTable = null;
             PropertyInfo propertyInfo;
             object propertyValue;
-            var properties = GetReflectionPropertyModelProperties<T>(TagAttribute.Export);
+            var properties = GetReflectionPropertyModelProperties<T>(TagAttributes.Export);
             var displayNameAttributes = properties.Select(p => p.DisplayName).ToList();
             if (properties != null && displayNameAttributes != null && displayNameAttributes.Count > 0)
             {
