@@ -25,7 +25,10 @@
         <label id="pagenumber">...</label>
     </div>
     <div class="col-1">
-        <select asp-for="PageNumber" class="form-select pagenumber" asp-items="pageNumbers"></select>
+        <div class="input-group">
+            <select asp-for="PageNumber" class="form-select pagenumber" asp-items="pageNumbers"></select>
+            <span class="input-group-text">@(" / " + pageNumbers.Count())</span>
+        </div>
     </div>
     @if (orderExpressions is not null && orderExpressions.Any())
     {
