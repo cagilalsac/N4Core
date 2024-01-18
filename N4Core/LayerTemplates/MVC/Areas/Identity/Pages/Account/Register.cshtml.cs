@@ -115,7 +115,7 @@ namespace N4Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, Role.User.ToString().ToLower());
+                    await _userManager.AddToRoleAsync(user, Roles.User.ToString().ToLower());
 
                     _logger.LogInformation("User created a new account with password.");
 

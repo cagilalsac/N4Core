@@ -7,15 +7,14 @@ Features:
 2. Automatic update of IsDeleted, CreateDate, CreatedBy, UpdateDate and UpdatedBy properties of an entity if they exist.
 3. File upload to the server's disk or binary column of the related entity table in the database with file download.
 4. Optional built-in paging, ordering and filtering structures for lists.
-5. English and Turkish languages support.
+5. Built-in English and Turkish languages support.
 6. Displaying a money decimal value into text format (Only supported in Turkish for now).
 7. Checking intersections in a list of date time for start and end date time values.
 8. Built-in simple account managing with users and roles.
-
-ASP.NET Core MVC Features:
-1. Excel export support.
-2. File explorer to browse text, image or other files under folders and view their contents (for text and image) or download them (for other).
-3. Bootstrap 5 Modal support.
-4. Customized scaffolding for creating controller, controller actions and views using related service and model.
+9. Excel export support.
+10. File explorer to browse text, image or other files under folders and view their contents (for text and image) or download them (for other).
+11. Bootstrap 5 Modal support.
+12. Listing operations support by using a list or cards. 
+13. Customized scaffolding for creating controller, controller actions and views using related service and model.
 
 This framework will be continued to update...

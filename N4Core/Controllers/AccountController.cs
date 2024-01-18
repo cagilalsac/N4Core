@@ -14,7 +14,7 @@ namespace N4Core.Controllers
     {
         protected readonly AccountServiceBase _accountService;
 
-        public AccountController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, AccountServiceBase accountService) : base(cultureManager, cookieManager)
+        public AccountController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager, AccountServiceBase accountService) : base(cultureManager, cookieManager, sessionManager)
         {
             _accountService = accountService;
             _accountService.Set(config =>

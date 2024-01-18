@@ -34,6 +34,9 @@ namespace N4Core.Texts
         public string Logout { get; set; }
         public string Register { get; set; }
         public string ShowHidePassword { get; set; }
+        public string ListView { get; set; }
+        public string ViewList { get; set; }
+        public string ViewCards { get; set; }
 
         public ViewTexts(Languages language = Languages.English)
         {
@@ -65,6 +68,9 @@ namespace N4Core.Texts
             Logout = Language == Languages.English ? "Log out" : "Çıkış";
             Register = Language == Languages.English ? "Register" : "Kayıt";
             ShowHidePassword = Language == Languages.English ? "Show / Hide Password" : "Şifre Göster / Gizle";
+            ListView = Language == Languages.English ? "View" : "Görünüm";
+            ViewList = Language == Languages.English ? "List" : "Liste";
+            ViewCards = Language == Languages.English ? "Cards" : "Kartlar";
 		}
     }
 }

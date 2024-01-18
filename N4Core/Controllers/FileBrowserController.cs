@@ -13,7 +13,7 @@ namespace N4Core.Controllers
     {
         protected readonly FileBrowserServiceBase _fileBrowserService;
 
-        public FileBrowserController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, FileBrowserServiceBase fileBrowserService) : base(cultureManager, cookieManager)
+        public FileBrowserController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager, FileBrowserServiceBase fileBrowserService) : base(cultureManager, cookieManager, sessionManager)
         {
             _fileBrowserService = fileBrowserService;
         }

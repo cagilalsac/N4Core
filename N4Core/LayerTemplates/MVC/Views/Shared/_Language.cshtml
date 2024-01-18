@@ -6,8 +6,8 @@
 @inject CookieManagerBase cookieManager
 
 @{
-    var language = cookieManager.GetCookie(nameof(Language));
-    var languageSelectList = new Language().ToSelectList(language);
+    var language = cookieManager.GetCookie(nameof(Languages));
+    var languageSelectList = new Languages().ToSelectList(language);
 }
 
 <form asp-area="" asp-action="Index" asp-controller="Language" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">

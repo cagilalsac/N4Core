@@ -58,6 +58,7 @@ namespace N4Core.Models
         public bool FileOperations { get; set; }
         public bool ExportOperation { get; set; }
         public bool TimePicker { get; set; }
+		public bool ListCards { get; set; }
 
         public ViewModel(Languages language = Languages.English)
         {

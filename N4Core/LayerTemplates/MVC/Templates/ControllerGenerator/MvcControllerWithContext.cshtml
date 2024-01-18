@@ -99,8 +99,8 @@ namespace @Model.ControllerNamespace
     relatedServiceAbstractClassTypeDeclarations += "\t\t//private readonly ManyToManyServiceBase _manyToManyService;";
     constructorLine += "\n\t\t\t, ReportServiceBase reportService";
     constructorLine += "\n\t\t\t/*, ManyToManyServiceBase manyToManyService */";
-    constructorLine += "\n\t\t\t, CultureManagerBase cultureManager, CookieManagerBase cookieManager)";
-    constructorLine += " : base(cultureManager, cookieManager)";
+    constructorLine += "\n\t\t\t, CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager)";
+    constructorLine += " : base(cultureManager, cookieManager, sessionManager)";
     if (relatedProperties.Keys.Any())
         constructorAssignments += "\t\t\t";
     constructorAssignments += "_reportService = reportService;";
@@ -130,7 +130,7 @@ namespace @Model.ControllerNamespace
     var viewModelLine = "ViewBag.ViewModel = _" + serviceAbstractClassName + ".ViewModel;";
     var report = "DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\") + \"_\" + " + "_" + serviceAbstractClassName + ".Messages.Report";
 }
-    public class @Model.ControllerName : MvcControllerBase
+    public class @Model.ControllerName : MvcController
     {
         private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
         @relatedServiceAbstractClassTypeDeclarations
@@ -152,7 +152,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix
-        public IActionResult Index(PageOrderFilterModel pageOrderFilterModel, bool s = false)
+        public IActionResult Index(PageOrderFilterModel pageOrderFilterModel, bool s = false, bool? c = null)
         {
             @declareListLine
             if (@("_" + serviceAbstractClassName + ".Config.PageOrderFilter"))
@@ -165,6 +165,9 @@ namespace @Model.ControllerNamespace
                 @listLine
             }
             @listCountLine
+            if (c is not null)
+                ListCards = c;
+            @(("_" + serviceAbstractClassName) + ".ViewModel.ListCards") = ListCards ?? false;
             @viewModelLine
             @viewListLine
         }
@@ -351,14 +354,14 @@ namespace @Model.ControllerNamespace
         #endregion
 
         #region Export Operation
-        public void Export(PageOrderFilterModel pageOrderFilterModel, bool pof = false)
+        public void Export(PageOrderFilterModel pageOrderFilterModel, bool p = false)
         {
             if (@("_" + serviceAbstractClassName + ".Config.ExportOperation"))
             {
                 @declareListLine
-                if (pof)
+                if (p)
                 {
-                    _reportService.Set(config => { config.PageOrderFilter = pof; config.Language = @("_" + serviceAbstractClassName + ".Config.Language"); });
+                    _reportService.Set(config => { config.PageOrderFilter = p; config.Language = @("_" + serviceAbstractClassName + ".Config.Language"); });
                     @pageOrderFilterListLine
                 }
                 else
