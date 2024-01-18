@@ -52,6 +52,26 @@
 		});
 		$(".orderexpressionlink").click(function (event) {
 			event.preventDefault();
+			var linkHtml;
+			var label = $(this).find("label");
+			if (label.length) {
+				linkHtml = label.text().trim();
+			} else {
+				linkHtml = $(this).html().replace(caretUp, "").replace(caretDown, "").trim();
+			}
+			var submitForm = false;
+			$(".orderexpression option").each(function () {
+				if ($(this).text() == linkHtml) {
+					$(this).prop("selected", "selected");
+					submitForm = true;
+				}
+			});
+			if (submitForm) {
+				var isOrderDirectionDescending = $(".orderdirectiondescending").prop("checked");
+				isOrderDirectionDescending = !isOrderDirectionDescending;
+				$(".orderdirectiondescending").prop("checked", isOrderDirectionDescending);
+				$("#form").submit();
+			}
 		});
 		$(".input").blur(function () {
 			$(".pagenumber").prop("disabled", true);

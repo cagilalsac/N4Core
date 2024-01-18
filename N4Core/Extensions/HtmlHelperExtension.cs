@@ -33,6 +33,7 @@ namespace N4Core.Extensions
             displayName = HelperUtil.GetDisplayName(displayName, '{', '}', ';', language);
             TagBuilder labelTag = new TagBuilder("label");
             labelTag.Attributes.Add("for", helper.IdFor(expression).ToString());
+            labelTag.Attributes.Add("style", "cursor:pointer");
             labelTag.InnerHtml.AppendHtml(displayName);
             return labelTag;
         }

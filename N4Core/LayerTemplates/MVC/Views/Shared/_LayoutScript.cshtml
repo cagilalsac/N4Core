@@ -5,5 +5,11 @@
             localStorage.setItem("menulinktext", $(this).text());
             window.location.href = $(this).attr("href");
         });
+
+        // Bootstrap 5 Tooltips:
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>
