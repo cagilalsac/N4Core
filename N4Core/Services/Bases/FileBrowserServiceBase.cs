@@ -103,8 +103,10 @@ namespace N4Core.Services.Bases
                 fileBrowserViewModel.Title = AddLinks(path ?? Config.StartLink, sectionId);
             }
             if (fileBrowserViewModel is not null)
+            {
                 fileBrowserViewModel.HierarchicalDirectoryLinks = GetHierarchicalDirectoryLinks(new DirectoryInfo(_routePath), path, Config.StartLink);
-            fileBrowserViewModel.IsStart = path == null || path == Config.StartLink;
+                fileBrowserViewModel.IsStart = path == null || path == Config.StartLink;
+            }
             return fileBrowserViewModel;
         }
 
