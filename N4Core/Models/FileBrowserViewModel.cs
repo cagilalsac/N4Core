@@ -13,5 +13,6 @@ namespace N4Core.Models
         public FileTypes FileType { get; set; }
         public string FileContentType { get; set; }
         public string HierarchicalDirectoryLinks { get; set; }
+        public bool IsStart { get; set; }
     }
 }
