@@ -35,29 +35,31 @@ namespace N4Core.Services.Bases
             ViewModel = new ViewModel(Config.Language);
         }
 
-        public virtual Result<AccountUserModel> GetUser(AccountLoginModel user)
+        public virtual Result<AccountUserModel> GetUser(string userName, string password)
         {
-            var existingUser = _userRepo.Query().Include(q => q.Role).SingleOrDefault(q => q.UserName == user.UserName && q.Password == user.Password && q.IsActive);
+            var existingUser = _userRepo.Query().Include(q => q.Role).SingleOrDefault(q => q.UserName == userName && q.Password == password && q.IsActive);
             if (existingUser is null)
                 return new ErrorResult<AccountUserModel>(Messages.UserNotFound);
-            var model = new AccountUserModel()
+            var userModel = new AccountUserModel()
             {
                 Guid = existingUser.Guid,
                 Id = existingUser.Id,
                 UserName = existingUser.UserName,
-                Roles = new List<string>() { existingUser.Role.RoleName }
+                RoleNames = new List<string>() { existingUser.Role.RoleName }
             };
-            return new SuccessResult<AccountUserModel>(Messages.UserLoggedIn, model);
+            return new SuccessResult<AccountUserModel>(Messages.UserFound, userModel);
         }
 
-        public virtual Result RegisterUser(AccountRegisterModel user)
+        public virtual Result<AccountUserModel> GetUser(AccountLoginModel model) => GetUser(model.UserName, model.Password);
+
+        public virtual Result RegisterUser(AccountRegisterModel model)
         {
-            if (_userRepo.Query().Any(q => q.UserName == user.UserName.Trim()))
+            if (_userRepo.Query().Any(q => q.UserName == model.UserName.Trim()))
                 return new ErrorResult(Messages.UserFoundWithSameUserName);
             var entity = new AccountUser()
             {
-                UserName = user.UserName.Trim(),
-                Password = user.Password.Trim(),
+                UserName = model.UserName.Trim(),
+                Password = model.Password.Trim(),
                 IsActive = true,
                 RoleId = (int)Roles.User
             };

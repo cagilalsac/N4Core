@@ -27,7 +27,7 @@ namespace N4Core.Managers.Bases
                     user = new AccountUserModel()
                     {
                         UserName = _httpContextAccessor.HttpContext.User.Identity.Name,
-                        Roles = _httpContextAccessor.HttpContext.User.Claims.Where(u => u.Type == ClaimTypes.Role).Select(u => u.Value).ToList(),
+                        RoleNames = _httpContextAccessor.HttpContext.User.Claims.Where(u => u.Type == ClaimTypes.Role).Select(u => u.Value).ToList(),
                         Guid = _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(u => u.Type == ClaimTypes.Sid)?.Value,
                         Id = Convert.ToInt32(primarySidClaim.Value)
                     };
@@ -37,7 +37,7 @@ namespace N4Core.Managers.Bases
                     user = new AccountUserModel()
                     {
                         UserName = _httpContextAccessor.HttpContext.User.Identity.Name,
-                        Roles = _httpContextAccessor.HttpContext.User.Claims.Where(u => u.Type == ClaimTypes.Role).Select(u => u.Value).ToList()
+                        RoleNames = _httpContextAccessor.HttpContext.User.Claims.Where(u => u.Type == ClaimTypes.Role).Select(u => u.Value).ToList()
                     };
                 }
             }
@@ -54,7 +54,7 @@ namespace N4Core.Managers.Bases
                     UserName = accountUser.UserName,
                     Guid = accountUser.Guid,
                     Id = accountUser.Id,
-                    Roles = new List<string>() { accountUser.Role.RoleName }
+                    RoleNames = new List<string>() { accountUser.Role.RoleName }
                 };
             }
             return user;

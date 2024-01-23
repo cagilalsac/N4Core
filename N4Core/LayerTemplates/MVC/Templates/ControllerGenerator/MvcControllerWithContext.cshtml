@@ -10,6 +10,8 @@ if (@Model.NullableEnabled)
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 @{
     if (Model.RequiredNamespaces != null)
     {
@@ -129,7 +131,20 @@ namespace @Model.ControllerNamespace
     var modelType = Model.ModelTypeName + "Model";
     var viewModelLine = "ViewBag.ViewModel = _" + serviceAbstractClassName + ".ViewModel;";
     var report = "DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\") + \"_\" + " + "_" + serviceAbstractClassName + ".Messages.Report";
+    var apiControllerName = Model.ControllerRootName + "ApiController";
+    var apiRoutePrefix = Model.ControllerRootName + "Api";
+    var apiConstructorLine = "public " + apiControllerName + "(" + serviceAbstractClassType + " " + serviceAbstractClassName + ")";
+    var apiListLine = "List<" + Model.ModelTypeName + "Model> " + Model.ModelVariable + "List = " + ("_" + serviceAbstractClassName) + ".GetList();";
+    var apiOkListLine = "return Ok(" + Model.ModelVariable + "List);";
+    var apiItemLine = Model.ModelTypeName + "Model " + Model.ModelVariable + " = " + ("_" + serviceAbstractClassName) + ".GetItem(id);";
+    var apiOkItemLine = "return Ok(" + Model.ModelVariable + ");";
+    var apiCreatedAtActionLine = "return CreatedAtAction(\"Get\", new { id = " + Model.ModelVariable + "." + primaryKeyName + " }, " + Model.ModelVariable + ");";
+    var apiModelStateLine = "ModelState.AddModelError(\"" + apiRoutePrefix + "\", result.Message);";
+    var apiNoContentLine = "return NoContent();";
 }
+    #region MVC
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Authorize]
     public class @Model.ControllerName : MvcController
     {
         private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
@@ -152,6 +167,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix
+        [AllowAnonymous]
         public IActionResult Index(PageOrderFilterModel pageOrderFilterModel, bool s = false, bool? c = null)
         {
             @declareListLine
@@ -173,6 +189,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix/Details/5
+        [AllowAnonymous]
         public IActionResult Details(@primaryKeyShortTypeName id)
         {
             @itemLine
@@ -203,6 +220,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix/Create
+        [AllowAnonymous]
         public IActionResult Create()
         {
             SetViewData();
@@ -217,6 +235,7 @@ namespace @Model.ControllerNamespace
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public IActionResult Create(@modelType @Model.ModelVariable)
         {
             @viewModelLine
@@ -245,6 +264,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix/Edit/5
+        [AllowAnonymous]
         public IActionResult Edit(@primaryKeyShortTypeName id)
         {
             @itemLine
@@ -267,6 +287,7 @@ namespace @Model.ControllerNamespace
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public IActionResult Edit(@modelType @Model.ModelVariable)
         {
             @viewModelLine
@@ -289,6 +310,7 @@ namespace @Model.ControllerNamespace
         }
 
         // GET: @routePrefix/Delete/5
+        [AllowAnonymous]
         public IActionResult Delete(@primaryKeyShortTypeName id)
         {
             @viewModelLine
@@ -315,6 +337,7 @@ namespace @Model.ControllerNamespace
         // POST: @routePrefix/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public IActionResult DeleteConfirmed(@primaryKeyShortTypeName id)
         {
             @deleteLine
@@ -323,6 +346,7 @@ namespace @Model.ControllerNamespace
         }
 
         #region File Operations
+        [AllowAnonymous]
         public IActionResult DeleteFile(int id)
         {
             if (@("_" + serviceAbstractClassName + ".Config.FileOperations"))
@@ -339,6 +363,7 @@ namespace @Model.ControllerNamespace
             }
         }
 
+        [AllowAnonymous]
         public IActionResult DownloadFile(int id)
         {
             if (@("_" + serviceAbstractClassName + ".Config.FileOperations"))
@@ -354,6 +379,7 @@ namespace @Model.ControllerNamespace
         #endregion
 
         #region Export Operation
+        [AllowAnonymous]
         public void Export(PageOrderFilterModel pageOrderFilterModel, bool p = false)
         {
             if (@("_" + serviceAbstractClassName + ".Config.ExportOperation"))
@@ -374,6 +400,94 @@ namespace @Model.ControllerNamespace
         }
         #endregion
 	}
+    #endregion
+
+    #region API
+    [Route("[controller]")]
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class @apiControllerName : ControllerBase
+    {
+        private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
+
+        @apiConstructorLine
+        {
+            @("_" + serviceAbstractClassName) = @serviceAbstractClassName;
+        }
+
+        // GET: @apiRoutePrefix
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Get()
+        {
+            @apiListLine
+            @apiOkListLine
+        }
+
+        // GET: @apiRoutePrefix/5
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public IActionResult Get(@primaryKeyShortTypeName id)
+        {
+            @apiItemLine
+		    if (@Model.ModelVariable == null)
+            {
+                return NotFound();
+            }
+		    @apiOkItemLine
+        }
+
+	    // POST: @apiRoutePrefix
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Post(@modelType @Model.ModelVariable)
+        {
+            if (ModelState.IsValid)
+            {
+                @addLine
+                @ifResultSuccessfulLine
+                @openCurlyBraceLine
+		            @apiCreatedAtActionLine
+                @closeCurlyBraceLine
+                @apiModelStateLine
+            }
+            return BadRequest(ModelState);
+        }
+
+        // PUT: @apiRoutePrefix
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut]
+        [AllowAnonymous]
+        public IActionResult Put(@modelType @Model.ModelVariable)
+        {
+            if (ModelState.IsValid)
+            {
+                @updateLine
+                @ifResultSuccessfulLine
+                @openCurlyBraceLine
+                    @apiOkItemLine
+                @closeCurlyBraceLine
+                @apiModelStateLine
+            }
+            return BadRequest(ModelState);
+        }
+
+        // DELETE: @apiRoutePrefix/5
+        [HttpDelete("{id}")]
+        [AllowAnonymous]
+        public IActionResult Delete(@primaryKeyShortTypeName id)
+        {
+            @deleteLine
+            @ifResultSuccessfulLine
+            @openCurlyBraceLine
+                @apiNoContentLine
+            @closeCurlyBraceLine
+            @apiModelStateLine
+            return BadRequest(ModelState);
+        }
+    }
+    #endregion
 }
 @functions
 {

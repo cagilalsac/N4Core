@@ -13,26 +13,21 @@ namespace N4Core.Utilities
 			_configuration = configuration;
 		}
 
-		public void Bind<T>() where T : class, new()
-		{
-			T t = null;
-			IConfigurationSection section = _configuration.GetSection(typeof(T).Name);
-			if (section != null)
-			{
-				t = new T();
-				section.Bind(t);
-			}
-		}
-
-        public void Bind<T>(string sectionKey) where T : class, new()
+        public T Bind<T>(string section) where T : class, new()
         {
             T t = null;
-            IConfigurationSection section = _configuration.GetSection(sectionKey);
-            if (section != null)
+            IConfigurationSection configurationSection = _configuration.GetSection(section);
+            if (configurationSection != null)
             {
                 t = new T();
-                section.Bind(t);
+                configurationSection.Bind(t);
             }
+			return t;
         }
+
+        public T Bind<T>() where T : class, new()
+		{
+			return Bind<T>(typeof(T).Name);
+		}
     }
 }

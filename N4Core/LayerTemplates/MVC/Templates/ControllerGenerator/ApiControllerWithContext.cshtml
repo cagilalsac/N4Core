@@ -2,15 +2,28 @@
 @{
 if (@Model.NullableEnabled)
 {
-    @:#nullable disable
+@:#nullable disable
+}
+}
+@using System.Collections.Generic;
+@using System.Linq;
 
-}
-}
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 @{
-    foreach (var namespaceName in Model.RequiredNamespaces)
+    if (Model.RequiredNamespaces != null)
     {
-@:using @namespaceName;
+        var requiredNamespaces = Model.RequiredNamespaces as HashSet<string>;
+        if (requiredNamespaces != null && requiredNamespaces.Count > 0)
+        {
+            var requiredNamespace = requiredNamespaces.First().Split('.')[0];
+            string[] namespaces = { "Services", "Models" };
+            for (int i = 0; i < namespaces.Length; i++)
+            {
+@:using @(requiredNamespace + "." + namespaces[i] + ";")
+            }
+        }
     }
 }
 
@@ -36,19 +49,19 @@ namespace @Model.ControllerNamespace
     var deleteLine = "var result = " + ("_" + serviceAbstractClassName) + ".Delete(id);";
     var ifResultSuccessfulLine = "if (result.IsSuccessful)";
     var openCurlyBraceLine = "{";
-    var createdAtActionLine = "//return CreatedAtAction(\"Get\", new { id = " + Model.ModelVariable + "." + primaryKeyName + " }, " + Model.ModelVariable + ");";
+    var createdAtActionLine = "return CreatedAtAction(\"Get\", new { id = " + Model.ModelVariable + "." + primaryKeyName + " }, " + Model.ModelVariable + ");";
     var okLine = "return Ok(" + Model.ModelVariable + ");";
     var okIdLine = "return Ok(id);";
-    var noContentLine = "//return NoContent();";
+    var noContentLine = "return NoContent();";
     var closeCurlyBraceLine = "}";
-    var modelStateLine = "ModelState.AddModelError(\"\", result.Message);";
+    var modelStateLine = "ModelState.AddModelError(\"" + Model.ControllerRootName + "\", result.Message);";
     var modelType = Model.ModelTypeName + "Model";
 }
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class @Model.ControllerName : ControllerBase
     {
-        // Add service injections here
         private readonly @serviceAbstractClassType @("_" + serviceAbstractClassName);
 
         @constructorLine
@@ -58,6 +71,7 @@ namespace @Model.ControllerNamespace
 
         // GET: @routePrefix
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             @listLine
@@ -66,6 +80,7 @@ namespace @Model.ControllerNamespace
 
         // GET: @routePrefix/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public IActionResult Get(@primaryKeyShortTypeName id)
         {
             @itemLine
@@ -79,6 +94,7 @@ namespace @Model.ControllerNamespace
 		// POST: @routePrefix
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Post(@modelType @Model.ModelVariable)
         {
             if (ModelState.IsValid)
@@ -87,7 +103,6 @@ namespace @Model.ControllerNamespace
                 @ifResultSuccessfulLine
                 @openCurlyBraceLine
 			        @createdAtActionLine
-                    @okLine
                 @closeCurlyBraceLine
                 @modelStateLine
             }
@@ -97,6 +112,7 @@ namespace @Model.ControllerNamespace
         // PUT: @routePrefix
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
+        [AllowAnonymous]
         public IActionResult Put(@modelType @Model.ModelVariable)
         {
             if (ModelState.IsValid)
@@ -104,7 +120,6 @@ namespace @Model.ControllerNamespace
                 @updateLine
                 @ifResultSuccessfulLine
                 @openCurlyBraceLine
-			        @noContentLine
                     @okLine
                 @closeCurlyBraceLine
                 @modelStateLine
@@ -114,13 +129,13 @@ namespace @Model.ControllerNamespace
 
         // DELETE: @routePrefix/5
         [HttpDelete("{id}")]
+        [AllowAnonymous]
         public IActionResult Delete(@primaryKeyShortTypeName id)
         {
             @deleteLine
             @ifResultSuccessfulLine
             @openCurlyBraceLine
                 @noContentLine
-                @okIdLine
             @closeCurlyBraceLine
             @modelStateLine
             return BadRequest(ModelState);
