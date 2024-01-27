@@ -19,8 +19,9 @@ Core Framework for web applications and restful services developed with .NET.
 12. Bootstrap 5 Modal support.
 13. Listing operations support by using a list or cards. 
 14. Built-in Cookie Authentication.
+15. Built-in Organization Chart for Units as Tree Nodes and Positions as Tree Nodes' Details.
 
 # API Features:
-15. Built-in JWT Authentication.
+16. Built-in JWT Authentication.
 
 This framework will be continued to update...

@@ -9,7 +9,7 @@ namespace N4Core.Controllers
 {
     public class LanguageController : Controller
     {
-        private readonly CookieManagerBase _cookieManager;
+        protected readonly CookieManagerBase _cookieManager;
 
         public LanguageController(CookieManagerBase cookieManager)
         {

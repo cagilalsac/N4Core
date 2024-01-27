@@ -1,7 +1,7 @@
 ﻿#nullable disable
 
 using Microsoft.AspNetCore.Http;
-using N4Core.Entities.Account;
+using N4Core.Entities;
 using N4Core.Models;
 using System.Security.Claims;
 

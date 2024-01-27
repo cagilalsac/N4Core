@@ -1,4 +1,4 @@
-﻿using N4Core.Entities.Account;
+﻿using N4Core.Entities;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Services.Bases;
 

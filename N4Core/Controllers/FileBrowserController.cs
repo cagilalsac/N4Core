@@ -1,19 +1,17 @@
 ﻿#nullable disable
 
 using Microsoft.AspNetCore.Mvc;
-using N4Core.Controllers.Bases;
 using N4Core.Enums;
-using N4Core.Managers.Bases;
 using N4Core.Models;
 using N4Core.Services.Bases;
 
 namespace N4Core.Controllers
 {
-    public class FileBrowserController : MvcController
+    public abstract class FileBrowserController : Controller
     {
         protected readonly FileBrowserServiceBase _fileBrowserService;
 
-        public FileBrowserController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager, FileBrowserServiceBase fileBrowserService) : base(cultureManager, cookieManager, sessionManager)
+        protected FileBrowserController(FileBrowserServiceBase fileBrowserService)
         {
             _fileBrowserService = fileBrowserService;
         }
@@ -22,7 +20,7 @@ namespace N4Core.Controllers
         {
             var viewModel = _fileBrowserService.GetContents(path);
             if (viewModel is null)
-                return View("Error", new ErrorModel(_cultureManager.GetLanguage()));
+                return View("Error", new ErrorModel(Languages.Türkçe));
             if (viewModel.FileType == FileTypes.Other)
                 return File(viewModel.FileBinaryContent, viewModel.FileContentType, viewModel.Title);
             return View(viewModel);

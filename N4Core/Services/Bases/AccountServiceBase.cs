@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using N4Core.Configurations;
-using N4Core.Entities.Account;
+using N4Core.Entities;
 using N4Core.Enums;
 using N4Core.Messages;
 using N4Core.Models;

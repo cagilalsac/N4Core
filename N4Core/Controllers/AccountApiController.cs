@@ -10,8 +10,8 @@ namespace N4Core.Controllers
     [ApiController]
     public class AccountApiController : ControllerBase
     {
-        private readonly AccountServiceBase _accountService;
-        private readonly JwtUtil _jwtUtil;
+        protected readonly AccountServiceBase _accountService;
+        protected readonly JwtUtil _jwtUtil;
 
         public AccountApiController(AccountServiceBase accountService)
         {
