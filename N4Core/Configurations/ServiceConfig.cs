@@ -10,7 +10,7 @@ namespace N4Core.Configurations
 	{
         public bool NoTracking { get; set; } = true;
         public MapperConfiguration MapperConfiguration { get; set; } = null!;
-		public Languages Language { get; set; }
+        public Languages? Language { get; set; }
         public bool PageOrderFilter { get; set; } = true;
         public bool PageOrderFilterSession { get; set; } = true;
         public bool Modal { get; set; } = true;

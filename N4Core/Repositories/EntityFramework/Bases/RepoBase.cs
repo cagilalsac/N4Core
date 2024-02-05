@@ -1,7 +1,8 @@
 ﻿#nullable disable
 
 using Microsoft.EntityFrameworkCore;
-using N4Core.Models;
+using N4Core.Managers.Bases;
+using N4Core.Models.Reflection;
 using N4Core.Records.Bases;
 using N4Core.Repositories.Bases;
 using System.Linq.Expressions;
@@ -11,13 +12,15 @@ namespace N4Core.Repositories.EntityFramework.Bases
     public abstract class RepoBase<TEntity> : IRepoBase<TEntity> where TEntity : Record, new()
     {
         protected readonly DbContext _db;
+        protected readonly string _modifiedBy;
 
-        public ReflectionRecordModel ReflectionRecordModel { get; set; }
-        public string ModifiedBy { get; set; }
+		public ReflectionRecordModel ReflectionRecordModel { get; private set; }
 
-        protected RepoBase(DbContext db)
+		protected RepoBase(DbContext db, ReflectionManagerBase reflectionManager, AccountManagerBase accountManager)
         {
             _db = db;
+            ReflectionRecordModel = reflectionManager.GetReflectionRecordModel<TEntity>();
+            _modifiedBy = accountManager.GetUser()?.UserName;
 		}
 
         public virtual IQueryable<TEntity> Query(bool isNoTracking = false)
@@ -65,7 +68,7 @@ namespace N4Core.Repositories.EntityFramework.Bases
                             if (ReflectionRecordModel.HasModifiedBy)
                             {
                                 entry.CurrentValues[ReflectionRecordModel.CreateDate] = DateTime.Now;
-                                entry.CurrentValues[ReflectionRecordModel.CreatedBy] = ModifiedBy;
+                                entry.CurrentValues[ReflectionRecordModel.CreatedBy] = _modifiedBy;
                             }
                             break;
                         case EntityState.Modified:
@@ -78,7 +81,7 @@ namespace N4Core.Repositories.EntityFramework.Bases
                                 entry.Property(ReflectionRecordModel.CreateDate).IsModified = false;
                                 entry.Property(ReflectionRecordModel.CreatedBy).IsModified = false;
                                 entry.CurrentValues[ReflectionRecordModel.UpdateDate] = DateTime.Now;
-                                entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = ModifiedBy;
+                                entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = _modifiedBy;
                             }
                             if (ReflectionRecordModel.HasFile && entry.CurrentValues[ReflectionRecordModel.FileContent] is not null && entry.CurrentValues[ReflectionRecordModel.FileContent].ToString() == string.Empty)
                             {
@@ -100,7 +103,7 @@ namespace N4Core.Repositories.EntityFramework.Bases
                                     entry.Property(ReflectionRecordModel.CreateDate).IsModified = false;
                                     entry.Property(ReflectionRecordModel.CreatedBy).IsModified = false;
                                     entry.CurrentValues[ReflectionRecordModel.UpdateDate] = DateTime.Now;
-                                    entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = ModifiedBy;
+                                    entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = _modifiedBy;
                                 }
                                 entry.State = EntityState.Modified;
                             }
@@ -110,6 +113,10 @@ namespace N4Core.Repositories.EntityFramework.Bases
             }
             return _db.SaveChanges();
         }
+
+        public virtual void ExecuteSql(string sql) => _db.Database.ExecuteSqlRaw(sql);
+
+        public virtual DbSet<T> GetDbSet<T>() where T : Record, new() => _db.Set<T>();
 
         public void Dispose()
         {

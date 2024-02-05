@@ -2,10 +2,12 @@
 
 using Microsoft.EntityFrameworkCore;
 using N4Core.Configurations;
-using N4Core.Entities;
+using N4Core.Entities.Accounts;
 using N4Core.Enums;
+using N4Core.Managers.Bases;
 using N4Core.Messages;
 using N4Core.Models;
+using N4Core.Models.Accounts;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results;
 using N4Core.Results.Bases;
@@ -17,22 +19,27 @@ namespace N4Core.Services.Bases
         public AccountServiceConfig Config { get; private set; }
         public AccountServiceMessages Messages { get; private set; }
         public ViewModel ViewModel { get; private set; }
+        public Languages Language { get; private set; }
 
         protected readonly RepoBase<AccountUser> _userRepo;
+        protected readonly CultureManagerBase _cultureManager;
 
-        protected AccountServiceBase(RepoBase<AccountUser> userRepo)
+        protected AccountServiceBase(RepoBase<AccountUser> userRepo, CultureManagerBase cultureManager)
         {
             _userRepo = userRepo;
+            _cultureManager = cultureManager;
             Config = new AccountServiceConfig();
-            Messages = new AccountServiceMessages();
-            ViewModel = new ViewModel();
+            Language = _cultureManager.GetLanguage();
+            Messages = new AccountServiceMessages(Language);
+            ViewModel = new ViewModel(Language);
         }
 
         public void Set(Action<AccountServiceConfig> config)
         {
             config.Invoke(Config);
-            Messages = new AccountServiceMessages(Config.Language);
-            ViewModel = new ViewModel(Config.Language);
+            Language = Config.Language.HasValue ? Config.Language.Value : _cultureManager.GetLanguage();
+            Messages = new AccountServiceMessages(Language);
+            ViewModel = new ViewModel(Language);
         }
 
         public virtual Result<AccountUserModel> GetUser(string userName, string password)
@@ -61,7 +68,7 @@ namespace N4Core.Services.Bases
                 UserName = model.UserName.Trim(),
                 Password = model.Password.Trim(),
                 IsActive = true,
-                RoleId = (int)Roles.User
+                RoleId = (int)Roles.DemoUser
             };
             _userRepo.Add(entity);
             return new SuccessResult(Messages.UserRegistered);

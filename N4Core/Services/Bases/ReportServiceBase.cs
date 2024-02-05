@@ -14,19 +14,24 @@ namespace N4Core.Services.Bases
         private readonly ReflectionManagerBase _reflectionManager;
 
         protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly CultureManagerBase _cultureManager;
 
         public ReportServiceConfig Config { get; private set; }
+        public Languages Language { get; private set; }
 
-        protected ReportServiceBase(ReflectionManagerBase reflectionManager, IHttpContextAccessor httpContextAccessor)
+        protected ReportServiceBase(ReflectionManagerBase reflectionManager, CultureManagerBase cultureManager, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
+            _cultureManager = cultureManager;
             _reflectionManager = reflectionManager;
             Config = new ReportServiceConfig();
+            Language = _cultureManager.GetLanguage();
         }
 
         public void Set(Action<ReportServiceConfig> config)
         {
             config.Invoke(Config);
+            Language = Config.Language.HasValue ? Config.Language.Value : _cultureManager.GetLanguage();
         }
 
         public virtual void ExportToExcel<TModel>(List<TModel> list, string fileNameWithoutExtension) where TModel : class, new()
@@ -54,11 +59,11 @@ namespace N4Core.Services.Bases
                 {
                     for (int i = 0; i < dataTable.Columns.Count; i++)
                     {
-                        dataTable.Columns[i].ColumnName = HelperUtil.GetDisplayName(dataTable.Columns[i].ColumnName, '{', '}', ';', Config.Language);
+                        dataTable.Columns[i].ColumnName = HelperUtil.GetDisplayName(dataTable.Columns[i].ColumnName, '{', '}', ';', Language);
 					}
                     ExcelPackage.LicenseContext = Config.IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();
-                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Config.Language == Languages.English ? "Sheet1" : "Sayfa1");
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Language == Languages.English ? "Sheet1" : "Sayfa1");
                     excelWorksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
                     excelWorksheet.Cells["A:AZ"].AutoFitColumns();
                     data = excelPackage.GetAsByteArray();

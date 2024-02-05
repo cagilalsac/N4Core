@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using N4Core.Entities;
+using N4Core.Entities.Accounts;
 
 namespace N4Core.Contexts.Bases
 {

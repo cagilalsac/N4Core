@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using N4Core.Controllers.Bases;
 using N4Core.Managers.Bases;
 using N4Core.Models;
+using N4Core.Models.Accounts;
 using N4Core.Services.Bases;
 using N4Core.Utilities;
 
@@ -15,13 +16,11 @@ namespace N4Core.Controllers
         protected readonly AccountServiceBase _accountService;
         protected readonly AccountUtil _accountUtil;
 
-        public AccountController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager, AccountServiceBase accountService) : base(cultureManager, cookieManager, sessionManager)
+        public AccountController(CultureManagerBase cultureManager, CookieManagerBase cookieManager, SessionManagerBase sessionManager, AccountServiceBase accountService) 
+            : base(cultureManager, cookieManager, sessionManager)
         {
             _accountService = accountService;
-            _accountService.Set(config =>
-            {
-                config.Language = cultureManager.GetLanguage();
-            });
+            _accountService.Set(config => config.Language = cultureManager.GetLanguage());
             _accountUtil = new AccountUtil();
         }
 
@@ -67,7 +66,7 @@ namespace N4Core.Controllers
 
         public virtual IActionResult AccountAccessDenied()
         {
-            return View("Error", new ErrorModel(_accountService.Messages.UserAccessDenied, _accountService.Config.Language));
+            return View("Error", new ErrorModel(_accountService.Messages.UserAccessDenied, _accountService.Language));
         }
 
         public virtual IActionResult AccountRegister(string returnUrl = null)

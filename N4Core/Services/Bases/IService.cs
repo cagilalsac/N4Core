@@ -11,6 +11,6 @@ namespace N4Core.Services.Bases
 
 		Result Update(TModel model);
 
-		Result Delete(params int[] ids);
+		Result Delete(int id);
 	}
 }

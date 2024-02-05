@@ -3,7 +3,7 @@
 using N4Core.Configurations;
 using N4Core.Enums;
 using N4Core.Managers.Bases;
-using N4Core.Models;
+using N4Core.Models.FileBrowser;
 using System.Text;
 
 namespace N4Core.Services.Bases

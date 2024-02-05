@@ -11,5 +11,8 @@
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+        $('[data-bs-toggle="tooltip"]').on('click', function () {
+            $(this).tooltip('hide');
+        });
     });
 </script>

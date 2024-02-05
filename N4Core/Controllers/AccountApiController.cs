@@ -19,7 +19,7 @@ namespace N4Core.Controllers
             _jwtUtil = new JwtUtil();
         }
 
-        [HttpPost("TokenModel")]
+        [HttpPost("[action]")]
         public virtual IActionResult TokenModel(string userName, string password)
         {
             if (ModelState.IsValid) 
@@ -32,7 +32,7 @@ namespace N4Core.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost("Token")]
+        [HttpPost("[action]")]
         public virtual string Token(string userName, string password)
         {
             if (ModelState.IsValid)

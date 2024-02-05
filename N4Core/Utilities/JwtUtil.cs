@@ -3,6 +3,7 @@
 using Microsoft.IdentityModel.Tokens;
 using N4Core.Extensions;
 using N4Core.Models;
+using N4Core.Models.Accounts;
 using N4Core.Settings;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

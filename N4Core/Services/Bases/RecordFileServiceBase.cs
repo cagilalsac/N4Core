@@ -18,16 +18,6 @@ namespace N4Core.Services.Bases
             config.Invoke(Config);
         }
 
-        public virtual string GetImgSrc(IRecordFile recordFile)
-        {
-            string imgSrc = "";
-            if (recordFile.FileData is not null && !string.IsNullOrWhiteSpace(recordFile.FileContent))
-                imgSrc = GetContentType(recordFile.FileContent) + Convert.ToBase64String(recordFile.FileData);
-            else if (recordFile.Id != 0 && !string.IsNullOrWhiteSpace(recordFile.FileContent) && !string.IsNullOrWhiteSpace(recordFile.FilePath))
-				imgSrc = recordFile.FilePath + recordFile.Id + recordFile.FileContent;
-			return imgSrc;
-        }
-
         public virtual void UpdateRecordFile(IFormFile formFile, IRecordFile recordFile)
         {
             recordFile.FileContent = string.Empty;
@@ -49,17 +39,6 @@ namespace N4Core.Services.Bases
                 }
                 recordFile.FileContent = Path.GetExtension(formFile.FileName).ToLower();
             }
-        }
-
-        public virtual void SaveFile(IFormFile formFile, IRecordFile recordFile)
-        {
-            if (formFile is not null && Config.Directories.Any())
-            {
-				using (FileStream fileStream = new FileStream(Path.Combine(CreatePath(recordFile.Id + recordFile.FileContent)), FileMode.Create))
-				{
-					formFile.CopyTo(fileStream);
-				}
-			}
         }
 
         public virtual bool? CheckFile(IFormFile formFile)
@@ -86,17 +65,60 @@ namespace N4Core.Services.Bases
             return result;
         }
 
-        public virtual void DeleteFiles(params int[] ids)
+        public virtual void UpdateImgSrc<TModel>(TModel model) where TModel : Record, new()
+        {
+            IRecordFileModel recordFileModel;
+            IRecordFile recordFile;
+            if (model is IRecordFile)
+            {
+                recordFile = model as IRecordFile;
+                recordFileModel = model as IRecordFileModel;
+                recordFileModel.ImgSrcOutput = GetImgSrc(recordFile);
+            }
+        }
+
+        public virtual void UpdateImgSrc<TModel>(List<TModel> models) where TModel : Record, new()
+        {
+            foreach (var model in models)
+            {
+                UpdateImgSrc(model);
+            }
+        }
+
+        public virtual void UploadFile(IFormFile formFile, IRecordFile recordFile)
+        {
+            SaveFile(formFile, recordFile);
+        }
+
+        public virtual string GetImgSrc(IRecordFile recordFile)
+        {
+            string imgSrc = "";
+            if (recordFile.FileData is not null && !string.IsNullOrWhiteSpace(recordFile.FileContent))
+                imgSrc = GetContentType(recordFile.FileContent) + Convert.ToBase64String(recordFile.FileData);
+            else if (recordFile.Id != 0 && !string.IsNullOrWhiteSpace(recordFile.FileContent) && !string.IsNullOrWhiteSpace(recordFile.FilePath))
+				imgSrc = recordFile.FilePath + recordFile.Id + recordFile.FileContent;
+			return imgSrc;
+        }
+
+        public virtual void SaveFile(IFormFile formFile, IRecordFile recordFile)
+        {
+            if (formFile is not null && Config.Directories.Any())
+            {
+				using (FileStream fileStream = new FileStream(Path.Combine(CreatePath(recordFile.Id + recordFile.FileContent)), FileMode.Create))
+				{
+					formFile.CopyTo(fileStream);
+				}
+			}
+        }
+
+        public virtual void DeleteFile(int id)
         {
             var path = Config.Path;
             if (path != "")
             {
-                var filePaths = Directory.GetFiles(path).Where(file => ids.Select(id => id.ToString()).Contains(Path.GetFileNameWithoutExtension(file)));
-                foreach (var filePath in filePaths)
-                {
-                    if (File.Exists(filePath))
-                        File.Delete(filePath);
-                }
+                var filePath = Directory.GetFiles(path).SingleOrDefault(file => Path.GetFileNameWithoutExtension(file).Equals(id.ToString()));
+                if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+                    File.Delete(filePath);
             }
         }
 
@@ -148,7 +170,7 @@ namespace N4Core.Services.Bases
             return file;
         }
 
-        private string GetFileNameWithoutPath(string fileNameWithoutExtension, string filePath)
+        public string GetFileNameWithoutPath(string fileNameWithoutExtension, string filePath)
         {
             string[] files = Directory.GetFiles(filePath);
             if (files == null || files.Length == 0)
@@ -159,7 +181,7 @@ namespace N4Core.Services.Bases
             return Path.GetFileName(file);
         }
 
-        private string CreatePath(string fileName)
+        public string CreatePath(string fileName)
         {
             string path = Config.Path;
             if (path != "")

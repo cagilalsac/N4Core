@@ -19,6 +19,11 @@ namespace N4Core.Managers.Bases
             return currentCulture.Name == _cultures[0].Name ? Languages.English : Languages.Türkçe;
         }
 
+        public virtual Languages GetLanguage(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) || value == "0" ? Languages.English : Languages.Türkçe;
+        }
+
         public virtual CultureInfo GetCulture(string language)
         {
             return string.IsNullOrWhiteSpace(language) || language == ((int)Languages.English).ToString() ? _cultures[0] : _cultures[1];

@@ -6,7 +6,7 @@ namespace N4Core.Services
 {
     public class ReportService : ReportServiceBase
     {
-        public ReportService(ReflectionManagerBase reflectionManager, IHttpContextAccessor httpContextAccessor) : base(reflectionManager, httpContextAccessor)
+        public ReportService(ReflectionManagerBase reflectionManager, CultureManagerBase cultureManager, IHttpContextAccessor httpContextAccessor) : base(reflectionManager, cultureManager, httpContextAccessor)
         {
         }
     }

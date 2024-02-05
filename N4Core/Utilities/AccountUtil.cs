@@ -1,4 +1,4 @@
-﻿using N4Core.Models;
+﻿using N4Core.Models.Accounts;
 using System.Security.Claims;
 
 namespace N4Core.Utilities

@@ -6,7 +6,7 @@
 @inject CookieManagerBase cookieManager
 
 @{
-    var language = cookieManager.GetCookie(nameof(Languages));
+    var language = cookieManager.GetCookie("lang");
     var languageSelectList = new Languages().ToSelectList(language);
 }
 

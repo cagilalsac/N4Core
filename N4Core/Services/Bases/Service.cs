@@ -1,158 +1,76 @@
 ﻿#nullable disable
 
-using AutoMapper.QueryableExtensions;
-using LinqKit;
+using N4Core.Configurations;
 using N4Core.Managers.Bases;
 using N4Core.Models;
 using N4Core.Records.Bases;
 using N4Core.Repositories.EntityFramework.Bases;
 using N4Core.Results.Bases;
-using N4Core.Utilities;
 using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
     public abstract class Service<TModel, TEntity> : ServiceBase<TModel, TEntity> where TModel : Record, new() where TEntity : Record, new()
     {
-        protected Service(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, 
-            CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
-            AccountManagerBase accountManager, RecordFileServiceBase recordFileService) 
-            : base(repo, reflectionManager, cultureManager, sessionManager, accountManager, recordFileService)
+        protected readonly RecordFileServiceBase _recordFileService;
+
+        protected Service(RepoBase<TEntity> repo, ReflectionManagerBase reflectionManager, CultureManagerBase cultureManager, SessionManagerBase sessionManager, 
+            RecordFileServiceBase recordFileService) : base(repo, reflectionManager, cultureManager, sessionManager)
         {
+            _recordFileService = recordFileService;
         }
 
-        public override IQueryable<TModel> Query()
+        public override void Set(Action<ServiceConfig> config)
         {
-            return _repo.Query(Config.NoTracking).ProjectTo<TModel>(Config.MapperConfiguration);
+            base.Set(config);
+            _recordFileService.Set(config =>
+            {
+                config.AcceptedExtensions = Config.FileExtensions;
+                config.AcceptedLengthInMegaBytes = Config.FileLengthInMegaBytes;
+                config.Directories = Config.Directories;
+            });
         }
 
-        public virtual IQueryable<TModel> Query(PageOrderFilterModel pageOrderFilterModel)
+        public override List<TModel> GetList()
         {
-            var query = Query();
-            var pageOrderFilterSession = _sessionManager?.GetSession<PageOrderFilterModel>(_pageOrderFilterSessionKey);
-            if (Config.PageOrderFilterSession && pageOrderFilterSession != null)
-            {
-                pageOrderFilterModel.PageNumber = pageOrderFilterSession.PageNumber;
-                pageOrderFilterModel.RecordsPerPageCount = pageOrderFilterSession.RecordsPerPageCount;
-                pageOrderFilterModel.OrderExpression = pageOrderFilterSession.OrderExpression;
-                pageOrderFilterModel.OrderDirectionDescending = pageOrderFilterSession.OrderDirectionDescending;
-                pageOrderFilterModel.Filter = pageOrderFilterSession.Filter;
-            }
-            ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? 
-                new List<string>() : 
-                _reflectionOrderingProperties
-                    .Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
-            for (int i = 0; i < ViewModel.OrderExpressions.Count; i++)
-            {
-                ViewModel.OrderExpressions[i] = HelperUtil.GetDisplayName(ViewModel.OrderExpressions[i], '{', '}', ';', Config.Language);
-            }
-            if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageOrderFilterModel.OrderExpression))
-            {
-                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => HelperUtil.GetDisplayName(p.DisplayName, '{', '}', ';', Config.Language) == pageOrderFilterModel.OrderExpression);
-                if (propertyForOrdering == null)
-                    propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageOrderFilterModel.OrderExpression);
-                if (propertyForOrdering != null)
-                {
-                    query = pageOrderFilterModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionManager.GetExpression<TModel>(propertyForOrdering.Name))
-                        : query.OrderBy(_reflectionManager.GetExpression<TModel>(propertyForOrdering.Name));
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(pageOrderFilterModel.Filter))
-            {
-                if (_reflectionFilteringProperties is not null && _reflectionFilteringProperties.Any())
-                {
-                    var predicate = _reflectionManager.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[0].Name, pageOrderFilterModel.Filter);
-                    for (var i = 1; i < _reflectionFilteringProperties.Count; i++)
-                    {
-                        predicate = predicate.Or(_reflectionManager.GetPredicateContainsExpression<TModel>(_reflectionFilteringProperties[i].Name, pageOrderFilterModel.Filter));
-                    }
-                    query = query.Where(predicate);
-                }
-            }
-            ViewModel.PageNumber = pageOrderFilterModel.PageNumber;
-            ViewModel.RecordsPerPageCount = pageOrderFilterModel.RecordsPerPageCount;
-            ViewModel.OrderExpression = pageOrderFilterModel.OrderExpression;
-            ViewModel.OrderDirectionDescending = pageOrderFilterModel.OrderDirectionDescending;
-            ViewModel.Filter = pageOrderFilterModel.Filter;
-            ViewModel.TotalRecordsCount = query.Count();
-            return query;
-        }
-
-        public virtual List<TModel> GetList()
-        {
-            var list = Query().ToList();
-            UpdateImgSrc(list);
-            ViewModel.TotalRecordsCount = list.Count;
+            var list = base.GetList();
+            _recordFileService.UpdateImgSrc(list);
             return list;
         }
 
-        public virtual List<TModel> GetList(Expression<Func<TModel, bool>> predicate)
+        public override List<TModel> GetList(Expression<Func<TModel, bool>> predicate)
         {
-            var list = Query().Where(predicate).ToList();
-            UpdateImgSrc(list);
-            ViewModel.TotalRecordsCount = list.Count;
+            var list = base.GetList(predicate);
+            _recordFileService.UpdateImgSrc(list);
             return list;
         }
 
-        public virtual List<TModel> GetList(PageOrderFilterModel pageOrderFilterModel)
+        public override List<TModel> GetList(PageOrderFilterModel pageOrderFilterModel)
         {
-            var query = Query(pageOrderFilterModel);
-            if (pageOrderFilterModel.PageNumber == ViewModel.PageNumbers.LastOrDefault() + 1 && ViewModel.TotalRecordsCount % Convert.ToInt32(ViewModel.RecordsPerPageCount) == 0)
-            {
-                if (pageOrderFilterModel.PageNumber > 1)
-                    pageOrderFilterModel.PageNumber--;
-            }
-            if (ViewModel.RecordsPerPageCounts != null && ViewModel.RecordsPerPageCounts.Count > 0 && ViewModel.RecordsPerPageCount != ViewModel.RecordsPerPageCounts.LastOrDefault())
-            {
-                query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
-            }
-            _sessionManager?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
-            var list = query.ToList();
-            UpdateImgSrc(list);
+            var list = base.GetList(pageOrderFilterModel);
+            _recordFileService.UpdateImgSrc(list);
             return list;
         }
 
-        public virtual List<TModel> GetList(Expression<Func<TModel, bool>> predicate, PageOrderFilterModel pageOrderFilterModel)
+        public override List<TModel> GetList(Expression<Func<TModel, bool>> predicate, PageOrderFilterModel pageOrderFilterModel)
         {
-            var query = Query(pageOrderFilterModel).Where(predicate);
-            if (pageOrderFilterModel.PageNumber == ViewModel.PageNumbers.LastOrDefault() + 1 && ViewModel.TotalRecordsCount % Convert.ToInt32(ViewModel.RecordsPerPageCount) == 0)
-            {
-                if (pageOrderFilterModel.PageNumber > 1)
-                    pageOrderFilterModel.PageNumber--;
-            }
-            if (ViewModel.RecordsPerPageCounts != null && ViewModel.RecordsPerPageCounts.Count > 0 && ViewModel.RecordsPerPageCount != ViewModel.RecordsPerPageCounts.LastOrDefault())
-            {
-                query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
-            }
-            _sessionManager?.SetSession(pageOrderFilterModel, _pageOrderFilterSessionKey);
-            var list = query.ToList();
-            UpdateImgSrc(list);
+            var list = base.GetList(predicate, pageOrderFilterModel);
+            _recordFileService.UpdateImgSrc(list);
             return list;
         }
 
-        public virtual TModel GetItem(Expression<Func<TModel, bool>> predicate)
+        public override TModel GetItem(Expression<Func<TModel, bool>> predicate)
         {
-            var item = Query().SingleOrDefault(predicate);
-            UpdateImgSrc(item);
+            var item = base.GetItem(predicate);
+            _recordFileService.UpdateImgSrc(item);
             return item;
         }
 
-        public virtual TModel GetItem(int id)
+        public override TModel GetItem(int id)
         {
-            var item = Query().SingleOrDefault(q => q.Id == id);
-            UpdateImgSrc(item);
+            var item = base.GetItem(id);
+            _recordFileService.UpdateImgSrc(item);
             return item;
-        }
-
-        public virtual Result ItemExists(Expression<Func<TModel, bool>> predicate)
-        {
-            bool exists = Query().Any(predicate);
-            return exists ? Success(Messages.RecordFound) : Error(Messages.RecordNotFound);
-        }
-
-        public virtual int GetMaxId()
-        {
-            return Query().Max(q => q.Id);
         }
 
         public override Result Add(TModel model)
@@ -163,7 +81,7 @@ namespace N4Core.Services.Bases
             if (_repo.ReflectionRecordModel.HasFile && model is IRecordFileModel)
             {
                 recordFileModel = model as IRecordFileModel;
-                if (CheckFile(recordFileModel.FormFileInput) == false)
+                if (_recordFileService.CheckFile(recordFileModel.FormFileInput) == false)
                     return Error(Messages.InvalidFileExtensionOrFileLength);
                 recordFile = entity as IRecordFile;
                 _recordFileService.UpdateRecordFile(recordFileModel.FormFileInput, recordFile);
@@ -173,7 +91,7 @@ namespace N4Core.Services.Bases
             model.Id = entity.Id;
             if (recordFileModel is not null && recordFile is not null)
             {
-                UploadFile(recordFileModel.FormFileInput, recordFile);
+                _recordFileService.UploadFile(recordFileModel.FormFileInput, recordFile);
             }
             return Success(Messages.AddedSuccessfuly);
         }
@@ -187,7 +105,7 @@ namespace N4Core.Services.Bases
             if (_repo.ReflectionRecordModel.HasFile && model is IRecordFileModel)
             {
                 recordFileModel = model as IRecordFileModel;
-                if (CheckFile(recordFileModel.FormFileInput) == false)
+                if (_recordFileService.CheckFile(recordFileModel.FormFileInput) == false)
                     return Error(Messages.InvalidFileExtensionOrFileLength);
                 recordFile = entity as IRecordFile;
                 _recordFileService.UpdateRecordFile(recordFileModel.FormFileInput, recordFile);
@@ -195,16 +113,59 @@ namespace N4Core.Services.Bases
             _repo.Update(entity);
             if (recordFileModel is not null && recordFile is not null)
             {
-                UploadFile(recordFileModel.FormFileInput, recordFile);
+                _recordFileService.UploadFile(recordFileModel.FormFileInput, recordFile);
             }
             return Success(Messages.UpdatedSuccessfuly);
         }
 
-        public override Result Delete(params int[] ids)
+        public override Result Delete(int id)
         {
-            _repo.Delete(e => ids.Contains(e.Id));
-            DeleteFiles(ids);
-            return Success(Messages.DeletedSuccessfuly);
+            var result = base.Delete(id);
+            if (result.IsSuccessful)
+                DeleteFile(id);
+            return result;
+        }
+
+        public virtual RecordFileToDownloadModel DownloadFile(int id, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false)
+        {
+            RecordFileToDownloadModel file = _recordFileService.GetFile(id, fileToDownloadFileNameWithoutExtension, useOctetStreamContentType);
+            if (file == null)
+            {
+                if (_repo.ReflectionRecordModel.HasFile)
+                {
+                    var entity = _repo.Query().SingleOrDefault(q => q.Id == id);
+                    if (entity == null)
+                        return null;
+                    var fileDataPropertyInfo = _reflectionManager.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileData);
+                    var fileData = fileDataPropertyInfo?.GetValue(entity);
+                    var fileContentPropertyInfo = _reflectionManager.GetPropertyInfo(entity, _repo.ReflectionRecordModel.FileContent);
+                    var fileContent = fileContentPropertyInfo?.GetValue(entity);
+                    file = new RecordFileToDownloadModel()
+                    {
+                        Stream = fileData != null ? new MemoryStream((byte[])fileData) : null,
+                        ContentType = fileContent != null ? _recordFileService.GetContentType(fileContent.ToString(), false, false) : null,
+                        FileName = fileContent != null ?
+                            (string.IsNullOrWhiteSpace(fileToDownloadFileNameWithoutExtension) ? id + fileContent.ToString() : fileToDownloadFileNameWithoutExtension + fileContent.ToString())
+                            : null
+                    };
+                }
+            }
+            return file;
+        }
+
+        public virtual void DeleteFile(int id)
+        {
+            IRecordFile recordFile = null;
+            _recordFileService.DeleteFile(id);
+            var entity = _repo.Query().SingleOrDefault(e => e.Id == id);
+            if (entity is not null && entity is IRecordFile)
+            {
+                recordFile = entity as IRecordFile;
+                recordFile.FileData = null;
+                recordFile.FileContent = null;
+                recordFile.FilePath = null;
+                _repo.Update(entity);
+            }
         }
     }
 }

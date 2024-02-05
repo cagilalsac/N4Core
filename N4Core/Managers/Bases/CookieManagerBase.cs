@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable disable
+
+using Microsoft.AspNetCore.Http;
+using N4Core.Models;
 
 namespace N4Core.Managers.Bases
 {
@@ -20,7 +23,18 @@ namespace N4Core.Managers.Bases
         {
             var cookieOptions = new CookieOptions()
             {
-                Expires = DateTimeOffset.MaxValue
+                Expires = new ExpireModel().DateTimeOffset,
+                HttpOnly = true
+            };
+            SetCookie(key, value, cookieOptions);
+        }
+
+        public virtual void SetCookie(string key, string value, ExpireModel expireModel)
+        {
+            var cookieOptions = new CookieOptions()
+            {
+                Expires = expireModel.DateTimeOffset,
+                HttpOnly = true
             };
             SetCookie(key, value, cookieOptions);
         }
@@ -34,7 +48,8 @@ namespace N4Core.Managers.Bases
         {
             var cookieOptions = new CookieOptions()
             {
-                Expires = DateTimeOffset.Now.AddDays(-1)
+                Expires = new ExpireModel(-1).DateTimeOffset,
+                HttpOnly = true
             };
             SetCookie(key, string.Empty, cookieOptions);
         }

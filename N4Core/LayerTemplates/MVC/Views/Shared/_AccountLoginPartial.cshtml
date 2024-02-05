@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using N4Core.Managers.Bases
 @using N4Core.Utilities
+
+@model AccountLoginPartialModel
 
 <ul class="navbar-nav">
 @if (User.Identity.IsAuthenticated)
@@ -7,17 +10,32 @@
     <li class="nav-item p-2">
         <span class="text-info"><i class="bi bi-person"></i> @User.Identity.Name</span>
     </li>
-    <li class="nav-item">
-        <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogout" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-left"></i> Logout</a>
-    </li>
+    @if (Model.ShowLoginLogout)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogout" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-left"></i> 
+                @(Model.Language == Languages.English ? "Logout" : "Çıkış")
+            </a>
+        </li>
+    }
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountRegister" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-person-add"></i> Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogin" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-right"></i> Login</a>
-    </li>
+    if (Model.ShowRegister)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountRegister" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-person-add"></i> 
+                @(Model.Language == Languages.English ? "Register" : "Kayıt")
+            </a>
+        </li>
+    }
+    @if (Model.ShowLoginLogout)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogin" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-right"></i> 
+                @(Model.Language == Languages.English ? "Login" : "Giriş")
+            </a>
+        </li>
+    }
 }
 </ul>

@@ -3,7 +3,7 @@
 using N4Core.Attributes.Tag;
 using N4Core.Enums;
 using N4Core.Extensions;
-using N4Core.Models;
+using N4Core.Models.Reflection;
 using N4Core.Records.Bases;
 using System.ComponentModel;
 using System.Data;
