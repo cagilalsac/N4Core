@@ -151,7 +151,7 @@
                 @:<div class="row mb-3">
                     @:<displayname asp-for="FormFileInput" asp-language="@@viewModel.Language" class="col-2 col-form-label fw-bold"></displayname>
 				    @:<div class="col-9">
-					    @:<input name="FormFileInput" type="file" class="form-control" accept="@@AppSettings.ImageExtensions" />
+					    @:<input name="FormFileInput" type="file" class="form-control" accept=".jpg, .jpeg, .png" />
 				    @:</div>
                 @:</div>
                         }

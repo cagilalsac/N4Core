@@ -1,30 +1,28 @@
 ﻿#nullable disable
 
-using Microsoft.IdentityModel.Tokens;
 using N4Core.Extensions;
 using N4Core.Models;
 using N4Core.Models.Accounts;
 using N4Core.Settings;
+using N4Core.Settings.Bases;
+using N4Core.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace N4Core.Utilities
+namespace N4Core.Managers.Bases
 {
-    public class JwtUtil
+    public abstract class JwtManagerBase
     {
-        private readonly SecurityUtil _securityUtil;
+        protected readonly SecurityUtil _securityUtil;
 
-        public JwtUtil()
+        public JwtSettings JwtSettings { get; protected set; }
+
+        protected JwtManagerBase(AppSettingsBase appSettings)
         {
+            JwtSettings = new JwtSettings();
+            appSettings.Bind(JwtSettings);
             _securityUtil = new SecurityUtil();
         }
-
-        public JwtUtil(AppSettingsUtil appSettingsUtil) : this()
-        {
-            appSettingsUtil.Bind<JwtSettings>();
-        }
-
-        public SecurityKey GetSigningKey(string securityKey) =>_securityUtil.GetSecurityKey(securityKey);
 
         public JwtModel GetJwt(AccountUserModel model)
         {

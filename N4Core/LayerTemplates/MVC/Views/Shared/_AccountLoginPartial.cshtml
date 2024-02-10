@@ -4,6 +4,10 @@
 
 @model AccountLoginPartialModel
 
+@{
+    string returnUrl = MvcRouteUtil.GetCurrentRoute(ViewContext);
+}
+
 <ul class="navbar-nav">
 @if (User.Identity.IsAuthenticated)
 {
@@ -13,7 +17,7 @@
     @if (Model.ShowLoginLogout)
     {
         <li class="nav-item">
-            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogout" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-left"></i> 
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogout" asp-route-returnUrl="@returnUrl"><i class="bi bi-box-arrow-left"></i> 
                 @(Model.Language == Languages.English ? "Logout" : "Çıkış")
             </a>
         </li>
@@ -24,7 +28,7 @@ else
     if (Model.ShowRegister)
     {
         <li class="nav-item">
-            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountRegister" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-person-add"></i> 
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountRegister" asp-route-returnUrl="@returnUrl"><i class="bi bi-person-add"></i> 
                 @(Model.Language == Languages.English ? "Register" : "Kayıt")
             </a>
         </li>
@@ -32,7 +36,7 @@ else
     @if (Model.ShowLoginLogout)
     {
         <li class="nav-item">
-            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogin" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)"><i class="bi bi-box-arrow-right"></i> 
+            <a class="nav-link text-info" asp-area="" asp-controller="Account" asp-action="AccountLogin" asp-route-returnUrl="@returnUrl"><i class="bi bi-box-arrow-right"></i> 
                 @(Model.Language == Languages.English ? "Login" : "Giriş")
             </a>
         </li>

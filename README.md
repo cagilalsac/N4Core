@@ -11,16 +11,17 @@ Core Framework for web applications and restful services developed with .NET.
 6. Built-in simple account managing with users and roles.
 7. File explorer to browse text, image or other files under folders and view their contents (for text and image) or download them (for other).
 8. Customized scaffolding for creating MVC and API controllers together, controller actions and MVC views using the same service and model.
+9. Built-in Application Settings management using appsettings.json file.
 
 # MVC Features:
-9. Optional built-in paging, ordering and filtering structures for lists.
-10. Built-in English and Turkish languages support.
-11. Excel export support.
-12. Bootstrap 5 Modal support.
-13. Listing operations support by using a list or cards. 
-14. Built-in Cookie Authentication.
+10. Optional built-in paging, ordering and filtering structures for lists.
+11. Built-in English and Turkish languages support.
+12. Excel export support.
+13. Bootstrap 5 Modal support.
+14. Listing operations support by using a list or cards. 
+15. Built-in Cookie Authentication.
 
 # API Features:
-15. Built-in JWT Authentication.
+16. Built-in JWT Authentication.
 
 This framework will be continued to update...

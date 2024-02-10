@@ -1,8 +1,8 @@
 ﻿#nullable disable
 
 using Microsoft.AspNetCore.Mvc;
+using N4Core.Managers.Bases;
 using N4Core.Services.Bases;
-using N4Core.Utilities;
 
 namespace N4Core.Controllers
 {
@@ -11,12 +11,12 @@ namespace N4Core.Controllers
     public class AccountApiController : ControllerBase
     {
         protected readonly AccountServiceBase _accountService;
-        protected readonly JwtUtil _jwtUtil;
+        protected readonly JwtManagerBase _jwtManager;
 
-        public AccountApiController(AccountServiceBase accountService)
+        public AccountApiController(AccountServiceBase accountService, JwtManagerBase jwtManager)
         {
             _accountService = accountService;
-            _jwtUtil = new JwtUtil();
+            _jwtManager = jwtManager;
         }
 
         [HttpPost("[action]")]
@@ -26,7 +26,7 @@ namespace N4Core.Controllers
             {
                 var result = _accountService.GetUser(userName, password);
                 if (result.IsSuccessful)
-                    return Ok(_jwtUtil.GetJwt(result.Data));
+                    return Ok(_jwtManager.GetJwt(result.Data));
                 ModelState.AddModelError("AccountApi", result.Message);
             }
             return BadRequest(ModelState);
@@ -39,7 +39,7 @@ namespace N4Core.Controllers
             {
                 var result = _accountService.GetUser(userName, password);
                 if (result.IsSuccessful)
-                    return _jwtUtil.GetJwt(result.Data)?.Token;
+                    return _jwtManager.GetJwt(result.Data)?.Token;
                 ModelState.AddModelError("AccountApi", result.Message);
             }
             return string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
