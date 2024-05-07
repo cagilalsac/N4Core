@@ -57,7 +57,8 @@ namespace N4Core.Settings.Bases
             string[] paths =
             [
                 $@"{Path.Combine(_webHostEnvironment.ContentRootPath, "appsettings.json")}",
-                $@"{Path.Combine(_webHostEnvironment.ContentRootPath, "appsettings.Development.json")}"
+                $@"{Path.Combine(_webHostEnvironment.ContentRootPath, "appsettings.Development.json")}",
+                $@"{Path.Combine(_webHostEnvironment.ContentRootPath, "appsettings.production.json")}"
             ];
             foreach (string path in paths)
             {
