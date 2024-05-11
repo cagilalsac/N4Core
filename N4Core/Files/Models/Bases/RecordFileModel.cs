@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace N4Core.Files.Models.Bases
 {
-    public abstract class RecordFileModel : RecordFile
+    public class RecordFileModel : RecordFile
     {
         [DisplayName("{Image;İmaj}")]
         [JsonIgnore]

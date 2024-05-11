@@ -1,4 +1,6 @@
-﻿namespace N4Core.Types.Extensions
+﻿using N4Core.Culture;
+
+namespace N4Core.Types.Extensions
 {
     public static class StringExtensions
     {
@@ -84,6 +86,74 @@
             if (!string.IsNullOrWhiteSpace(value))
                 return value.Count(v => v == character);
             return 0;
+        }
+
+        public static string GetDisplayName(this string value, Languages language)
+        {
+            string result = string.Empty;
+            string[] valueParts;
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                result = value;
+                if (value.GetCount('{') == 1 && value.GetCount('}') == 1 && value.GetCount(';') == 1)
+                {
+                    value = value.Substring(1, value.Length - 2);
+                    valueParts = value.Split(';');
+                    if (language == Languages.Türkçe)
+                        result = valueParts.Last();
+                    else
+                        result = valueParts.First();
+                }
+            }
+            return result;
+        }
+
+        public static string GetErrorMessage(this string value, Languages language)
+        {
+            string result = string.Empty;
+            string displayName;
+            string[] valueParts;
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                if (value.Contains("not valid", StringComparison.OrdinalIgnoreCase) || value.Contains("invalid", StringComparison.OrdinalIgnoreCase))
+                {
+                    result = language == Languages.Türkçe ? "Geçersiz değer!" : "Invalid value!";
+                }
+                else
+                {
+                    if (value.GetCount('{') == 0 && value.GetCount('}') == 0 && value.GetCount(';') == 1)
+                    {
+                        valueParts = value.Split(';');
+                        if (language == Languages.Türkçe)
+                        {
+                            result = valueParts.Last();
+                        }
+                        else
+                        {
+                            result = valueParts.First();
+                        }
+                    }
+                    else if (value.GetCount('{') == 2 && value.GetCount('}') == 2 && value.GetCount(';') == 3)
+                    {
+                        displayName = value.Substring(value.IndexOf('{'), value.IndexOf('}') + 1);
+                        value = value.Replace(displayName, GetDisplayName(displayName, language));
+                        valueParts = value.Split(';');
+                        if (language == Languages.Türkçe)
+                        {
+                            result = valueParts.Last();
+                        }
+                        else
+                        {
+                            result = valueParts.First();
+                        }
+                    }
+                    else
+                    {
+                        result = value;
+                    }
+                }
+            }
+            return result;
         }
     }
 }

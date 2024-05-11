@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using N4Core.Culture;
-using N4Core.Views.Utils;
+using N4Core.Types.Extensions;
 using System.Linq.Expressions;
 
 namespace N4Core.Views.Extensions
@@ -30,7 +30,7 @@ namespace N4Core.Views.Extensions
             {
                 displayName = modelExpression.Metadata.Name;
             }
-            displayName = HelperUtil.GetDisplayName(displayName, '{', '}', ';', language);
+            displayName = displayName.GetDisplayName(language);
             TagBuilder labelTag = new TagBuilder("label");
             labelTag.Attributes.Add("for", helper.IdFor(expression).ToString());
             labelTag.Attributes.Add("style", "cursor:pointer");

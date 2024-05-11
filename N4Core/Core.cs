@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -117,6 +118,10 @@ namespace N4Core
             // Inversion of Control for repositories:
             builder.Services.AddScoped(typeof(RepoBase<>), typeof(Repo<>));
             builder.Services.AddScoped<UnitOfWorkBase, UnitOfWork>();
+
+            #region API ModelState
+            builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+            #endregion
 
             return builder;
         }

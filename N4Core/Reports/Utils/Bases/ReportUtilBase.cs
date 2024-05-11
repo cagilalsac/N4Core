@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using N4Core.Culture;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Reflection.Utils.Bases;
-using N4Core.Views.Utils;
+using N4Core.Types.Extensions;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
 
@@ -57,7 +57,7 @@ namespace N4Core.Reports.Utils.Bases
                 {
                     for (int i = 0; i < dataTable.Columns.Count; i++)
                     {
-                        dataTable.Columns[i].ColumnName = HelperUtil.GetDisplayName(dataTable.Columns[i].ColumnName, '{', '}', ';', Language);
+                        dataTable.Columns[i].ColumnName = dataTable.Columns[i].ColumnName.GetDisplayName(Language);
                     }
                     ExcelPackage.LicenseContext = IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();

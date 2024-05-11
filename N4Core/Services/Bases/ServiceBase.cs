@@ -23,14 +23,14 @@ using N4Core.Services.Configs;
 using N4Core.Services.Models;
 using N4Core.Session.Utils;
 using N4Core.Session.Utils.Bases;
+using N4Core.Types.Extensions;
 using N4Core.Views.Models;
-using N4Core.Views.Utils;
 using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
     public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : OperationResponses, IServiceBase<TQueryModel, TCommandModel>
-        where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new() 
+        where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
@@ -48,8 +48,8 @@ namespace N4Core.Services.Bases
         public ViewModel ViewModel { get; private set; }
         public OperationMessagesModel Messages { get; private set; }
 
-        protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, 
-            ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil, 
+        protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo,
+            ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil,
             MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
@@ -113,12 +113,12 @@ namespace N4Core.Services.Bases
                 _reflectionOrderingProperties.Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
             for (int i = 0; i < ViewModel.OrderExpressions.Count; i++)
             {
-                ViewModel.OrderExpressions[i] = HelperUtil.GetDisplayName(ViewModel.OrderExpressions[i], '{', '}', ';', Language);
+                ViewModel.OrderExpressions[i] = ViewModel.OrderExpressions[i].GetDisplayName(Language);
             }
             if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageOrderFilterModel.OrderExpression))
             {
-                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => 
-                    HelperUtil.GetDisplayName(p.DisplayName, '{', '}', ';', Language) == pageOrderFilterModel.OrderExpression);
+                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p =>
+                    p.DisplayName.GetDisplayName(Language) == pageOrderFilterModel.OrderExpression);
                 if (propertyForOrdering is null)
                     propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageOrderFilterModel.OrderExpression);
                 if (propertyForOrdering is not null)
@@ -252,6 +252,7 @@ namespace N4Core.Services.Bases
             RecordFileModel fileModel = null;
             RecordFile file = null;
             var entity = _mapperUtil.Map(commandModel);
+            _reflectionUtil.TrimStringProperties(entity);
             if (Config.FileOperations && _repo.ReflectionRecordModel.HasFile && commandModel is RecordFileModel)
             {
                 fileModel = commandModel as RecordFileModel;
@@ -260,7 +261,6 @@ namespace N4Core.Services.Bases
                 file = entity as RecordFile;
                 _fileUtil.UpdateFile(fileModel.FormFile, file);
             }
-            _reflectionUtil.TrimStringProperties(entity);
             _repo.Create(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
             commandModel.Id = entity.Id;
@@ -303,10 +303,10 @@ namespace N4Core.Services.Bases
 
         public virtual async Task<Response> Delete(int id, CancellationToken cancellationToken = default)
         {
-            _repo.Delete(e => e.Id == id);
+            var entity = await _repo.Query().SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
+            _fileUtil.DeleteFile(entity);
+            _repo.Delete(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
-            if (Config.FileOperations)
-                await DeleteFile(id, cancellationToken);
             return Success(Messages.DeletedSuccessfuly);
         }
 
@@ -330,7 +330,7 @@ namespace N4Core.Services.Bases
                         FileStream = fileData is not null ? new MemoryStream((byte[])fileData) : null,
                         FileContentType = fileContent is not null ? _fileUtil.GetContentType(fileContent.ToString(), false, false) : null,
                         FileName = fileContent is not null ?
-                            (string.IsNullOrWhiteSpace(fileToDownloadFileNameWithoutExtension) ? id + fileContent.ToString() : 
+                            (string.IsNullOrWhiteSpace(fileToDownloadFileNameWithoutExtension) ? id + fileContent.ToString() :
                                 fileToDownloadFileNameWithoutExtension + fileContent.ToString())
                             : null
                     };
@@ -339,20 +339,15 @@ namespace N4Core.Services.Bases
             return file;
         }
 
-        public virtual async Task DeleteFile(int id, CancellationToken cancellationToken = default)
+        public virtual async Task<Response> DeleteFile(int id, CancellationToken cancellationToken = default)
         {
-            RecordFile file = null;
-            _fileUtil.DeleteFile(id);
-            var entity = _repo.Query().SingleOrDefault(e => e.Id == id);
-            if (entity is not null && entity is RecordFile)
-            {
-                file = entity as RecordFile;
-                file.FileData = null;
-                file.FileContent = null;
-                file.FilePath = null;
-                _repo.Update(entity);
-                await _unitOfWork.SaveAsync(cancellationToken);
-            }
+            if (!Config.FileOperations)
+                return Error(Messages.FileOperationsNotConfigured);
+            var entity = await _repo.Query().SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
+            _fileUtil.DeleteFile(entity);
+            _repo.Update(entity);
+            await _unitOfWork.SaveAsync(cancellationToken);
+            return Success(Messages.FileDeletedSuccessfully, id);
         }
 
         public virtual async Task ExportToExcel(string fileNameWithoutExtension)

@@ -15,8 +15,8 @@ namespace N4Core.Services
     {
         public Service(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, 
             ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil, 
-            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, IHttpContextAccessor httpContextAccessor) : 
-            base(unitOfWork, repo, reflectionUtil, cultureUtil, fileUtil, reportUtil, mapperUtil, httpContextAccessor)
+            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, IHttpContextAccessor httpContextAccessor) 
+            : base(unitOfWork, repo, reflectionUtil, cultureUtil, fileUtil, reportUtil, mapperUtil, httpContextAccessor)
         {
         }
     }

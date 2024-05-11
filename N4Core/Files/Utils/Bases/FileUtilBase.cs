@@ -68,23 +68,23 @@ namespace N4Core.Files.Utils.Bases
             return result;
         }
 
-        public virtual void UpdateImgSrc<TModel>(TModel model) where TModel : Record, new()
+        public virtual void UpdateImgSrc<TRecord>(TRecord record) where TRecord : Record, new()
         {
             RecordFileModel fileModel;
             RecordFile file;
-            if (model is RecordFile)
+            if (record is RecordFile)
             {
-                file = model as RecordFile;
-                fileModel = model as RecordFileModel;
+                file = record as RecordFile;
+                fileModel = record as RecordFileModel;
                 fileModel.FileImgSrc = GetImgSrc(file);
             }
         }
 
-        public virtual void UpdateImgSrc<TModel>(List<TModel> models) where TModel : Record, new()
+        public virtual void UpdateImgSrc<TRecord>(List<TRecord> records) where TRecord : Record, new()
         {
-            foreach (var model in models)
+            foreach (var record in records)
             {
-                UpdateImgSrc(model);
+                UpdateImgSrc(record);
             }
         }
 
@@ -124,6 +124,18 @@ namespace N4Core.Files.Utils.Bases
                 var filePath = Directory.GetFiles(FilePath).SingleOrDefault(file => Path.GetFileNameWithoutExtension(file).Equals(id.ToString()));
                 if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
                     File.Delete(filePath);
+            }
+        }
+
+        public virtual void DeleteFile<TRecord>(TRecord record) where TRecord : Record, new()
+        {
+            if (record is not null && record is RecordFile)
+            {
+                var file = record as RecordFile;
+                file.FileData = null;
+                file.FileContent = null;
+                file.FilePath = null;
+                DeleteFile(record.Id);
             }
         }
 

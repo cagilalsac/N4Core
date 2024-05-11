@@ -5,6 +5,7 @@ using N4Core.Accounts.Models;
 using N4Core.Accounts.Services.Bases;
 using N4Core.Culture;
 using N4Core.JsonWebToken.Utils.Bases;
+using N4Core.Types.Extensions;
 
 namespace N4Core.Accounts.Controllers
 {
@@ -32,7 +33,7 @@ namespace N4Core.Accounts.Controllers
                     return Ok(_jwtUtil.GetJwt(response.Data));
                 ModelState.AddModelError("AccountApi", response.Message);
             }
-            return BadRequest(ModelState);
+            return BadRequest(ModelState.Update(_accountService.Language));
         }
 
         [HttpPost("[action]")]
@@ -45,7 +46,7 @@ namespace N4Core.Accounts.Controllers
                     return _jwtUtil.GetJwt(response.Data)?.Token;
                 ModelState.AddModelError("AccountApi", response.Message);
             }
-            return string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return ModelState.GetErrorMessages(_accountService.Language);
         }
     }
 }

@@ -11,7 +11,6 @@
         public virtual SuccessResponse Success(string message, int id) => new SuccessResponse(message, id);
         public virtual SuccessResponse Success(string message) => new SuccessResponse(message);
         public virtual SuccessResponse Success() => new SuccessResponse();
-        public virtual SuccessResponse<TResponseType> Success<TResponseType>(string message, TResponseType data, int id) => new SuccessResponse<TResponseType>(message, data, id);
         public virtual SuccessResponse<TResponseType> Success<TResponseType>(string message, TResponseType data) => new SuccessResponse<TResponseType>(message, data);
         public virtual SuccessResponse<TResponseType> Success<TResponseType>(string message) => new SuccessResponse<TResponseType>(message);
         public virtual SuccessResponse<TResponseType> Success<TResponseType>(TResponseType data) => new SuccessResponse<TResponseType>(data);

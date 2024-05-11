@@ -2,24 +2,28 @@
 
 namespace N4Core.Responses.Bases
 {
-    public abstract class Response : Record
+    public class Response : Record
     {
-        public bool IsSuccessful { get; }
+        public bool IsSuccessful { get; set; }
         public string Message { get; set; }
 
-        protected Response(bool isSuccessful, string message, int id) : base(id)
+        public Response(bool isSuccessful, string message, int id) : base(id)
         {
             IsSuccessful = isSuccessful;
             Message = message;
         }
     }
 
-    public abstract class Response<TResponseType> : Response, IResponseData<TResponseType>
+    public class Response<TResponseType> : IResponseData<TResponseType>
     {
+        public bool IsSuccessful { get; set; }
+        public string Message { get; set; }
         public TResponseType Data { get; }
 
-        protected Response(bool isSuccessful, string message, TResponseType data, int id) : base(isSuccessful, message, id)
+        public Response(bool isSuccessful, string message, TResponseType data)
         {
+            IsSuccessful = isSuccessful;
+            Message = message;
             Data = data;
         }
     }

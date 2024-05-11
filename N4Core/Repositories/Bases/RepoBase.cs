@@ -51,6 +51,13 @@ namespace N4Core.Repositories.Bases
                 ApplyRecordChanges();
         }
 
+        public virtual void Delete(TEntity entity)
+        {
+            _db.Set<TEntity>().Remove(entity);
+            if (_applyRecordChanges)
+                ApplyRecordChanges();
+        }
+
         public virtual void Delete(Expression<Func<TEntity, bool>> predicate)
         {
             _db.Set<TEntity>().RemoveRange(Query().Where(predicate));

@@ -167,7 +167,7 @@ namespace @Model.ControllerNamespace
                 config.FileLengthInMegaBytes = 1;
                 config.IsExcelLicenseCommercial = false;
                 config.NoEntityTracking = false;
-                config.SetMapperProfiles(); // specify Profile object initializations as parameters for managing mapping
+                config.SetMapperProfiles(new @(Model.ModelTypeName + "Profile()")); // specify Profile object initializations as parameters for managing mapping
                 config.SetFileDirectories(); // specify folders under the wwwroot as parameters for managing images from disk
             });
         }
@@ -409,10 +409,11 @@ namespace @Model.ControllerNamespace
             @("_" + serviceAbstractClassName).Set(config => // Configurations
             {
                 config.Language = Languages.English;
+                config.FileOperations = false;
                 config.FileExtensions = ".jpg, .jpeg, .png";
                 config.FileLengthInMegaBytes = 1;
                 config.NoEntityTracking = false;
-                config.SetMapperProfiles(); // specify Profile object initializations as parameters for managing mapping
+                config.SetMapperProfiles(new @(Model.ModelTypeName + "Profile()")); // specify Profile object initializations as parameters for managing mapping
                 config.SetFileDirectories(); // specify folders under the wwwroot as parameters for managing images from disk
             });
         }
@@ -446,7 +447,7 @@ namespace @Model.ControllerNamespace
                 @addLine
                 @apiOkResponseLine
             }
-            return BadRequest(ModelState);
+            return BadRequest(ModelState.Update(@("_" + serviceAbstractClassName).Language));
         }
 
         // PUT: @apiRoutePrefix
@@ -460,7 +461,7 @@ namespace @Model.ControllerNamespace
                 @updateLine
                 @apiOkResponseLine
             }
-            return BadRequest(ModelState);
+            return BadRequest(ModelState.Update(@("_" + serviceAbstractClassName).Language));
         }
 
         // DELETE: @apiRoutePrefix/5
@@ -471,6 +472,17 @@ namespace @Model.ControllerNamespace
             @deleteLine
             @apiOkResponseLine
         }
+
+        #region File Operations
+        // DELETE: @apiRoutePrefix/DeleteFile/5
+        [HttpDelete("[action]/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> DeleteFile(@primaryKeyShortTypeName id)
+        {
+            var response = await _productService.DeleteFile(id);
+            return Ok(response);
+        }
+        #endregion
     }
     #endregion
 }

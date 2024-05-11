@@ -3,7 +3,7 @@
 Core Framework for web applications and restful services developed with .NET.
 
 # Features:
-1. Impementation of Repository, Unit of Work and CQRS Patterns for N-Layered and Clean Architectures.
+1. Impementation of Repository, Unit of Work, CQRS and Mediator Patterns for N-Layered and Clean Architectures.
 2. Generic CRUD services using services and models customized from entities.
 3. Automatic update of IsDeleted, CreateDate, CreatedBy, UpdateDate and UpdatedBy properties of an entity if they exist.
 4. File upload to the server's disk or binary column of the related entity table in the database with file download.

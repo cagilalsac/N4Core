@@ -2,7 +2,7 @@
 
 namespace N4Core.Files.Bases
 {
-    public abstract class RecordFile : Record
+    public class RecordFile : Record
     {
         public byte[]? FileData { get; set; }
         public string? FileContent { get; set; }

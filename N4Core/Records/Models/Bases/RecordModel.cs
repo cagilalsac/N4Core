@@ -2,7 +2,7 @@
 
 namespace N4Core.Records.Models.Bases
 {
-    public abstract class RecordModel : Record
+    public class RecordModel : Record
     {
     }
 }
