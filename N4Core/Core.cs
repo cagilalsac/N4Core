@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using DotnetGeminiSDK;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +10,9 @@ using N4Core.Accounts.Services;
 using N4Core.Accounts.Services.Bases;
 using N4Core.Accounts.Utils;
 using N4Core.Accounts.Utils.Bases;
+using N4Core.ArtificialIntelligence.Gemini.Settings;
+using N4Core.ArtificialIntelligence.Gemini.Utils;
+using N4Core.ArtificialIntelligence.Utils.Bases;
 using N4Core.Cookie.Utils;
 using N4Core.Cookie.Utils.Bases;
 using N4Core.Culture.Utils;
@@ -121,6 +125,20 @@ namespace N4Core
 
             #region API ModelState
             builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+            #endregion
+
+            #region AI
+            builder.Services.AddSingleton<IAiUtil, GeminiUtil>();
+            #region Google Gemini
+            var geminiSettings = new GeminiSettings(builder.Configuration, builder.Environment);
+            geminiSettings.Bind();
+            builder.Services.AddGeminiClient(config =>
+            {
+                config.ApiKey = geminiSettings.ApiKey;
+                config.TextBaseUrl = geminiSettings.ApiTextUrl;
+                config.ImageBaseUrl = geminiSettings.ApiImageUrl;
+            });
+            #endregion
             #endregion
 
             return builder;

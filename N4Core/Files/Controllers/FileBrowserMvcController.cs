@@ -8,11 +8,11 @@ using N4Core.Views.Models;
 
 namespace N4Core.Files.Controllers
 {
-    public abstract class FileBrowserController : Controller
+    public abstract class FileBrowserMvcController : Controller
     {
         protected readonly FileBrowserUtilBase _fileBrowserUtil;
 
-        protected FileBrowserController(FileBrowserUtilBase fileBrowserUtil)
+        protected FileBrowserMvcController(FileBrowserUtilBase fileBrowserUtil)
         {
             _fileBrowserUtil = fileBrowserUtil;
         }

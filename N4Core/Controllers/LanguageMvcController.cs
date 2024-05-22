@@ -6,11 +6,11 @@ using N4Core.Route.Utils;
 
 namespace N4Core.Controllers
 {
-    public class LanguageController : Controller
+    public class LanguageMvcController : Controller
     {
-        private readonly CookieUtilBase _cookieUtil;
+        protected readonly CookieUtilBase _cookieUtil;
 
-        public LanguageController(CookieUtilBase cookieUtil)
+        public LanguageMvcController(CookieUtilBase cookieUtil)
         {
             _cookieUtil = cookieUtil;
         }

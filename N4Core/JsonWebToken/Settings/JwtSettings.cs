@@ -9,7 +9,7 @@ using System.Text;
 
 namespace N4Core.JsonWebToken.Settings
 {
-    public class JwtSettings : AppSettingsBase
+    public class JwtSettings : SettingsBase
     {
         public string Audience { get; set; }
         public string Issuer { get; set; }

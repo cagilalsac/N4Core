@@ -155,5 +155,14 @@ namespace N4Core.Types.Extensions
             }
             return result;
         }
+
+        public static string ReplaceNewLineWithLineBreak(this string value)
+        {
+            string result = string.Empty;
+            if (string.IsNullOrWhiteSpace(value))
+                return result;
+            result = value.Replace("\n", "<br>");
+            return result;
+        }
     }
 }
