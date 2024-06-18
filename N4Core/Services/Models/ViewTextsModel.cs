@@ -1,10 +1,10 @@
 ﻿using N4Core.Culture;
 
-namespace N4Core.Views.Models
+namespace N4Core.Services.Models
 {
     public class ViewTextsModel
     {
-        public Languages Language { get; private set; }
+        public Languages Language { get; }
         public string List { get; set; }
         public string Create { get; set; }
         public string Save { get; set; }

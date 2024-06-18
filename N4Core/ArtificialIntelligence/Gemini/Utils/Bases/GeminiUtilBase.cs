@@ -13,7 +13,7 @@ namespace N4Core.ArtificialIntelligence.Gemini.Utils.Bases
     {
         protected readonly IGeminiClient _geminiClient;
 
-        public AiMessagesModel Messages { get; private set; }
+        public AiMessagesModel Messages { get; protected set; }
 
         protected GeminiUtilBase(IGeminiClient geminiClient)
         {

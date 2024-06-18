@@ -12,7 +12,7 @@ using N4Core.Culture.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Responses;
 using N4Core.Responses.Bases;
-using N4Core.Views.Models;
+using N4Core.Services.Models;
 using System.Security.Claims;
 
 namespace N4Core.Accounts.Services.Bases

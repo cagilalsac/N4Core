@@ -274,9 +274,9 @@ var ifLine = "@if (Model != null && Model.Count() > 0)\n";
                     @:}
                     @:else
                     @:{
-                        @:<a asp-action="Details" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                        @:<a asp-action="Edit" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
-                        @:<a asp-action="Delete" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
+                        @:<a asp-area="@@ViewContext.RouteData.Values["Area"]" asp-controller="@@ViewContext.RouteData.Values["Controller"]" asp-action="Details" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Details"><i class="bi bi-info-circle" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                        @:<a asp-area="@@ViewContext.RouteData.Values["Area"]" asp-controller="@@ViewContext.RouteData.Values["Controller"]" asp-action="Edit" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Edit"><i class="bi bi-pencil-square" style="font-size:larger;"></i></a>@@:&nbsp;&nbsp;&nbsp;&nbsp;
+                        @:<a asp-area="@@ViewContext.RouteData.Values["Area"]" asp-controller="@@ViewContext.RouteData.Values["Controller"]" asp-action="Delete" asp-route-id="@@item.@pkName1" data-bs-toggle="tooltip" title="@@viewModel.ViewTexts.Delete"><i class="bi bi-trash" style="font-size:larger;"></i></a>
                     @:}
                     @:</td>
 				}

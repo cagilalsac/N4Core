@@ -1,6 +1,21 @@
-﻿@{
+﻿@model object
+
+@{
+	string model = Model.GetType() == typeof(string) ? Convert.ToString(Model) : string.Empty;
 	string message;
 	string color;
+}
+@if (!string.IsNullOrWhiteSpace(model))
+{
+	message = model;
+	color = "success";
+	if (message.EndsWith("!"))
+	{
+		color = "danger";
+	}
+	<p class="text-@color">
+		@message
+	</p>
 }
 @if (ViewBag.Message != null)
 {

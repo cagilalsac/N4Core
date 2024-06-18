@@ -13,23 +13,25 @@ namespace N4Core.Reports.Utils.Bases
     public abstract class ReportUtilBase
     {
         protected readonly ReflectionUtilBase _reflectionUtil;
-        protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly CultureUtilBase _cultureUtil;
-        public Languages Language { get; private set; }
-        public bool IsExcelLicenseCommercial { get; private set; }
+        protected readonly IHttpContextAccessor _httpContextAccessor;
+
+        protected Languages _language;
+        protected bool _isExcelLicenseCommercial;
 
         protected ReportUtilBase(ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _cultureUtil = cultureUtil;
             _reflectionUtil = reflectionUtil;
-            Language = _cultureUtil.GetLanguage();
+            _cultureUtil = cultureUtil;
+            _httpContextAccessor = httpContextAccessor;
+            _language = _cultureUtil.GetLanguage();
         }
 
-        public void Set(Languages? language, bool isExcelLicenseCommercial)
+        public void Set(bool isExcelLicenseCommercial, Languages? language = null)
         {
-            Language = language.HasValue ? language.Value : _cultureUtil.GetLanguage();
-            IsExcelLicenseCommercial = isExcelLicenseCommercial;
+            _isExcelLicenseCommercial = isExcelLicenseCommercial;
+            if (language.HasValue)
+                _language = language.Value;
         }
 
         public virtual void ExportToExcel<TModel>(List<TModel> list, string fileNameWithoutExtension) where TModel : class, new()
@@ -47,7 +49,7 @@ namespace N4Core.Reports.Utils.Bases
             }
         }
 
-        public virtual byte[] ConvertToByteArrayForExcel<TModel>(List<TModel> list) where TModel : class, new()
+        protected byte[] ConvertToByteArrayForExcel<TModel>(List<TModel> list) where TModel : class, new()
         {
             byte[] data = null;
             if (list is not null && list.Any())
@@ -57,11 +59,11 @@ namespace N4Core.Reports.Utils.Bases
                 {
                     for (int i = 0; i < dataTable.Columns.Count; i++)
                     {
-                        dataTable.Columns[i].ColumnName = dataTable.Columns[i].ColumnName.GetDisplayName(Language);
+                        dataTable.Columns[i].ColumnName = dataTable.Columns[i].ColumnName.GetDisplayName(_language);
                     }
-                    ExcelPackage.LicenseContext = IsExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
+                    ExcelPackage.LicenseContext = _isExcelLicenseCommercial ? LicenseContext.Commercial : LicenseContext.NonCommercial;
                     ExcelPackage excelPackage = new ExcelPackage();
-                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Language == Languages.English ? "Sheet1" : "Sayfa1");
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(_language == Languages.English ? "Sheet1" : "Sayfa1");
                     excelWorksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
                     excelWorksheet.Cells["A:AZ"].AutoFitColumns();
                     data = excelPackage.GetAsByteArray();

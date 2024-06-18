@@ -1,28 +1,28 @@
 ﻿using AutoMapper;
 using N4Core.Culture;
-using N4Core.Files.Bases;
+using N4Core.Files.Managers;
 
 namespace N4Core.Services.Configs
 {
-    public class ServiceConfig : FileDirectoryBase
+    public class ServiceConfig : DirectoryManager
     {
         public Languages? Language { get; set; }
+        public bool NoEntityTracking { get; set; }
         public bool PageOrderFilter { get; set; }
+        public string[]? RecordsPerPageCounts { get; set; }
 
-        private bool _pageOrderFilterSession;
-        public bool PageOrderFilterSession
+        private bool _usePageSession;
+        public bool UsePageSession
         {
             get
             {
-                return PageOrderFilter == false ? false : _pageOrderFilterSession;
+                return PageOrderFilter == false ? false : _usePageSession;
             }
             set
             {
-                _pageOrderFilterSession = value;
+                _usePageSession = value;
             }
         }
-
-        public string PageOrderFilterSessionKey { get; set; } = "PageOrderFilterSessionKey";
 
         public bool? ListCards { get; set; }
         public bool Modal { get; set; }
@@ -31,7 +31,6 @@ namespace N4Core.Services.Configs
         public bool TimePicker { get; set; }
         public string FileExtensions { get; set; } = ".jpg, .jpeg, .png";
         public double FileLengthInMegaBytes { get; set; } = 1;
-        public bool NoEntityTracking { get; set; }
         public bool IsExcelLicenseCommercial { get; set; }
 
         public Profile[]? MapperProfiles { get; private set; }

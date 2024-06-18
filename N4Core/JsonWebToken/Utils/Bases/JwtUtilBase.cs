@@ -5,6 +5,7 @@ using N4Core.Accounts.Models;
 using N4Core.Expiration.Models;
 using N4Core.JsonWebToken.Models;
 using N4Core.JsonWebToken.Settings;
+using N4Core.Settings.Bases;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,13 +16,13 @@ namespace N4Core.JsonWebToken.Utils.Bases
     {
         public JwtSettings JwtSettings { get; protected set; }
 
-        protected JwtUtilBase(N4Core.Settings.Bases.AppSettingsBase appSettings)
+        protected JwtUtilBase(AppSettingsBase appSettings)
         {
             JwtSettings = new JwtSettings();
             appSettings.Bind(JwtSettings);
         }
 
-        public JwtModel GetJwt(AccountUserModel model)
+        public virtual JwtModel GetJwt(AccountUserModel model)
         {
             if (string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.RoleName))
                 return null;

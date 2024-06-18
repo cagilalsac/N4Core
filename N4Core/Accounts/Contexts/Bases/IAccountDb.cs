@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using N4Core.Accounts.Entities;
 
-namespace N4Core.Contexts.Bases
+namespace N4Core.Accounts.Contexts.Bases
 {
     public interface IAccountDb
     {

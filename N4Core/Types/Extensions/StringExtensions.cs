@@ -156,13 +156,58 @@ namespace N4Core.Types.Extensions
             return result;
         }
 
-        public static string ReplaceNewLineWithLineBreak(this string value)
+        public static string ReplaceNewLineWithLineBreak(this string value, string newLine = "\n")
         {
             string result = string.Empty;
             if (string.IsNullOrWhiteSpace(value))
                 return result;
-            result = value.Replace("\n", "<br>");
+            result = value.Replace(newLine, "<br>");
             return result;
+        }
+
+        public static string SeperatePascalCaseCharacters(this string value, char seperator = ' ')
+        {
+            string result = string.Empty;
+            if (string.IsNullOrWhiteSpace(value))
+                return result;
+            result += value[0];
+            for (int i = 1; i < value.Length; i++)
+            {
+                if (char.IsUpper(value[i]) && char.IsLetter(value[i - 1]))
+                    result += seperator;
+                result += value[i];
+            }
+            return result;
+        }
+
+        public static string? Find(this string value, string expression, string foundPrefix = "~", string foundSuffix = "~", string lineSeperator = "\n")
+        {
+            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
+                return null;
+            bool found = false;
+            int j;
+            string line, subLine;
+            StringComparison comparison = StringComparison.CurrentCultureIgnoreCase;
+            string[] lines = value.Split(lineSeperator);
+            for (int l = 0; l < lines.Length; l++)
+            {
+                if (!string.IsNullOrWhiteSpace(lines[l]) && lines[l].Contains(expression, comparison))
+                {
+                    line = lines[l];
+                    j = 0;
+                    for (int i = 0; i <= line.Length - expression.Length; i++)
+                    {
+                        subLine = line.Substring(i, expression.Length);
+                        if (subLine.Equals(expression, comparison))
+                        {
+                            lines[l] = lines[l].Insert(i + j, foundPrefix).Insert(i + j + expression.Length + foundPrefix.Length, foundSuffix);
+                            j += foundPrefix.Length + foundSuffix.Length;
+                            found = true;
+                        }
+                    }
+                }
+            }
+            return found ? string.Join(lineSeperator, lines) : null;
         }
     }
 }

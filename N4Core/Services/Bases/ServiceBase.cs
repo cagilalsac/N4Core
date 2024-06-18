@@ -1,17 +1,13 @@
 ﻿#nullable disable
 
-using AutoMapper.QueryableExtensions;
 using LinqKit;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using N4Core.Culture;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Files.Bases;
 using N4Core.Files.Models;
 using N4Core.Files.Models.Bases;
 using N4Core.Files.Utils.Bases;
 using N4Core.Mappers.Utils.Bases;
-using N4Core.Messages;
 using N4Core.Records.Bases;
 using N4Core.Reflection.Attributes;
 using N4Core.Reflection.Models;
@@ -19,62 +15,45 @@ using N4Core.Reflection.Utils.Bases;
 using N4Core.Reports.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Responses.Bases;
+using N4Core.Responses.Messages;
 using N4Core.Services.Configs;
 using N4Core.Services.Models;
-using N4Core.Session.Utils;
 using N4Core.Session.Utils.Bases;
 using N4Core.Types.Extensions;
-using N4Core.Views.Models;
 using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
-    public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : OperationResponses, IServiceBase<TQueryModel, TCommandModel>
+    public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : CrudServiceBase<TEntity, TQueryModel, TCommandModel>
         where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
-        protected readonly UnitOfWorkBase _unitOfWork;
-        protected readonly RepoBase<TEntity> _repo;
-        protected readonly ReflectionUtilBase _reflectionUtil;
-        protected readonly CultureUtilBase _cultureUtil;
         protected readonly FileUtilBase _fileUtil;
         protected readonly ReportUtilBase _reportUtil;
-        protected readonly MapperUtilBase<TEntity, TQueryModel, TCommandModel> _mapperUtil;
-        protected SessionUtilBase _sessionUtil;
-        protected readonly IHttpContextAccessor _httpContextAccessor;
-        protected List<ReflectionPropertyModel> _reflectionOrderingProperties;
-        protected List<ReflectionPropertyModel> _reflectionFilteringProperties;
-        public ServiceConfig Config { get; private set; }
-        public Languages Language { get; private set; }
-        public ViewModel ViewModel { get; private set; }
-        public OperationMessagesModel Messages { get; private set; }
 
-        protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo,
-            ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil,
-            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, IHttpContextAccessor httpContextAccessor)
+        protected readonly List<ReflectionPropertyModel> _reflectionOrderingProperties;
+        protected readonly List<ReflectionPropertyModel> _reflectionFilteringProperties;
+
+        public ServiceConfig Config { get; protected set; }
+        public ViewModel ViewModel { get; protected set; }
+
+        protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil, 
+            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil) : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil)
         {
-            _unitOfWork = unitOfWork;
-            _repo = repo;
-            _reflectionUtil = reflectionUtil;
-            _cultureUtil = cultureUtil;
             _fileUtil = fileUtil;
             _reportUtil = reportUtil;
-            _mapperUtil = mapperUtil;
-            _httpContextAccessor = httpContextAccessor;
-            _sessionUtil = new SessionUtil(_httpContextAccessor);
+            _pageSessionKey = "PageOrderFilterSessionKey";
             _reflectionOrderingProperties = _reflectionUtil.GetReflectionPropertyModelProperties<TQueryModel>(TagAttributes.Order);
             _reflectionFilteringProperties = _reflectionUtil.GetReflectionPropertyModelProperties<TQueryModel>(TagAttributes.StringFilter);
-            Config = new ServiceConfig();
-            Language = _cultureUtil.GetLanguage();
+            Config = new ServiceConfig(); 
             ViewModel = new ViewModel(Language);
-            Messages = new OperationMessagesModel(Language);
+            Messages = new MessagesModel(Language);
         }
 
         public void Set(Action<ServiceConfig> config)
         {
             config.Invoke(Config);
-            _fileUtil.Set(Config.FileLengthInMegaBytes, Config.FileExtensions, Config.FileDirectories);
-            _mapperUtil.Set(Config.MapperProfiles);
-            Language = Config.Language.HasValue ? Config.Language.Value : _cultureUtil.GetLanguage();
+            Set(Config.Language, Config.UsePageSession, Config.NoEntityTracking, Config.RecordsPerPageCounts, Config.MapperProfiles);
+            _fileUtil.Set(Config.FileLengthInMegaBytes, Config.FileExtensions, Config.Directories);
             ViewModel = new ViewModel(Language)
             {
                 PageOrderFilter = Config.PageOrderFilter,
@@ -84,30 +63,21 @@ namespace N4Core.Services.Bases
                 ExportOperation = Config.ExportOperation,
                 TimePicker = Config.TimePicker
             };
-            Messages = new OperationMessagesModel(Language);
+            Messages = new MessagesModel(Language);
         }
 
-        public virtual IQueryable<TQueryModel> Query()
-        {
-            return _repo.Query(Config.NoEntityTracking).ProjectTo<TQueryModel>(_mapperUtil.Configuration);
-        }
-
-        public virtual IQueryable<TCommandModel> QueryCommand()
-        {
-            return _repo.Query(Config.NoEntityTracking).ProjectTo<TCommandModel>(_mapperUtil.Configuration);
-        }
-
-        public virtual IQueryable<TQueryModel> Query(PageOrderFilterModel pageOrderFilterModel)
+        public virtual IQueryable<TQueryModel> Query(PageOrderFilterModel pageModel)
         {
             var query = Query();
-            var pageOrderFilterSession = _sessionUtil?.Get<PageOrderFilterModel>(Config.PageOrderFilterSessionKey);
-            if (Config.PageOrderFilterSession && pageOrderFilterSession is not null)
+            if (_usePageSession && pageModel.PageSession)
             {
-                pageOrderFilterModel.PageNumber = pageOrderFilterSession.PageNumber;
-                pageOrderFilterModel.RecordsPerPageCount = pageOrderFilterSession.RecordsPerPageCount;
-                pageOrderFilterModel.OrderExpression = pageOrderFilterSession.OrderExpression;
-                pageOrderFilterModel.OrderDirectionDescending = pageOrderFilterSession.OrderDirectionDescending;
-                pageOrderFilterModel.Filter = pageOrderFilterSession.Filter;
+                var pageSessionModel = _sessionUtil.Get<PageOrderFilterModel>(_pageSessionKey);
+                if (pageSessionModel is not null)
+                {
+                    pageModel.OrderExpression = pageSessionModel.OrderExpression;
+                    pageModel.OrderDirectionDescending = pageSessionModel.OrderDirectionDescending;
+                    pageModel.Filter = pageSessionModel.Filter;
+                }
             }
             ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? new List<string>() :
                 _reflectionOrderingProperties.Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
@@ -115,42 +85,55 @@ namespace N4Core.Services.Bases
             {
                 ViewModel.OrderExpressions[i] = ViewModel.OrderExpressions[i].GetDisplayName(Language);
             }
-            if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageOrderFilterModel.OrderExpression))
+            if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageModel.OrderExpression))
             {
                 var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p =>
-                    p.DisplayName.GetDisplayName(Language) == pageOrderFilterModel.OrderExpression);
+                    p.DisplayName.GetDisplayName(Language) == pageModel.OrderExpression);
                 if (propertyForOrdering is null)
-                    propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageOrderFilterModel.OrderExpression);
+                    propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageModel.OrderExpression);
                 if (propertyForOrdering is not null)
                 {
-                    query = pageOrderFilterModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name)) :
+                    query = pageModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name)) :
                         query.OrderBy(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name));
                 }
             }
-            if (!string.IsNullOrWhiteSpace(pageOrderFilterModel.Filter))
+            if (!string.IsNullOrWhiteSpace(pageModel.Filter))
             {
                 if (_reflectionFilteringProperties is not null && _reflectionFilteringProperties.Any())
                 {
-                    var predicate = _reflectionUtil.GetPredicateContainsExpression<TQueryModel>(_reflectionFilteringProperties[0].Name, pageOrderFilterModel.Filter);
+                    var predicate = _reflectionUtil.GetPredicateContainsExpression<TQueryModel>(_reflectionFilteringProperties[0].Name, pageModel.Filter);
                     for (var i = 1; i < _reflectionFilteringProperties.Count; i++)
                     {
-                        predicate = predicate.Or(_reflectionUtil.GetPredicateContainsExpression<TQueryModel>(_reflectionFilteringProperties[i].Name, pageOrderFilterModel.Filter));
+                        predicate = predicate.Or(_reflectionUtil.GetPredicateContainsExpression<TQueryModel>(_reflectionFilteringProperties[i].Name, pageModel.Filter));
                     }
                     query = query.Where(predicate);
                 }
             }
-            ViewModel.PageNumber = pageOrderFilterModel.PageNumber;
-            ViewModel.RecordsPerPageCount = pageOrderFilterModel.RecordsPerPageCount;
-            ViewModel.OrderExpression = pageOrderFilterModel.OrderExpression;
-            ViewModel.OrderDirectionDescending = pageOrderFilterModel.OrderDirectionDescending;
-            ViewModel.Filter = pageOrderFilterModel.Filter;
-            ViewModel.TotalRecordsCount = query.Count();
+            query = Paginate(query, pageModel);
+            ViewModel.RecordsPerPageCounts = pageModel.RecordsPerPageCounts;
+            ViewModel.PageNumber = pageModel.PageNumber;
+            ViewModel.RecordsPerPageCount = pageModel.RecordsPerPageCount;
+            ViewModel.OrderExpression = pageModel.OrderExpression;
+            ViewModel.OrderDirectionDescending = pageModel.OrderDirectionDescending;
+            ViewModel.Filter = pageModel.Filter;
+            ViewModel.TotalRecordsCount = pageModel.TotalRecordsCount;
+            ViewModel.Message = ViewModel.TotalRecordsCount == 0 ? Messages.RecordNotFound : ViewModel.TotalRecordsCount == 1 ?
+                ViewModel.TotalRecordsCount + " " + Messages.RecordFound : ViewModel.TotalRecordsCount + " " + Messages.RecordsFound;
             return query;
         }
 
-        public virtual async Task<List<TQueryModel>> GetList(CancellationToken cancellationToken = default)
+        public virtual async Task<List<TQueryModel>> GetList(PageOrderFilterModel pageModel, CancellationToken cancellationToken = default)
         {
-            var list = await Query().ToListAsync(cancellationToken);
+            var query = Query(pageModel);
+            var list = await query.ToListAsync(cancellationToken);
+            if (Config.FileOperations)
+                _fileUtil.UpdateImgSrc(list);
+            return list;
+        }
+
+        public override async Task<List<TQueryModel>> GetList(CancellationToken cancellationToken = default)
+        {
+            var list = await base.GetList(cancellationToken);
             ViewModel.TotalRecordsCount = list.Count;
             ViewModel.Message = ViewModel.TotalRecordsCount == 0 ? Messages.RecordNotFound : ViewModel.TotalRecordsCount == 1 ?
                 ViewModel.TotalRecordsCount + " " + Messages.RecordFound : ViewModel.TotalRecordsCount + " " + Messages.RecordsFound;
@@ -159,9 +142,9 @@ namespace N4Core.Services.Bases
             return list;
         }
 
-        public virtual async Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default)
+        public override async Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            var list = await Query().Where(predicate).ToListAsync(cancellationToken);
+            var list = await base.GetList(predicate, cancellationToken);
             ViewModel.TotalRecordsCount = list.Count;
             ViewModel.Message = ViewModel.TotalRecordsCount == 0 ? Messages.RecordNotFound : ViewModel.TotalRecordsCount == 1 ?
                 ViewModel.TotalRecordsCount + " " + Messages.RecordFound : ViewModel.TotalRecordsCount + " " + Messages.RecordsFound;
@@ -170,84 +153,23 @@ namespace N4Core.Services.Bases
             return list;
         }
 
-        public virtual async Task<List<TQueryModel>> GetList(PageOrderFilterModel pageOrderFilterModel, CancellationToken cancellationToken = default)
+        public override async Task<TQueryModel> GetItem(int id, CancellationToken cancellationToken = default)
         {
-            var query = Query(pageOrderFilterModel);
-            ViewModel.Message = ViewModel.TotalRecordsCount == 0 ? Messages.RecordNotFound : ViewModel.TotalRecordsCount == 1 ?
-                ViewModel.TotalRecordsCount + " " + Messages.RecordFound : ViewModel.TotalRecordsCount + " " + Messages.RecordsFound;
-            if (pageOrderFilterModel.PageNumber == ViewModel.PageNumbers.LastOrDefault() + 1 && ViewModel.TotalRecordsCount % Convert.ToInt32(ViewModel.RecordsPerPageCount) == 0)
-            {
-                if (pageOrderFilterModel.PageNumber > 1)
-                    pageOrderFilterModel.PageNumber--;
-            }
-            if (ViewModel.RecordsPerPageCounts is not null && ViewModel.RecordsPerPageCounts.Count > 0 && ViewModel.RecordsPerPageCount != ViewModel.RecordsPerPageCounts.LastOrDefault())
-            {
-                query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
-            }
-            _sessionUtil?.Set(pageOrderFilterModel, Config.PageOrderFilterSessionKey);
-            var list = await query.ToListAsync(cancellationToken);
-            if (Config.FileOperations)
-                _fileUtil.UpdateImgSrc(list);
-            return list;
-        }
-
-        public virtual async Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, PageOrderFilterModel pageOrderFilterModel, CancellationToken cancellationToken = default)
-        {
-            var query = Query(pageOrderFilterModel).Where(predicate);
-            ViewModel.Message = ViewModel.TotalRecordsCount == 0 ? Messages.RecordNotFound : ViewModel.TotalRecordsCount == 1 ?
-                ViewModel.TotalRecordsCount + " " + Messages.RecordFound : ViewModel.TotalRecordsCount + " " + Messages.RecordsFound;
-            if (pageOrderFilterModel.PageNumber == ViewModel.PageNumbers.LastOrDefault() + 1 && ViewModel.TotalRecordsCount % Convert.ToInt32(ViewModel.RecordsPerPageCount) == 0)
-            {
-                if (pageOrderFilterModel.PageNumber > 1)
-                    pageOrderFilterModel.PageNumber--;
-            }
-            if (ViewModel.RecordsPerPageCounts is not null && ViewModel.RecordsPerPageCounts.Count > 0 && ViewModel.RecordsPerPageCount != ViewModel.RecordsPerPageCounts.LastOrDefault())
-            {
-                query = query.Skip((pageOrderFilterModel.PageNumber - 1) * Convert.ToInt32(ViewModel.RecordsPerPageCount)).Take(Convert.ToInt32(ViewModel.RecordsPerPageCount));
-            }
-            _sessionUtil?.Set(pageOrderFilterModel, Config.PageOrderFilterSessionKey);
-            var list = await query.ToListAsync(cancellationToken);
-            if (Config.FileOperations)
-                _fileUtil.UpdateImgSrc(list);
-            return list;
-        }
-
-        public virtual async Task<TQueryModel> GetItem(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            var item = await Query().SingleOrDefaultAsync(predicate, cancellationToken);
+            var item = await base.GetItem(id, cancellationToken);
             if (Config.FileOperations)
                 _fileUtil.UpdateImgSrc(item);
             return item;
         }
 
-        public virtual async Task<TQueryModel> GetItem(int id, CancellationToken cancellationToken = default)
+        public override async Task<TCommandModel> GetCommandItem(int id, CancellationToken cancellationToken = default)
         {
-            var item = await Query().SingleOrDefaultAsync(q => q.Id == id, cancellationToken);
+            var item = await base.GetCommandItem(id, cancellationToken);
             if (Config.FileOperations)
                 _fileUtil.UpdateImgSrc(item);
             return item;
         }
 
-        public virtual async Task<TCommandModel> GetCommandItem(int id, CancellationToken cancellationToken = default)
-        {
-            var item = await QueryCommand().SingleOrDefaultAsync(q => q.Id == id, cancellationToken);
-            if (Config.FileOperations)
-                _fileUtil.UpdateImgSrc(item);
-            return item;
-        }
-
-        public virtual async Task<Response> ItemExists(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            bool exists = await Query().AnyAsync(predicate, cancellationToken);
-            return exists ? Success(Messages.RecordFound) : Error(Messages.RecordNotFound);
-        }
-
-        public virtual async Task<int> GetMaxId(CancellationToken cancellationToken = default)
-        {
-            return await Query().MaxAsync(q => q.Id, cancellationToken);
-        }
-
-        public virtual async Task<Response> Create(TCommandModel commandModel, CancellationToken cancellationToken = default)
+        public override async Task<Response> Create(TCommandModel commandModel, CancellationToken cancellationToken = default)
         {
             RecordFileModel fileModel = null;
             RecordFile file = null;
@@ -257,7 +179,7 @@ namespace N4Core.Services.Bases
             {
                 fileModel = commandModel as RecordFileModel;
                 if (_fileUtil.CheckFile(fileModel.FormFile) == false)
-                    return Error(Messages.InvalidFileExtensionOrFileLength);
+                    return Error((Messages as MessagesModel).InvalidFileExtensionOrFileLength);
                 file = entity as RecordFile;
                 _fileUtil.UpdateFile(fileModel.FormFile, file);
             }
@@ -268,10 +190,10 @@ namespace N4Core.Services.Bases
             {
                 _fileUtil.UploadFile(fileModel.FormFile, file);
             }
-            return Success(Messages.CreatedSuccessfuly, commandModel.Id);
+            return Success(Messages.CreatedSuccessfully, commandModel.Id);
         }
 
-        public virtual async Task<Response> Update(TCommandModel commandModel, CancellationToken cancellationToken = default)
+        public override async Task<Response> Update(TCommandModel commandModel, CancellationToken cancellationToken = default)
         {
             RecordFileModel fileModel = null;
             RecordFile file = null;
@@ -281,7 +203,7 @@ namespace N4Core.Services.Bases
             {
                 fileModel = commandModel as RecordFileModel;
                 if (_fileUtil.CheckFile(fileModel.FormFile) == false)
-                    return Error(Messages.InvalidFileExtensionOrFileLength);
+                    return Error((Messages as MessagesModel).InvalidFileExtensionOrFileLength);
                 file = entity as RecordFile;
                 _fileUtil.UpdateFile(fileModel.FormFile, file);
             }
@@ -298,20 +220,19 @@ namespace N4Core.Services.Bases
             {
                 _fileUtil.UploadFile(fileModel.FormFile, file);
             }
-            return Success(Messages.UpdatedSuccessfuly, commandModel.Id);
+            return Success(Messages.UpdatedSuccessfully, commandModel.Id);
         }
 
-        public virtual async Task<Response> Delete(int id, CancellationToken cancellationToken = default)
+        public override async Task<Response> Delete(int id, CancellationToken cancellationToken = default)
         {
             var entity = await _repo.Query().SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
             _fileUtil.DeleteFile(entity);
             _repo.Delete(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
-            return Success(Messages.DeletedSuccessfuly);
+            return Success(Messages.DeletedSuccessfully);
         }
 
-        public virtual async Task<FileToDownloadModel> DownloadFile(int id, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false,
-            CancellationToken cancellationToken = default)
+        public virtual async Task<FileToDownloadModel> DownloadFile(int id, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false, CancellationToken cancellationToken = default)
         {
             FileToDownloadModel file = _fileUtil.GetFile(id, fileToDownloadFileNameWithoutExtension, useOctetStreamContentType);
             if (file is null)
@@ -342,31 +263,32 @@ namespace N4Core.Services.Bases
         public virtual async Task<Response> DeleteFile(int id, CancellationToken cancellationToken = default)
         {
             if (!Config.FileOperations)
-                return Error(Messages.FileOperationsNotConfigured);
+                return Error((Messages as MessagesModel).FileOperationsNotConfigured);
             var entity = await _repo.Query().SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
             _fileUtil.DeleteFile(entity);
             _repo.Update(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
-            return Success(Messages.FileDeletedSuccessfully, id);
+            return Success((Messages as MessagesModel).FileDeletedSuccessfully, id);
         }
 
         public virtual async Task ExportToExcel(string fileNameWithoutExtension)
         {
-            _reportUtil.Set(Config.Language, Config.IsExcelLicenseCommercial);
+            _reportUtil.Set(Config.IsExcelLicenseCommercial, Language);
             _reportUtil.ExportToExcel(await GetList(), fileNameWithoutExtension);
         }
 
         public virtual async Task ExportToExcel(string fileNameWithoutExtension, PageOrderFilterModel pageOrderFilterModel)
         {
-            _reportUtil.Set(Config.Language, Config.IsExcelLicenseCommercial);
+            _reportUtil.Set(Config.IsExcelLicenseCommercial, Language);
             _reportUtil.ExportToExcel(await GetList(pageOrderFilterModel), fileNameWithoutExtension);
         }
+    }
 
-        public void Dispose()
+    public abstract class ServiceBase<TEntity, TModel> : ServiceBase<TEntity, TModel, TModel> where TEntity : Record, new() where TModel : Record, new()
+    {
+        protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil, 
+            MapperUtilBase<TEntity, TModel, TModel> mapperUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil) : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil, fileUtil, reportUtil)
         {
-            _repo.Dispose();
-            _unitOfWork.Dispose();
-            GC.SuppressFinalize(this);
         }
     }
 }

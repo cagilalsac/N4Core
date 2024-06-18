@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using N4Core.Cookie.Utils.Bases;
 using N4Core.Route.Utils;
 
-namespace N4Core.Controllers
+namespace N4Core.Culture.Controllers
 {
     public class LanguageMvcController : Controller
     {

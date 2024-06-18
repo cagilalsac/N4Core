@@ -18,13 +18,15 @@ using N4Core.Cookie.Utils.Bases;
 using N4Core.Culture.Utils;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Expiration.Models;
+using N4Core.Files.Services;
+using N4Core.Files.Services.Bases;
 using N4Core.Files.Utils;
 using N4Core.Files.Utils.Bases;
 using N4Core.JsonWebToken.Settings;
 using N4Core.JsonWebToken.Utils;
 using N4Core.JsonWebToken.Utils.Bases;
-using N4Core.Mappers.Utils;
 using N4Core.Mappers.Utils.Bases;
+using N4Core.Mappers.Utils;
 using N4Core.Reflection.Utils;
 using N4Core.Reflection.Utils.Bases;
 using N4Core.Reports.Utils;
@@ -55,6 +57,7 @@ namespace N4Core
             #region Authentication
             if (!appSettingsBase.UseIdentity)
             {
+                // Inversion of Control for Account Service:
                 builder.Services.AddScoped<AccountServiceBase, AccountService>();
                 var accountServiceConfig = new AccountServiceConfig();
                 builder.Services.AddAuthentication(accountServiceConfig.AuthenticationScheme)
@@ -110,10 +113,9 @@ namespace N4Core
             builder.Services.AddSingleton<AccountUtilBase, AccountUtil>();
             builder.Services.AddSingleton<CultureUtilBase, CultureUtil>();
             builder.Services.AddSingleton<ReflectionUtilBase, ReflectionUtil>();
+            builder.Services.AddSingleton(typeof(MapperUtilBase<,,>), typeof(MapperUtil<,,>));
             builder.Services.AddSingleton<FileUtilBase, FileUtil>();
             builder.Services.AddSingleton<ReportUtilBase, ReportUtil>();
-            builder.Services.AddSingleton(typeof(MapperUtilBase<,,>), typeof(MapperUtil<,,>));
-            builder.Services.AddSingleton<FileBrowserUtilBase, FileBrowserUtil>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             #region API JWT
             builder.Services.AddSingleton<JwtUtilBase, JwtUtil>();
@@ -122,6 +124,9 @@ namespace N4Core
             // Inversion of Control for repositories:
             builder.Services.AddScoped(typeof(RepoBase<>), typeof(Repo<>));
             builder.Services.AddScoped<UnitOfWorkBase, UnitOfWork>();
+
+            // Inversion of Control for File Browser Service:
+            builder.Services.AddScoped<FileBrowserServiceBase, FileBrowserService>();
 
             #region API ModelState
             builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);

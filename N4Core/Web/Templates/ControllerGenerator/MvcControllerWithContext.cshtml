@@ -111,8 +111,7 @@ namespace @Model.ControllerNamespace
     var declareListLine = "List<" + Model.ModelTypeName + "QueryModel> " + Model.ModelVariable + "List;";
     var listLine = Model.ModelVariable + "List = await " + ("_" + serviceAbstractClassName) + ".GetList();";
     var pageOrderFilterListLine = Model.ModelVariable + "List = await " + ("_" + serviceAbstractClassName) + ".GetList(pageOrderFilterModel);";
-    var pageOrderFilterServiceConfigLine = "_" + serviceAbstractClassName + ".Set(config => { config.PageOrderFilterSession = s; config.ListCards = v ?? config.ListCards; });";
-    var serviceConfigLine = "_" + serviceAbstractClassName + ".Set(config => { config.ListCards = v ?? config.ListCards; });";
+    var serviceConfigLine = "_" + serviceAbstractClassName + ".Set(config => { config.ListCards = pageOrderFilterModel.ListCards ?? config.ListCards; });";
     var itemLine = Model.ModelTypeName + "QueryModel " + Model.ModelVariable + " = await " + ("_" + serviceAbstractClassName) + ".GetItem(id);";
     var commandItemLine = Model.ModelTypeName + "CommandModel " + Model.ModelVariable + " = await " + ("_" + serviceAbstractClassName) + ".GetCommandItem(id);";
     var viewListLine = "return View(" + Model.ModelVariable + "List);";
@@ -124,7 +123,7 @@ namespace @Model.ControllerNamespace
     var ifResultSuccessfulLine = "if (response.IsSuccessful)";
     var openCurlyBraceLine = "{";
     var tempDataLine = "TempData[\"Message\"] = message; // End message in service with '.' for success, '!' for danger Bootstrap CSS classes to be used in the View";
-    var redirectToIndexLine = "return RedirectToAction(nameof(Index), new { s = true });";
+    var redirectToIndexLine = "return RedirectToAction(nameof(Index), new { pagesession = true });";
     var redirectToDetailsLine = "return RedirectToAction(nameof(Details), new { id = response.Id });";
     var redirectToDetailsByIdLine = "return RedirectToAction(nameof(Details), new { id = id });";
     var closeCurlyBraceLine = "}";
@@ -133,7 +132,7 @@ namespace @Model.ControllerNamespace
     var itemNotFoundLine = "ViewBag.Message = _" + serviceAbstractClassName + ".Messages.RecordNotFound;";
     var commandModelType = Model.ModelTypeName + "CommandModel";
     var viewModelLine = "ViewBag.ViewModel = _" + serviceAbstractClassName + ".ViewModel;";
-    var report = "DateTime.Now.ToString(\"yyyyMMdd_HHmmss\") + \"_\" + " + "_" + serviceAbstractClassName + ".Messages.Report";
+    var report = "DateTime.Now.ToString(\"yyyyMMdd_HHmmss\") + \"_\" + " + "(_" + serviceAbstractClassName + ".Messages as MessagesModel).Report";
     var apiControllerName = Model.ControllerRootName + "ApiController";
     var apiRoutePrefix = Model.ControllerRootName + "Api";
     var apiConstructorLine = "public " + apiControllerName + "(" + serviceAbstractClassType + " " + serviceAbstractClassName + ")";
@@ -158,6 +157,8 @@ namespace @Model.ControllerNamespace
             @("_" + serviceAbstractClassName).Set(config => // Configurations
             {
                 config.PageOrderFilter = true;
+                config.UsePageSession = true; // should be set to true for MVC, false for WebApi
+                config.RecordsPerPageCounts = null; // should be set to null for using default values
                 config.ListCards = false; // false for showing list, true for showing cards, null for not showing list view
                 config.Modal = true;
                 config.FileOperations = false;
@@ -166,7 +167,7 @@ namespace @Model.ControllerNamespace
                 config.FileExtensions = ".jpg, .jpeg, .png";
                 config.FileLengthInMegaBytes = 1;
                 config.IsExcelLicenseCommercial = false;
-                config.NoEntityTracking = false;
+                config.NoEntityTracking = true;
                 config.SetMapperProfiles(new @(Model.ModelTypeName + "Profile()")); // specify Profile object initializations as parameters for managing mapping
                 config.SetFileDirectories(); // specify folders under the wwwroot as parameters for managing images from disk
             });
@@ -174,19 +175,14 @@ namespace @Model.ControllerNamespace
 
         // GET: @routePrefix
         [AllowAnonymous]
-        public async Task<IActionResult> Index(PageOrderFilterModel pageOrderFilterModel, bool s = false, bool? v = null)
+        public async Task<IActionResult> Index(PageOrderFilterModel pageOrderFilterModel)
         {
             @declareListLine
+            @serviceConfigLine
             if (@("_" + serviceAbstractClassName + ".Config.PageOrderFilter"))
-            {
-                @pageOrderFilterServiceConfigLine
                 @pageOrderFilterListLine
-            }
             else
-            {
-                @serviceConfigLine
                 @listLine
-            }
             @listCountLine
             @viewModelLine
             @viewListLine
@@ -363,7 +359,7 @@ namespace @Model.ControllerNamespace
             }
             else
             {
-                return View("Error", new ViewErrorModel(@("_" + serviceAbstractClassName).Messages.FileOperationsNotConfigured));
+                return View("Error", new ViewErrorModel((@("_" + serviceAbstractClassName).Messages as MessagesModel).FileOperationsNotConfigured));
             }
         }
 
@@ -377,7 +373,7 @@ namespace @Model.ControllerNamespace
             }
             else
             {
-                return View("Error", new ViewErrorModel(@("_" + serviceAbstractClassName).Messages.FileOperationsNotConfigured));
+                return View("Error", new ViewErrorModel((@("_" + serviceAbstractClassName).Messages as MessagesModel).FileOperationsNotConfigured));
             }
         }
         #endregion

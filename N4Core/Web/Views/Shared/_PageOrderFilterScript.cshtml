@@ -2,15 +2,11 @@
 
 <script>
 	var filter = '@Model.Filter';
-	var pageNumber = '@Model.PageNumber';
-	var recordsPerPageCount = '@Model.RecordsPerPageCount';
 	var orderExpression = '@Model.OrderExpression';
 	var orderDirectionDescending = '@Model.OrderDirectionDescending';
 
 	$(function () {
 		$("#filter").prop("placeholder", filter);
-		$("#pagenumber").html(pageNumber);
-		$("#recordsperpagecount").html(recordsPerPageCount);
 		$("#orderexpression").html(orderExpression);
 		$("#orderdirectiondescendinglabel").html(orderDirectionDescending);
 		var caretDown = '<i class="bi bi-caret-down"></i>';
@@ -38,13 +34,6 @@
 			}
 		});
 
-		$(".pagenumber").change(function () {
-			$("#form").submit();
-		});
-		$(".recordsperpagecount").change(function () {
-			$(".pagenumber").val("1");
-			$("#form").submit();
-		});
 		$(".orderexpression").change(function () {
 			$("#form").submit();
 		});

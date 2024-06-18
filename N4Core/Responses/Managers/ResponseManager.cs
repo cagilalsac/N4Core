@@ -1,6 +1,6 @@
-﻿namespace N4Core.Responses.Bases
+﻿namespace N4Core.Responses.Managers
 {
-    public abstract class OperationResponses
+    public class ResponseManager
     {
         public virtual ErrorResponse Error(string message) => new ErrorResponse(message);
         public virtual ErrorResponse Error() => new ErrorResponse();

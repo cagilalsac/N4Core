@@ -4,35 +4,37 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using N4Core.Culture;
-using N4Core.Mappers.Utils.Bases;
-using N4Core.Messages;
+using N4Core.Mappers.Utils;
 using N4Core.Records.Bases;
 using N4Core.Reflection.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Requests.Bases;
 using N4Core.Requests.Enums;
 using N4Core.Responses.Bases;
+using N4Core.Responses.Managers;
+using N4Core.Responses.Messages;
 
 namespace N4Core.Handlers.Bases
 {
-    public abstract class ApiHandler<TEntity, TRequest, TResponse> : OperationResponses, IRequestHandler<TRequest, Response<IQueryable<TResponse>>>
+    public abstract class ApiHandlerBase<TEntity, TRequest, TResponse> : ResponseManager, IRequestHandler<TRequest, Response<IQueryable<TResponse>>>
         where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<TResponse>>>, new() where TResponse : Record, new()
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
         protected readonly ReflectionUtilBase _reflectionUtil;
-        protected readonly MapperUtilBase<TEntity, TResponse, TRequest> _mapperUtil;
+
+        protected readonly MapperUtil<TEntity, TResponse, TRequest> _mapperUtil;
 
         public virtual bool NoEntityTracking { get; }
-        public OperationMessagesModel Messages { get; private set; }
+        public CrudMessagesModel Messages { get; protected set; }
 
-        protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, MapperUtilBase<TEntity, TResponse, TRequest> mapperUtil)
+        protected ApiHandlerBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil)
         {
             _unitOfWork = unitOfWork;
             _repo = repo;
             _reflectionUtil = reflectionUtil;
-            _mapperUtil = mapperUtil;
-            Messages = new OperationMessagesModel(Languages.English);
+            _mapperUtil = new MapperUtil<TEntity, TResponse, TRequest>();
+            Messages = new CrudMessagesModel(Languages.English);
         }
 
         public virtual async Task<Response<IQueryable<TResponse>>> Handle(TRequest request, CancellationToken cancellationToken)
@@ -54,7 +56,7 @@ namespace N4Core.Handlers.Bases
                     _reflectionUtil.TrimStringProperties(entity);
                     _repo.Create(entity);
                     await _unitOfWork.SaveAsync(cancellationToken);
-                    message = Messages.CreatedSuccessfuly;
+                    message = Messages.CreatedSuccessfully;
                     break;
                 case RequestOperations.Update:
                     _mapperUtil.Set(request.MapperProfiles);
@@ -69,23 +71,22 @@ namespace N4Core.Handlers.Bases
                     {
                         return Error<IQueryable<TResponse>>(Messages.RecordNotFound);
                     }
-                    message = Messages.UpdatedSuccessfuly;
+                    message = Messages.UpdatedSuccessfully;
                     break;
                 case RequestOperations.Delete:
                     _repo.Delete(r => r.Id == request.Id);
                     await _unitOfWork.SaveAsync(cancellationToken);
-                    message = Messages.DeletedSuccessfuly;
+                    message = Messages.DeletedSuccessfully;
                     break;
             }
             return Success(message, query);
         }
     }
 
-    public abstract class ApiHandler<TEntity, TRequest> : ApiHandler<TEntity, TRequest, Record>
+    public abstract class ApiHandler<TEntity, TRequest> : ApiHandlerBase<TEntity, TRequest, Record>
         where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<Record>>>, new()
     {
-        protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, MapperUtilBase<TEntity, Record, TRequest> mapperUtil) 
-            : base(unitOfWork, repo, reflectionUtil, mapperUtil)
+        protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil) : base(unitOfWork, repo, reflectionUtil)
         {
         }
     }

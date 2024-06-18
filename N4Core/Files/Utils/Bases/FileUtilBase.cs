@@ -2,13 +2,14 @@
 
 using Microsoft.AspNetCore.Http;
 using N4Core.Files.Bases;
+using N4Core.Files.Managers;
 using N4Core.Files.Models;
 using N4Core.Files.Models.Bases;
 using N4Core.Records.Bases;
 
 namespace N4Core.Files.Utils.Bases
 {
-    public abstract class FileUtilBase : FileDirectoryBase
+    public abstract class FileUtilBase : DirectoryManager
     {
         protected char _acceptedExtensionsSeperator = ',';
         protected string _acceptedExtensions = ".jpg, .jpeg, .png";
@@ -18,7 +19,7 @@ namespace N4Core.Files.Utils.Bases
         {
             _acceptedLengthInMegaBytes = acceptedLengthInMegaBytes;
             _acceptedExtensions = acceptedExtensions;
-            SetFileDirectories(fileDirectories);
+            SetDirectories(fileDirectories);
         }
 
         public virtual void UpdateFile(IFormFile formFile, RecordFile file)
@@ -28,9 +29,9 @@ namespace N4Core.Files.Utils.Bases
             file.FileData = null;
             if (formFile is not null)
             {
-                if (HasFileDirectories)
+                if (HasDirectories)
                 {
-                    file.FilePath = "/" + string.Join("/", FileDirectories) + "/";
+                    file.FilePath = "/" + string.Join("/", Directories) + "/";
                 }
                 else
                 {
@@ -108,7 +109,7 @@ namespace N4Core.Files.Utils.Bases
 
         public virtual void SaveFile(IFormFile formFile, RecordFile file)
         {
-            if (formFile is not null && HasFileDirectories)
+            if (formFile is not null && HasDirectories)
             {
                 using (FileStream fileStream = new FileStream(Path.Combine(CreatePath(file.Id + file.FileContent)), FileMode.Create))
                 {
@@ -119,9 +120,9 @@ namespace N4Core.Files.Utils.Bases
 
         public virtual void DeleteFile(int id)
         {
-            if (FilePath != string.Empty)
+            if (DirectoryPath != string.Empty)
             {
-                var filePath = Directory.GetFiles(FilePath).SingleOrDefault(file => Path.GetFileNameWithoutExtension(file).Equals(id.ToString()));
+                var filePath = Directory.GetFiles(DirectoryPath).SingleOrDefault(file => Path.GetFileNameWithoutExtension(file).Equals(id.ToString()));
                 if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
                     File.Delete(filePath);
             }
@@ -170,15 +171,15 @@ namespace N4Core.Files.Utils.Bases
         public virtual FileToDownloadModel GetFile(int entityId, string fileToDownloadFileNameWithoutExtension = null, bool useOctetStreamContentType = false)
         {
             FileToDownloadModel file = null;
-            if (FilePath != string.Empty)
+            if (DirectoryPath != string.Empty)
             {
-                string fileNameWithoutPath = GetFileNameWithoutPath(entityId.ToString(), FilePath);
+                string fileNameWithoutPath = GetFileNameWithoutPath(entityId.ToString(), DirectoryPath);
                 if (string.IsNullOrWhiteSpace(fileNameWithoutPath))
                     return null;
                 string fileExtension = Path.GetExtension(fileNameWithoutPath);
                 file = new FileToDownloadModel()
                 {
-                    FileStream = new FileStream(Path.Combine(FilePath, fileNameWithoutPath), FileMode.Open),
+                    FileStream = new FileStream(Path.Combine(DirectoryPath, fileNameWithoutPath), FileMode.Open),
                     FileContentType = useOctetStreamContentType ? "application/octet-stream" : GetContentType(fileNameWithoutPath, false, false),
                     FileName = string.IsNullOrWhiteSpace(fileToDownloadFileNameWithoutExtension) ? entityId + fileExtension : fileToDownloadFileNameWithoutExtension + fileExtension
                 };
@@ -199,8 +200,8 @@ namespace N4Core.Files.Utils.Bases
 
         public virtual string CreatePath(string fileName)
         {
-            if (FilePath != string.Empty)
-                return FilePath + @"\" + fileName;
+            if (DirectoryPath != string.Empty)
+                return DirectoryPath + @"\" + fileName;
             return string.Empty;
         }
     }

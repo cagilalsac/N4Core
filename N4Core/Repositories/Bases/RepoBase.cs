@@ -13,8 +13,11 @@ namespace N4Core.Repositories.Bases
     public abstract class RepoBase<TEntity> : IDisposable where TEntity : Record, new()
     {
         protected readonly IDb _db;
+
         protected string _modifiedBy;
+
         private bool _applyRecordChanges = true;
+
         internal ReflectionRecordModel ReflectionRecordModel { get; }
 
         protected RepoBase(IDb db, ReflectionUtilBase reflectionUtil, AccountUtilBase accountUtil)
@@ -60,7 +63,14 @@ namespace N4Core.Repositories.Bases
 
         public virtual void Delete(Expression<Func<TEntity, bool>> predicate)
         {
-            _db.Set<TEntity>().RemoveRange(Query().Where(predicate));
+            _db.Set<TEntity>().RemoveRange(_db.Set<TEntity>().Where(predicate));
+            if (_applyRecordChanges)
+                ApplyRecordChanges();
+        }
+
+        public virtual void Delete()
+        {
+            _db.Set<TEntity>().RemoveRange(_db.Set<TEntity>());
             if (_applyRecordChanges)
                 ApplyRecordChanges();
         }
