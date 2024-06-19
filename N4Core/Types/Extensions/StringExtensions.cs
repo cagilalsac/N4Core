@@ -180,7 +180,7 @@ namespace N4Core.Types.Extensions
             return result;
         }
 
-        public static string? Find(this string value, string expression, string foundPrefix = "~", string foundSuffix = "~", string lineSeperator = "\n")
+        public static string? Find(this string value, string expression, string foundPrefix = "^~", string foundSuffix = "~^", string lineSeperator = "\n")
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
                 return null;
