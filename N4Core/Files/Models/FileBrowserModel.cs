@@ -16,7 +16,10 @@ namespace N4Core.Files.Models
         public string? OperationMessage { get; set; }
         public List<FileBrowserItemModel>? FilteredItems { get; set; }
         public string? Path { get; set; }
+        public string? PlaceHolder { get; set; }
         public string Expression { get; set; } = string.Empty;
+        public bool MatchCase { get; set; }
+        public bool MatchWord { get; set; }
         public bool Find { get; set; }
         public bool HasExpression => !string.IsNullOrWhiteSpace(Expression);
         public bool HasFileContent => !string.IsNullOrWhiteSpace(FileContent);

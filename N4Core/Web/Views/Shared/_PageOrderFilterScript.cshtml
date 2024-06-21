@@ -4,10 +4,11 @@
 	var filter = '@Model.Filter';
 	var orderExpression = '@Model.OrderExpression';
 	var orderDirectionDescending = '@Model.OrderDirectionDescending';
+	var recordsPerPageCount = '@Model.RecordsPerPageCount';
+	var pageNumber = '@Model.PageNumber';
 
 	$(function () {
 		$("#filter").prop("placeholder", filter);
-		$("#orderexpression").html(orderExpression);
 		$("#orderdirectiondescendinglabel").html(orderDirectionDescending);
 		var caretDown = '<i class="bi bi-caret-down"></i>';
 		var caretUp = '<i class="bi bi-caret-up"></i>';
@@ -88,5 +89,9 @@
 			$("#form").submit();
 			$("#form").prop("action", formAction);
 		});
+
+		$(".recordsperpagecount").prepend('<option value="" disabled>' + recordsPerPageCount + '</option>');
+		$(".pagenumber").prepend('<option value="" disabled>' + pageNumber + '</option>');
+		$(".orderexpression").prepend('<option value="" disabled>' + orderExpression + '</option>');
 	});
 </script>

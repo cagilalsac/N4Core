@@ -180,34 +180,112 @@ namespace N4Core.Types.Extensions
             return result;
         }
 
-        public static string? Find(this string value, string expression, string foundPrefix = "^~", string foundSuffix = "~^", string lineSeperator = "\n")
+        public static string? Find(this string value, string expression, bool matchCase, string foundPrefix = "~", string foundSuffix = "~")
         {
-            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(expression))
-                return null;
+            string? result = null;
+            if (string.IsNullOrWhiteSpace(value))
+                return result;
+            if (string.IsNullOrWhiteSpace(expression))
+                return value;
+            StringComparison comparison = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+            if (!value.Contains(expression, comparison))
+                return result;
+            result = value;
             bool found = false;
-            int j;
-            string line, subLine;
-            StringComparison comparison = StringComparison.CurrentCultureIgnoreCase;
-            string[] lines = value.Split(lineSeperator);
-            for (int l = 0; l < lines.Length; l++)
+            int i = 0;
+            while (i <= result.Length - expression.Length)
             {
-                if (!string.IsNullOrWhiteSpace(lines[l]) && lines[l].Contains(expression, comparison))
+                if (result.Substring(i, expression.Length).Equals(expression, comparison))
                 {
-                    line = lines[l];
-                    j = 0;
-                    for (int i = 0; i <= line.Length - expression.Length; i++)
-                    {
-                        subLine = line.Substring(i, expression.Length);
-                        if (subLine.Equals(expression, comparison))
-                        {
-                            lines[l] = lines[l].Insert(i + j, foundPrefix).Insert(i + j + expression.Length + foundPrefix.Length, foundSuffix);
-                            j += foundPrefix.Length + foundSuffix.Length;
-                            found = true;
-                        }
-                    }
+                    result = result.Insert(i, foundPrefix).Insert(i + expression.Length + foundSuffix.Length, foundSuffix);
+                    i += foundPrefix.Length + expression.Length + foundSuffix.Length;
+                    found = true;
+                }
+                else
+                {
+                    i++;
                 }
             }
-            return found ? string.Join(lineSeperator, lines) : null;
+            result = found ? result : null;
+            return result;
+        }
+
+        public static string? Find(this string value, string expression, bool matchCase, bool matchWord, string foundPrefix = "~", string foundSuffix = "~", string lineSeperator = "\n")
+        {
+            string? result = null;
+            if (string.IsNullOrWhiteSpace(value))
+                return result;
+            if (string.IsNullOrWhiteSpace(expression))
+                return value;
+            StringComparison comparison = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+            if (!value.Contains(expression, comparison))
+                return result;
+            bool found = false;
+            int p;
+            char[] punctuations;
+            string[] lines, words, subWords;
+            string line, word;
+            if (matchWord)
+            {
+                lines = value.Split(lineSeperator);
+                for (int l = 0; l < lines.Length; l++)
+                {
+                    line = lines[l].Trim('\r');
+                    if (line.Contains(expression, comparison))
+                    {
+                        words = line.Split(' ');
+                        for (int w = 0; w < words.Length; w++)
+                        {
+                            word = words[w];
+                            if (word.Equals(expression, comparison))
+                            {
+                                words[w] = foundPrefix + word + foundSuffix;
+                                found = true;
+                            }
+                            else
+                            {
+                                punctuations = word.Where(char.IsPunctuation).ToArray();
+                                if (punctuations.Any() && word.Contains(expression, comparison))
+                                {
+                                    if (word.Trim(punctuations).Equals(expression.Trim(punctuations), comparison))
+                                    {
+                                        words[w] = Find(word, expression, matchCase, foundPrefix, foundSuffix) ?? word;
+                                        found = true;
+                                    }
+                                    else
+                                    {
+                                        subWords = word.Split(punctuations);
+                                        word = string.Empty;
+                                        p = 0;
+                                        foreach (string subWord in subWords)
+                                        {
+                                            if (subWord.Equals(expression, comparison))
+                                            {
+                                                word += Find(subWord, expression, matchCase, foundPrefix, foundSuffix) ?? subWord;
+                                                found = true;
+                                            }
+                                            else
+                                            {
+                                                word += subWord;
+                                            }
+                                            if (p < punctuations.Length)
+                                                word += punctuations[p++];
+                                        }
+                                        words[w] = word;
+                                    }
+                                }
+                            }
+                        }
+                        lines[l] = string.Join(' ', words);
+                    }
+                }
+                result = found ? string.Join(lineSeperator, lines) : null;
+            }
+            else
+            {
+                result = Find(value, expression, matchCase, foundPrefix, foundSuffix);
+            }
+            return result;
         }
     }
 }

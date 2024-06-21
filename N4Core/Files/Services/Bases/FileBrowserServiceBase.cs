@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using Microsoft.EntityFrameworkCore;
+using N4Core.Culture;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Files.Configs;
 using N4Core.Files.Entities;
@@ -151,11 +152,20 @@ namespace N4Core.Files.Services.Bases
         public virtual async Task<FileBrowserModel> GetContents(FileBrowserModel model, CancellationToken cancellationToken = default)
         {
             model.Language = Language;
+            model.PlaceHolder = Language == Languages.Türkçe ? "İfade giriniz..." : "Enter expression...";
             model.Title = AddLinks(model.Path);
             model.Operation = FileBrowserOperations.Home;
             List<FileBrowserItemModel> items;
             if (!Config.HasDirectories)
                 return model;
+            if (model.HasExpression && (model.Expression.Length < 2 || model.Expression.Any(e => !char.IsLetterOrDigit(e))))
+            {
+                if (model.Expression.Length < 2)
+                    model.PlaceHolder = Language == Languages.Türkçe ? "İfade en az 2 harf olmalıdır!" : "Expression must be minimum 2 letters!";
+                else
+                    model.PlaceHolder = Language == Languages.Türkçe ? "İfade sadece harf veya sayılar içermelidir!" : "Expression must contain only letters or digits!";
+                model.Expression = string.Empty;
+            }
             items = await GetFileBrowserItems(Config.Database, model.Find && model.HasExpression, cancellationToken);
             if (items.Any())
             {
@@ -169,6 +179,7 @@ namespace N4Core.Files.Services.Bases
                     }
                     else
                     {
+                        model.FileContentType = Config.TextFiles[".txt"];
                         model.Operation = FileBrowserOperations.Content;
                     }
                 }
@@ -183,6 +194,8 @@ namespace N4Core.Files.Services.Bases
                     }
                     else
                     {
+                        if (model.HasExpression)
+                            model.FileContentType = Config.TextFiles[".txt"];
                         model.Operation = FileBrowserOperations.Content;
                     }
                 }
@@ -191,7 +204,7 @@ namespace N4Core.Files.Services.Bases
             return model;
         }
 
-        protected virtual string AddLinks(string path, string expression = null, bool useBadgesForFolders = false)
+        protected virtual string AddLinks(string path, string expression = null, bool matchCase = false, bool matchWord = false, bool useBadgesForFolders = false)
         {
             path = path ?? Config.StartLink;
             string[] pathItems = path.Split("\\");
@@ -211,7 +224,7 @@ namespace N4Core.Files.Services.Bases
                     link = "<a " + (useBadgesForFolders ? Config.AtagStyleNone : Config.AtagStyleUnderline) + " ";
                     link += Config.AtagHref + linkItem;
                     if (!string.IsNullOrWhiteSpace(expression) && i == pathItems.Length - 1)
-                        link += "&expression=" + expression;
+                        link += "&expression=" + expression + "&matchcase=" + matchCase + "&matchword=" + matchWord;
                     link += "\">";
                     if (i < pathItems.Length - 1 && useBadgesForFolders)
                         link += "<span class=\"badge bg-dark\">";
@@ -255,7 +268,7 @@ namespace N4Core.Files.Services.Bases
                     model.FileType = FileTypes.Text;
                     if (model.HasExpression)
                     {
-                        model.FileContent = item.Content.Find(model.Expression);
+                        model.FileContent = item.Content.Find(model.Expression, model.MatchCase, model.MatchWord);
                         if (string.IsNullOrWhiteSpace(model.FileContent))
                             model.FileContent = item.Content;
                     }
@@ -307,10 +320,10 @@ namespace N4Core.Files.Services.Bases
         protected virtual void UpdateFilteredItems(FileBrowserModel model, List<FileBrowserItemModel> items)
         {
             model.FilteredItems = model.HasExpression ?
-                Paginate(items.Where(i => i.Extension != null && Config.TextFiles.ContainsKey(i.Extension) && i.Content.Find(model.Expression) is not null)
+                Paginate(items.Where(i => i.Extension != null && Config.TextFiles.ContainsKey(i.Extension) && i.Content.Find(model.Expression, model.MatchCase, model.MatchWord) is not null)
                     .Select(i => new FileBrowserItemModel()
                     {
-                        Title = AddLinks(GetPath(i.Path), model.Expression, true)
+                        Title = AddLinks(GetPath(i.Path), model.Expression, model.MatchCase, model.MatchWord, true)
                     }).ToList(), model) :
                 new List<FileBrowserItemModel>();
             model.OperationMessage = model.HasExpression ? (model.TotalRecordsCount > 0 ?

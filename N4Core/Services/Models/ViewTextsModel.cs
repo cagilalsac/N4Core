@@ -59,7 +59,7 @@ namespace N4Core.Services.Models
             Filter = Language == Languages.English ? "Filter" : "Filtre";
             Search = Language == Languages.English ? "Search" : "Ara";
             PageNumber = Language == Languages.English ? "Page" : "Sayfa";
-            RecordsPerPageCount = Language == Languages.English ? "Record Count" : "Kayıt Sayısı";
+            RecordsPerPageCount = Language == Languages.English ? "Count" : "Sayı";
             OrderExpression = Language == Languages.English ? "Order" : "Sıra";
             OrderDirectionDescending = Language == Languages.English ? "Descending" : "Azalan";
             Login = Language == Languages.English ? "Log in" : "Giriş";
