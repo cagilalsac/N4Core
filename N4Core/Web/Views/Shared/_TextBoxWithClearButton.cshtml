@@ -1,20 +1,20 @@
 ﻿@model TextBoxModel
 
-<div class="search-wrapper">
+<div class="textBoxWithClearButtonWrapper">
 	<input name="@Model.Name" type="text" class="search-box textBoxWithClearButton" placeholder="@Model.PlaceHolder" value="@Model.Value" />
-	<a href="#" class="close-icon" onclick="clearTextBoxWithClearButton();"></a>
+	<a href="#" class="close-icon textBoxClearButton" onclick="clearTextBoxWithClearButton();"></a>
 </div>
 
 <style>
-	.search-box, .close-icon, .search-wrapper {
-		position: relative;
-	}
+    .search-box, .close-icon, .textBoxWithClearButtonWrapper {
+        position: relative;
+    }
 
-	.search-wrapper {
-		width: 100%;
-		margin: auto;
-		padding-top: 1px;
-	}
+    .textBoxWithClearButtonWrapper {
+        width: 100%;
+        margin: auto;
+        padding-top: 1px;
+    }
 
 	.search-box {
 		width: 100%;

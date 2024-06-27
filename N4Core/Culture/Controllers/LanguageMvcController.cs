@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using N4Core.Cookie.Utils.Bases;
-using N4Core.Route.Utils;
+using N4Core.Views.Extensions;
 
 namespace N4Core.Culture.Controllers
 {
@@ -18,7 +18,7 @@ namespace N4Core.Culture.Controllers
         public virtual IActionResult Index(int language, string returnUrl = null)
         {
             _cookieUtil.Set("lang", language.ToString());
-            return Redirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+            return Redirect(Url.GetReturnRoute(returnUrl));
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using N4Core.Accounts.Models
-@using N4Core.Route.Utils
 @using N4Core.Culture
 
 @model AccountLoginPartialModel
@@ -11,7 +10,7 @@
 }
 
 @{
-    string returnUrl = MvcRouteUtil.GetCurrentRoute(ViewContext);
+    string returnUrl = Url.GetCurrentRoute(ViewContext);
 }
 
 <ul class="navbar-nav">

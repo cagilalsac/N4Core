@@ -1,6 +1,6 @@
 ﻿@page
 
-@using N4Core.Route.Utils
+@using N4Core.Views.Extensions
 
 @model LogoutModel
 @{
@@ -14,7 +14,7 @@
             @{
                 if (User.Identity?.IsAuthenticated ?? false)
                 {
-                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@MvcRouteUtil.GetHomeRoute()">
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.GetHomeRoute()">
                         <button class="w-100 btn btn-lg btn-info" onclick="this.form.submit();">Click here to Logout</button>
                     </form>
                 }

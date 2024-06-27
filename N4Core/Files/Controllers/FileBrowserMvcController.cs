@@ -37,7 +37,11 @@ namespace N4Core.Files.Controllers
             return View(nameof(Index), new FileBrowserModel()
             {
                 Operation = FileBrowserOperations.Sync,
-                OperationMessage = result.Message
+                OperationMessage = result.Message,
+                Filter = new FileBrowserFilterModel()
+                {
+                    Language = _fileBrowserService.Language
+                }
             });
         }
     }

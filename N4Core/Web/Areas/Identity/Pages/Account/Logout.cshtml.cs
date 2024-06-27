@@ -5,7 +5,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using N4Core.Route.Utils;
+using N4Core.Views.Extensions;
 
 namespace N4Web.Areas.Identity.Pages.Account
 {
@@ -24,7 +24,7 @@ namespace N4Web.Areas.Identity.Pages.Account
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
-            return LocalRedirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+            return LocalRedirect(Url.GetReturnRoute(returnUrl));
         }
 
         // Comment this method for logging out through the page.
@@ -32,7 +32,7 @@ namespace N4Web.Areas.Identity.Pages.Account
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
-            return LocalRedirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+            return LocalRedirect(Url.GetReturnRoute(returnUrl));
         }
     }
 }

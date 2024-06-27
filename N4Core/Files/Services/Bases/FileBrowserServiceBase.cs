@@ -1,5 +1,6 @@
 ﻿#nullable disable
 
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using N4Core.Culture;
 using N4Core.Culture.Utils.Bases;
@@ -23,11 +24,13 @@ namespace N4Core.Files.Services.Bases
     {
         public FileBrowserServiceConfig Config { get; protected set; }
 
+        protected string _filterSessionKey;
+
         protected FileBrowserServiceBase(UnitOfWorkBase unitOfWork, RepoBase<FileBrowserItem> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
             MapperUtilBase<FileBrowserItem, FileBrowserItemModel, FileBrowserItemModel> mapperUtil)
             : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil)
         {
-            _pageSessionKey = "FileBrowserPageSessionKey";
+            _filterSessionKey = "FileBrowserFilterSessionKey";
             Config = new FileBrowserServiceConfig();
             Messages = new FileBrowserMessagesModel(Language);
         }
@@ -151,60 +154,111 @@ namespace N4Core.Files.Services.Bases
 
         public virtual async Task<FileBrowserModel> GetContents(FileBrowserModel model, CancellationToken cancellationToken = default)
         {
-            model.Language = Language;
-            model.PlaceHolder = Language == Languages.Türkçe ? "İfade giriniz..." : "Enter expression...";
-            model.Title = AddLinks(model.Path);
+            UpdateFilterSession(model);
             model.Operation = FileBrowserOperations.Home;
+            model.StartLink = Config.StartLink;
             List<FileBrowserItemModel> items;
             if (!Config.HasDirectories)
                 return model;
-            if (model.HasExpression && (model.Expression.Length < 2 || model.Expression.Any(e => !char.IsLetterOrDigit(e))))
-            {
-                if (model.Expression.Length < 2)
-                    model.PlaceHolder = Language == Languages.Türkçe ? "İfade en az 2 harf olmalıdır!" : "Expression must be minimum 2 letters!";
-                else
-                    model.PlaceHolder = Language == Languages.Türkçe ? "İfade sadece harf veya sayılar içermelidir!" : "Expression must contain only letters or digits!";
-                model.Expression = string.Empty;
-            }
-            items = await GetFileBrowserItems(Config.Database, model.Find && model.HasExpression, cancellationToken);
+            items = await GetFileBrowserItems(Config.Database, model.Filter.Find && model.Filter.HasExpression, cancellationToken);
             if (items.Any())
             {
                 UpdateFile(model, items);
-                if (model.Find && model.HasExpression)
+                if (model.HasFileContent)
                 {
-                    if (!model.HasFileContent)
-                    {
-                        UpdateFilteredItems(model, items);
-                        model.Operation = FileBrowserOperations.Filter;
-                    }
-                    else
-                    {
+                    model.Operation = FileBrowserOperations.Content;
+                    if (model.Filter.HasExpression)
                         model.FileContentType = Config.TextFiles[".txt"];
-                        model.Operation = FileBrowserOperations.Content;
-                    }
+                }
+                else if (model.Filter.Find && (model.Filter.HasExpression || (model.HasPath && model.Path != model.StartLink)))
+                {
+                    model.Operation = FileBrowserOperations.Filter;
+                    UpdateFilteredItems(model, items);
                 }
                 else
                 {
-                    if (!model.HasFileContent)
+                    if (model.Filter.Find)
+                        model.Path = model.StartLink;
+                    if (model.HasPath)
                     {
+                        model.Operation = FileBrowserOperations.Content;
                         UpdateDirectories(model, items);
                         UpdateFiles(model, items);
-                        if ((model.HasExpression && model.Path is not null) || model.Find || model.Path is not null)
-                            model.Operation = FileBrowserOperations.Content;
-                    }
-                    else
-                    {
-                        if (model.HasExpression)
-                            model.FileContentType = Config.TextFiles[".txt"];
-                        model.Operation = FileBrowserOperations.Content;
                     }
                 }
+                UpdateFirstLevelPaths(model, items);
                 model.HierarchicalDirectoryLinks = AddHierarchicalLinks(model.Path, items);
+                if (model.FileType != FileTypes.Other)
+                    model.Title = AddLinks(model.Path);
             }
             return model;
         }
 
-        protected virtual string AddLinks(string path, string expression = null, bool matchCase = false, bool matchWord = false, bool useBadgesForFolders = false)
+        protected virtual void UpdateFilterSession(FileBrowserModel model)
+        {
+            FileBrowserFilterModel filter = _sessionUtil.Get<FileBrowserFilterModel>(_filterSessionKey);
+            bool filterSession = filter is not null && model.Filter is not null && model.Filter.FilterSession;
+            if (!filterSession)
+            {
+                if (model.Filter is null)
+                    model.Filter = new FileBrowserFilterModel();
+                model.Filter.PageNumber = model.PageNumber;
+                model.Filter.RecordsPerPageCount = model.RecordsPerPageCount;
+                model.Filter.Language = Language;
+                model.Filter.PlaceHolder = Language == Languages.Türkçe ? "İfade giriniz..." : "Enter expression...";
+                if (model.Filter.HasExpression && model.Filter.Expression.Length < 2)
+                {
+                    model.Filter.PlaceHolder = Language == Languages.Türkçe ? "İfade en az 2 harf olmalıdır!" : "Expression must be minimum 2 letters!";
+                    model.Filter.Expression = string.Empty;
+                }
+                model.Filter.Path = model.Path;
+                if (model.Filter.Find)
+                {
+                    if (model.Filter.Paging && filter is not null)
+                    {
+                        model.Filter.Path = filter.Path;
+                        model.Path = model.Filter.Path;
+                    }
+                }
+                else
+                {
+                    if (model.Filter.FindInCode && filter is not null)
+                        model.Filter.Path = filter.Path;
+                }
+                _sessionUtil.Set(model.Filter, _filterSessionKey);
+            }
+            else
+            {
+                filter.Find = model.Filter.Find;
+                model.Filter = filter;
+                model.PageNumber = filter.PageNumber;
+                model.RecordsPerPageCount = filter.RecordsPerPageCount;
+                if (model.Filter.Find)
+                    model.Path = model.Filter.Path;
+            }
+        }
+
+        protected virtual void UpdateFirstLevelPaths(FileBrowserModel model, List<FileBrowserItemModel> items)
+        {
+            model.FirstLevelPath = GetFirstLevelPath(model.Path);
+            model.FirstLevelPaths = items.Where(i => i.Extension == null && i.Level == 1).Select(i => new SelectListItem()
+            {
+                Value = GetPath(i.Path),
+                Text = i.Title
+            }).ToList();
+        }
+
+        protected string GetFirstLevelPath(string path)
+        {
+            path = string.IsNullOrWhiteSpace(path) ? Config.StartLink : path;
+            string firstLevelPath = path;
+            string[] pathItems = path.Split("\\");
+            if (pathItems.Length >= 2)
+                firstLevelPath = pathItems[0] + "\\" + pathItems[1];
+            return firstLevelPath;
+        }
+
+        protected virtual string AddLinks(string path)
         {
             path = path ?? Config.StartLink;
             string[] pathItems = path.Split("\\");
@@ -221,27 +275,50 @@ namespace N4Core.Files.Services.Bases
                         linkItem += pathItems[j] + "\\";
                     }
                     linkItem = linkItem.TrimEnd('\\');
-                    link = "<a " + (useBadgesForFolders ? Config.AtagStyleNone : Config.AtagStyleUnderline) + " ";
-                    link += Config.AtagHref + linkItem;
-                    if (!string.IsNullOrWhiteSpace(expression) && i == pathItems.Length - 1)
-                        link += "&expression=" + expression + "&matchcase=" + matchCase + "&matchword=" + matchWord;
-                    link += "\">";
-                    if (i < pathItems.Length - 1 && useBadgesForFolders)
-                        link += "<span class=\"badge bg-dark\">";
-                    link += pathItems[i];
-                    if (i < pathItems.Length - 1 && useBadgesForFolders)
-                        link += "</span>";
-                    link += "</a>";
+                    link = "<a " + Config.AtagStyleUnderline + " " + Config.AtagHref + linkItem + "\">" + pathItems[i] + "</a>";
                     linkItems.Add(link);
                 }
             }
-            return string.Join(useBadgesForFolders ? "&nbsp;\\&nbsp;" : "\\", linkItems);
+            return string.Join("\\", linkItems);
+        }
+
+        protected virtual string AddLink(string path, bool useBadgesForFolders = true)
+        {
+            path = path ?? Config.StartLink;
+            string[] pathItems = path.Split("\\");
+            string link = string.Empty;
+            string span;
+            if (pathItems.Any())
+            {
+                link = "<a class=\"pathlink\" " + Config.AtagStyleNone + " " + Config.AtagHref + path + "&filter.filtersession=true\">";
+                for (int i = 0; i < pathItems.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(pathItems[i]))
+                    {
+                        if (i < pathItems.Length - 1)
+                        {
+                            if (useBadgesForFolders)
+                                span = "<span class=\"badge bg-dark\">" + pathItems[i] + "</span>&nbsp;\\&nbsp;";
+                            else
+                                span = pathItems[i] + "\\";
+                        }
+                        else
+                        {
+                            span = pathItems[i];
+                        }
+                        link += span;
+                    }
+                }
+                link += "</a>";
+            }
+            return link;
         }
 
         protected virtual string GetWwwrootPath(string path, bool includeFile = true)
         {
             string wwwrootPath = Config.DirectoryPath;
             string extension;
+            path = path ?? Config.StartLink;
             if (path != Config.StartLink)
             {
                 wwwrootPath += path.Remove(0, Config.StartLink.Length);
@@ -257,34 +334,31 @@ namespace N4Core.Files.Services.Bases
 
         protected virtual void UpdateFile(FileBrowserModel model, List<FileBrowserItemModel> items)
         {
-            string wwwrootPath = GetWwwrootPath(model.Path ?? Config.StartLink);
+            string wwwrootPath = GetWwwrootPath(model.Path);
             FileBrowserItemModel item = items.SingleOrDefault(q => q.Path == wwwrootPath && q.Extension != null);
             if (item is not null)
             {
-                if (Config.TextFiles.ContainsKey(item.Extension))
+                if (Config.TextFiles.ContainsKey(item.Extension) && !model.Filter.Find)
                 {
-                    item.Content = File.ReadAllText(wwwrootPath, Encoding.GetEncoding(1254));
                     model.FileContentType = Config.TextFiles[item.Extension];
                     model.FileType = FileTypes.Text;
-                    if (model.HasExpression)
+                    model.FileCodeContent = File.ReadAllText(wwwrootPath, Encoding.GetEncoding(1254));
+                    model.FileContent = model.FileCodeContent;
+                    if (model.Filter.HasExpression)
                     {
-                        model.FileContent = item.Content.Find(model.Expression, model.MatchCase, model.MatchWord);
-                        if (string.IsNullOrWhiteSpace(model.FileContent))
-                            model.FileContent = item.Content;
-                    }
-                    else
-                    {
-                        model.FileContent = item.Content;
+                        model.FileContent = model.FileCodeContent.Find(model.Filter.Expression, model.Filter.MatchCase, model.Filter.MatchWord);
+                        if (model.FileContent is null)
+                            model.FileContent = Language == Languages.English ? "Expression not found!" : "İfade bulunamadı!";
                     }
                 }
-                else if (Config.ImageFiles.ContainsKey(item.Extension))
+                else if (Config.ImageFiles.ContainsKey(item.Extension) && !model.Filter.Find)
                 {
                     model.FileContentType = Config.ImageFiles[item.Extension];
                     model.FileType = FileTypes.Image;
                     model.FileBinaryContent = File.ReadAllBytes(wwwrootPath);
                     model.FileContent = "data:" + model.FileContentType + ";base64," + Convert.ToBase64String(model.FileBinaryContent);
                 }
-                else if (Config.OtherFiles.ContainsKey(item.Extension))
+                else if (Config.OtherFiles.ContainsKey(item.Extension) && !model.Filter.Find)
                 {
                     model.FileContentType = Config.OtherFiles[item.Extension];
                     model.FileType = FileTypes.Other;
@@ -296,49 +370,47 @@ namespace N4Core.Files.Services.Bases
 
         protected virtual void UpdateDirectories(FileBrowserModel model, List<FileBrowserItemModel> items)
         {
-            string path = model.Path ?? Config.StartLink;
-            string wwwrootPath = GetWwwrootPath(path);
+            string wwwrootPath = GetWwwrootPath(model.Path);
             model.Contents = items.Where(i => i.ParentPath == wwwrootPath && i.Extension == null).Select(i => new FileBrowserItemModel()
             {
                 Title = i.Title,
-                Folders = path + "\\" + i.Title,
+                Folders = (model.Path ?? Config.StartLink) + "\\" + i.Title,
             }).ToList();
         }
 
         protected virtual void UpdateFiles(FileBrowserModel model, List<FileBrowserItemModel> items)
         {
-            string path = model.Path ?? Config.StartLink;
-            string wwwrootPath = GetWwwrootPath(path);
+            string wwwrootPath = GetWwwrootPath(model.Path);
             model.Contents?.AddRange(items.Where(i => i.ParentPath == wwwrootPath && i.Extension != null).Select(i => new FileBrowserItemModel()
             {
                 Title = i.Title,
-                Folders = path + "\\" + i.Title,
+                Folders = (model.Path ?? Config.StartLink) + "\\" + i.Title,
                 IsFile = true
             }).ToList());
         }
 
         protected virtual void UpdateFilteredItems(FileBrowserModel model, List<FileBrowserItemModel> items)
         {
-            model.FilteredItems = model.HasExpression ?
-                Paginate(items.Where(i => i.Extension != null && Config.TextFiles.ContainsKey(i.Extension) && i.Content.Find(model.Expression, model.MatchCase, model.MatchWord) is not null)
-                    .Select(i => new FileBrowserItemModel()
-                    {
-                        Title = AddLinks(GetPath(i.Path), model.Expression, model.MatchCase, model.MatchWord, true)
-                    }).ToList(), model) :
-                new List<FileBrowserItemModel>();
-            model.OperationMessage = model.HasExpression ? (model.TotalRecordsCount > 0 ?
-                (model.TotalRecordsCount == 1 ?
-                    model.TotalRecordsCount + " " + Messages.RecordFound :
-                    model.TotalRecordsCount + " " + Messages.RecordsFound
-                ) :
-                Messages.RecordNotFound
-            ) : string.Empty;
+            model.FilteredItems = items.Where(i => i.Extension != null && i.Path.StartsWith(GetWwwrootPath(model.Path, false)) &&
+                Config.TextFiles.ContainsKey(i.Extension)).ToList();
+            if (model.Filter.HasExpression)
+            {
+                model.FilteredItems = model.FilteredItems.Where(i => i.Content.Find(model.Filter.Expression, model.Filter.MatchCase, model.Filter.MatchWord) is not null).ToList();
+            }
+            model.OperationMessage = Messages.RecordNotFound;
+            if (model.FilteredItems.Any())
+            {
+                model.FilteredItems = Paginate(model.FilteredItems.Select(i => new FileBrowserItemModel()
+                {
+                    Title = AddLink(GetPath(i.Path))
+                }).ToList(), model);
+                model.OperationMessage = model.TotalRecordsCount == 1 ? model.TotalRecordsCount + " " + Messages.RecordFound : model.TotalRecordsCount + " " + Messages.RecordsFound;
+            }
         }
 
         protected virtual string AddHierarchicalLinks(string path, List<FileBrowserItemModel> items)
         {
             string ulTag = string.Empty;
-            path = path ?? Config.StartLink;
             string wwwrootPath = GetWwwrootPath(path, false);
             List<FileBrowserItemModel> directories = items.Where(i => i.Extension == null && i.Level <= (Config.HideHierarchicalDirectoryAfterLevel ?? byte.MaxValue)).ToList();
             if (directories.Any())
@@ -377,6 +449,7 @@ namespace N4Core.Files.Services.Bases
 
         protected virtual string GetPath(string wwwrootPath)
         {
+            wwwrootPath = wwwrootPath ?? Config.DirectoryPath;
             return wwwrootPath != Config.DirectoryPath ? Config.StartLink + wwwrootPath.Remove(0, Config.DirectoryPath.Length) : Config.StartLink;
         }
 

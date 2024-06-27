@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using N4Core.Route.Utils
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -16,7 +15,7 @@
             <span class="text-info">@User.Identity?.Name</span>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Logout</a>
+            <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.GetCurrentRoute(ViewContext)">Logout</a>
         </li>
     }
     else
@@ -24,11 +23,11 @@
         @if (appSettings.ShowRegister)
         {
             <li class="nav-item">
-                <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Register</a>
+                <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@Url.GetCurrentRoute(ViewContext)">Register</a>
             </li>
         }
         <li class="nav-item">
-            <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@MvcRouteUtil.GetCurrentRoute(ViewContext)">Login</a>
+            <a class="nav-link text-info" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.GetCurrentRoute(ViewContext)">Login</a>
         </li>
     }
 </ul>

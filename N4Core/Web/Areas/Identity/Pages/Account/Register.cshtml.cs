@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using N4Core.Accounts.Enums;
-using N4Core.Route.Utils;
+using N4Core.Views.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -97,7 +97,7 @@ namespace N4Web.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            ReturnUrl = MvcRouteUtil.GetReturnRoute(returnUrl);
+            ReturnUrl = Url.GetReturnRoute(returnUrl);
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
@@ -125,7 +125,7 @@ namespace N4Web.Areas.Identity.Pages.Account
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = MvcRouteUtil.GetReturnRoute(returnUrl) },
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = Url.GetReturnRoute(returnUrl) },
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -133,12 +133,12 @@ namespace N4Web.Areas.Identity.Pages.Account
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = MvcRouteUtil.GetReturnRoute(returnUrl) });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = Url.GetReturnRoute(returnUrl) });
                     }
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+                        return LocalRedirect(Url.GetReturnRoute(returnUrl));
                     }
                 }
                 foreach (var error in result.Errors)

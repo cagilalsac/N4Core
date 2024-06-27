@@ -8,8 +8,8 @@ using N4Core.Accounts.Services.Bases;
 using N4Core.Controllers.Bases;
 using N4Core.Cookie.Utils.Bases;
 using N4Core.Culture.Utils.Bases;
-using N4Core.Route.Utils;
 using N4Core.Session.Utils.Bases;
+using N4Core.Views.Extensions;
 using N4Core.Views.Models;
 
 namespace N4Core.Accounts.Controllers
@@ -30,7 +30,7 @@ namespace N4Core.Accounts.Controllers
             ViewBag.ViewModel = _accountService.ViewModel;
             var model = new AccountLoginModel()
             {
-                ReturnUrl = MvcRouteUtil.GetReturnRoute(returnUrl)
+                ReturnUrl = Url.GetReturnRoute(returnUrl)
             };
             return View(model);
         }
@@ -45,7 +45,7 @@ namespace N4Core.Accounts.Controllers
                 if (response.IsSuccessful)
                 {
                     await HttpContext.SignInAsync(_accountService.Config.AuthenticationScheme, response.Data);
-                    return Redirect(MvcRouteUtil.GetReturnRoute(model.ReturnUrl));
+                    return Redirect(Url.GetReturnRoute(model.ReturnUrl));
                 }
                 ModelState.AddModelError("", response.Message);
             }
@@ -57,7 +57,7 @@ namespace N4Core.Accounts.Controllers
         {
             if (User.Identity.IsAuthenticated)
                 await HttpContext.SignOutAsync(_accountService.Config.AuthenticationScheme);
-            return Redirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+            return Redirect(Url.GetReturnRoute(returnUrl));
         }
 
         public virtual IActionResult AccountAccessDenied()
@@ -69,7 +69,7 @@ namespace N4Core.Accounts.Controllers
         {
             var model = new AccountRegisterModel()
             {
-                ReturnUrl = MvcRouteUtil.GetReturnRoute(returnUrl)
+                ReturnUrl = Url.GetReturnRoute(returnUrl)
             };
             ViewBag.ViewModel = _accountService.ViewModel;
             return View(model);
@@ -88,7 +88,7 @@ namespace N4Core.Accounts.Controllers
                     {
                         UserName = model.UserName,
                         Password = model.Password,
-                        ReturnUrl = MvcRouteUtil.GetReturnRoute(model.ReturnUrl)
+                        ReturnUrl = Url.GetReturnRoute(model.ReturnUrl)
                     };
                     return await AccountLogin(loginModel);
                 }

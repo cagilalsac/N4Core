@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using N4Core.Route.Utils;
+using N4Core.Views.Extensions;
 using System.ComponentModel.DataAnnotations;
 
 namespace N4Web.Areas.Identity.Pages.Account
@@ -91,7 +90,7 @@ namespace N4Web.Areas.Identity.Pages.Account
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            ReturnUrl = MvcRouteUtil.GetReturnRoute(returnUrl);
+            ReturnUrl = Url.GetReturnRoute(returnUrl);
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -106,11 +105,11 @@ namespace N4Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(MvcRouteUtil.GetReturnRoute(returnUrl));
+                    return LocalRedirect(Url.GetReturnRoute(returnUrl));
                 }
                 if (result.RequiresTwoFactor)
                 {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = MvcRouteUtil.GetReturnRoute(returnUrl), RememberMe = Input.RememberMe });
+                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = Url.GetReturnRoute(returnUrl), RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {
