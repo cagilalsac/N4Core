@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace N4Core.Repositories.Bases
 {
-    public abstract class RepoBase<TEntity> : IDisposable where TEntity : class, IRecord, new()
+    public abstract class RepoBase<TEntity> : IDisposable where TEntity : Record, new()
     {
         protected readonly IDb _db;
         protected readonly ReflectionUtilBase _reflectionUtil;

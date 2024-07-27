@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 namespace N4Core.Services.Bases
 {
     public abstract class CrudServiceBase<TEntity, TQueryModel, TCommandModel> : ResponseManager, ICrudServiceBase<TQueryModel, TCommandModel>
-        where TEntity : class, IRecord, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
+        where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
@@ -200,7 +200,7 @@ namespace N4Core.Services.Bases
         }
     }
 
-    public abstract class CrudServiceBase<TEntity, TModel> : CrudServiceBase<TEntity, TModel, TModel> where TEntity : class, IRecord, new() where TModel : Record, new()
+    public abstract class CrudServiceBase<TEntity, TModel> : CrudServiceBase<TEntity, TModel, TModel> where TEntity : Record, new() where TModel : Record, new()
     {
         protected CrudServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
             MapperUtilBase<TEntity, TModel, TModel> mapperUtil) : base(unitOfWork, repo, cultureUtil, sessionUtil, mapperUtil)

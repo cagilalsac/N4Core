@@ -5,7 +5,7 @@ using N4Core.Records.Bases;
 
 namespace N4Core.Mappers.Utils.Bases
 {
-    public abstract class MapperUtilBase<TEntity, TQueryModel, TCommandModel> where TEntity : class, IRecord, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
+    public abstract class MapperUtilBase<TEntity, TQueryModel, TCommandModel> where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
         public MapperConfiguration Configuration { get; protected set; }
 

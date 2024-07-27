@@ -1,6 +1,6 @@
 ﻿namespace N4Core.Records.Bases
 {
-    public class Record : IRecord
+    public class Record
     {
         public int Id { get; set; }
         public string? Guid { get; set; }

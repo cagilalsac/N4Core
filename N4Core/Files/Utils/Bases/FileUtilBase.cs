@@ -69,7 +69,7 @@ namespace N4Core.Files.Utils.Bases
             return result;
         }
 
-        public virtual void UpdateImgSrc<TRecord>(TRecord record) where TRecord : class, IRecord, new()
+        public virtual void UpdateImgSrc<TRecord>(TRecord record) where TRecord : Record, new()
         {
             RecordFileModel fileModel;
             RecordFile file;
@@ -81,7 +81,7 @@ namespace N4Core.Files.Utils.Bases
             }
         }
 
-        public virtual void UpdateImgSrc<TRecord>(List<TRecord> records) where TRecord : class, IRecord, new()
+        public virtual void UpdateImgSrc<TRecord>(List<TRecord> records) where TRecord : Record, new()
         {
             foreach (var record in records)
             {
@@ -128,7 +128,7 @@ namespace N4Core.Files.Utils.Bases
             }
         }
 
-        public virtual void DeleteFile<TRecord>(TRecord record) where TRecord : class, IRecord, new()
+        public virtual void DeleteFile<TRecord>(TRecord record) where TRecord : Record, new()
         {
             if (record is not null && record is RecordFile)
             {

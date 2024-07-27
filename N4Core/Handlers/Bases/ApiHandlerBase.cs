@@ -16,7 +16,7 @@ using N4Core.Responses.Messages;
 namespace N4Core.Handlers.Bases
 {
     public abstract class ApiHandlerBase<TEntity, TRequest, TResponse> : ResponseManager, IRequestHandler<TRequest, Response<IQueryable<TResponse>>>
-        where TEntity : class, IRecord, new() where TRequest : Request, IRequest<Response<IQueryable<TResponse>>>, new() where TResponse : Record, new()
+        where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<TResponse>>>, new() where TResponse : Record, new()
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
@@ -79,7 +79,7 @@ namespace N4Core.Handlers.Bases
     }
 
     public abstract class ApiHandler<TEntity, TRequest> : ApiHandlerBase<TEntity, TRequest, Record>
-        where TEntity : class, IRecord, new() where TRequest : Request, IRequest<Response<IQueryable<Record>>>, new()
+        where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<Record>>>, new()
     {
         protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo) : base(unitOfWork, repo)
         {
