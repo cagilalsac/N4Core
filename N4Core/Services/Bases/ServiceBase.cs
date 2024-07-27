@@ -27,6 +27,7 @@ namespace N4Core.Services.Bases
     public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : CrudServiceBase<TEntity, TQueryModel, TCommandModel>
         where TEntity : class, IRecord, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
+        protected readonly ReflectionUtilBase _reflectionUtil;
         protected readonly FileUtilBase _fileUtil;
         protected readonly ReportUtilBase _reportUtil;
 
@@ -37,8 +38,9 @@ namespace N4Core.Services.Bases
         public ViewModel ViewModel { get; protected set; }
 
         protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil, 
-            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil) : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil)
+            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil) : base(unitOfWork, repo, cultureUtil, sessionUtil, mapperUtil)
         {
+            _reflectionUtil = reflectionUtil;
             _fileUtil = fileUtil;
             _reportUtil = reportUtil;
             _pageSessionKey = "PageOrderFilterSessionKey";
@@ -161,9 +163,9 @@ namespace N4Core.Services.Bases
             return item;
         }
 
-        public override async Task<TCommandModel> GetCommandItem(int id, CancellationToken cancellationToken = default)
+        public override async Task<TCommandModel> GetItemCommand(int id, CancellationToken cancellationToken = default)
         {
-            var item = await base.GetCommandItem(id, cancellationToken);
+            var item = await base.GetItemCommand(id, cancellationToken);
             if (Config.FileOperations)
                 _fileUtil.UpdateImgSrc(item);
             return item;
@@ -174,7 +176,6 @@ namespace N4Core.Services.Bases
             RecordFileModel fileModel = null;
             RecordFile file = null;
             var entity = _mapperUtil.Map(commandModel);
-            _reflectionUtil.TrimStringProperties(entity);
             if (Config.FileOperations && _repo.ReflectionRecordModel.HasFile && commandModel is RecordFileModel)
             {
                 fileModel = commandModel as RecordFileModel;
@@ -197,8 +198,7 @@ namespace N4Core.Services.Bases
         {
             RecordFileModel fileModel = null;
             RecordFile file = null;
-            var entity = _mapperUtil.Map(commandModel);
-            _reflectionUtil.TrimStringProperties(entity);
+            var entity = await _repo.Query().SingleOrDefaultAsync(q => q.Id == commandModel.Id, cancellationToken);
             if (Config.FileOperations && _repo.ReflectionRecordModel.HasFile && commandModel is RecordFileModel)
             {
                 fileModel = commandModel as RecordFileModel;
@@ -207,7 +207,7 @@ namespace N4Core.Services.Bases
                 file = entity as RecordFile;
                 _fileUtil.UpdateFile(fileModel.FormFile, file);
             }
-            _repo.Update(entity);
+            _repo.Update(_mapperUtil.Map(commandModel, entity));
             try
             {
                 await _unitOfWork.SaveAsync(cancellationToken);

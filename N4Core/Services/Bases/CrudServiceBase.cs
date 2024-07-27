@@ -7,7 +7,6 @@ using N4Core.Culture;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Mappers.Utils.Bases;
 using N4Core.Records.Bases;
-using N4Core.Reflection.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Responses.Bases;
 using N4Core.Responses.Managers;
@@ -23,7 +22,6 @@ namespace N4Core.Services.Bases
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
-        protected readonly ReflectionUtilBase _reflectionUtil;
         protected readonly CultureUtilBase _cultureUtil;
         protected readonly SessionUtilBase _sessionUtil;
         protected readonly MapperUtilBase<TEntity, TQueryModel, TCommandModel> _mapperUtil;
@@ -36,12 +34,10 @@ namespace N4Core.Services.Bases
         public Languages Language { get; protected set; }
         public CrudMessagesModel Messages { get; protected set; }
 
-        protected CrudServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
-            MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil)
+        protected CrudServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil, MapperUtilBase<TEntity, TQueryModel, TCommandModel> mapperUtil)
         {
             _unitOfWork = unitOfWork;
             _repo = repo;
-            _reflectionUtil = reflectionUtil;
             _cultureUtil = cultureUtil;
             _sessionUtil = sessionUtil;
             _mapperUtil = mapperUtil;
@@ -126,7 +122,7 @@ namespace N4Core.Services.Bases
             return _repo.Query().ProjectTo<TCommandModel>(_mapperUtil.Configuration);
         }
 
-        public virtual async Task<TCommandModel> GetCommandItem(int id, CancellationToken cancellationToken = default)
+        public virtual async Task<TCommandModel> GetItemCommand(int id, CancellationToken cancellationToken = default)
         {
             return await QueryCommand().SingleOrDefaultAsync(q => q.Id == id, cancellationToken);
         }
@@ -134,7 +130,6 @@ namespace N4Core.Services.Bases
         public virtual async Task<Response> Create(TCommandModel commandModel, CancellationToken cancellationToken = default)
         {
             var entity = _mapperUtil.Map(commandModel);
-            _reflectionUtil.TrimStringProperties(entity);
             _repo.Create(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
             commandModel.Id = entity.Id;
@@ -143,9 +138,8 @@ namespace N4Core.Services.Bases
 
         public virtual async Task<Response> Update(TCommandModel commandModel, CancellationToken cancellationToken = default)
         {
-            var entity = _mapperUtil.Map(commandModel);
-            _reflectionUtil.TrimStringProperties(entity);
-            _repo.Update(entity);
+            var entity = await _repo.Query().SingleOrDefaultAsync(q => q.Id == commandModel.Id, cancellationToken);
+            _repo.Update(_mapperUtil.Map(commandModel, entity));
             try
             {
                 await _unitOfWork.SaveAsync(cancellationToken);
@@ -159,8 +153,7 @@ namespace N4Core.Services.Bases
 
         public virtual async Task<Response> Delete(int id, CancellationToken cancellationToken = default)
         {
-            var entity = await _repo.Query().SingleOrDefaultAsync(q => q.Id == id, cancellationToken);
-            _repo.Delete(entity);
+            _repo.Delete(e => e.Id == id);
             await _unitOfWork.SaveAsync(cancellationToken);
             return Success(Messages.DeletedSuccessfully);
         }
@@ -209,8 +202,8 @@ namespace N4Core.Services.Bases
 
     public abstract class CrudServiceBase<TEntity, TModel> : CrudServiceBase<TEntity, TModel, TModel> where TEntity : class, IRecord, new() where TModel : Record, new()
     {
-        protected CrudServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
-            MapperUtilBase<TEntity, TModel, TModel> mapperUtil) : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil)
+        protected CrudServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
+            MapperUtilBase<TEntity, TModel, TModel> mapperUtil) : base(unitOfWork, repo, cultureUtil, sessionUtil, mapperUtil)
         {
         }
     }

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using N4Core.Culture;
 using N4Core.Mappers.Utils;
 using N4Core.Records.Bases;
-using N4Core.Reflection.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Requests.Bases;
 using N4Core.Requests.Enums;
@@ -17,22 +16,20 @@ using N4Core.Responses.Messages;
 namespace N4Core.Handlers.Bases
 {
     public abstract class ApiHandlerBase<TEntity, TRequest, TResponse> : ResponseManager, IRequestHandler<TRequest, Response<IQueryable<TResponse>>>
-        where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<TResponse>>>, new() where TResponse : Record, new()
+        where TEntity : class, IRecord, new() where TRequest : Request, IRequest<Response<IQueryable<TResponse>>>, new() where TResponse : Record, new()
     {
         protected readonly UnitOfWorkBase _unitOfWork;
         protected readonly RepoBase<TEntity> _repo;
-        protected readonly ReflectionUtilBase _reflectionUtil;
 
         protected readonly MapperUtil<TEntity, TResponse, TRequest> _mapperUtil;
 
         public virtual bool NoEntityTracking { get; }
         public CrudMessagesModel Messages { get; protected set; }
 
-        protected ApiHandlerBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil)
+        protected ApiHandlerBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo)
         {
             _unitOfWork = unitOfWork;
             _repo = repo;
-            _reflectionUtil = reflectionUtil;
             _mapperUtil = new MapperUtil<TEntity, TResponse, TRequest>();
             Messages = new CrudMessagesModel(Languages.English);
         }
@@ -53,16 +50,14 @@ namespace N4Core.Handlers.Bases
                 case RequestOperations.Create:
                     _mapperUtil.Set(request.MapperProfiles);
                     entity = _mapperUtil.Map(request);
-                    _reflectionUtil.TrimStringProperties(entity);
                     _repo.Create(entity);
                     await _unitOfWork.SaveAsync(cancellationToken);
                     message = Messages.CreatedSuccessfully;
                     break;
                 case RequestOperations.Update:
                     _mapperUtil.Set(request.MapperProfiles);
-                    entity = _mapperUtil.Map(request);
-                    _reflectionUtil.TrimStringProperties(entity);
-                    _repo.Update(entity);
+                    entity = await _repo.Query().SingleOrDefaultAsync(q => q.Id == request.Id, cancellationToken);
+                    _repo.Update(_mapperUtil.Map(request, entity));
                     try
                     {
                         await _unitOfWork.SaveAsync(cancellationToken);
@@ -84,9 +79,9 @@ namespace N4Core.Handlers.Bases
     }
 
     public abstract class ApiHandler<TEntity, TRequest> : ApiHandlerBase<TEntity, TRequest, Record>
-        where TEntity : Record, new() where TRequest : Request, IRequest<Response<IQueryable<Record>>>, new()
+        where TEntity : class, IRecord, new() where TRequest : Request, IRequest<Response<IQueryable<Record>>>, new()
     {
-        protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil) : base(unitOfWork, repo, reflectionUtil)
+        protected ApiHandler(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo) : base(unitOfWork, repo)
         {
         }
     }

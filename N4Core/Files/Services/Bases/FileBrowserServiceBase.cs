@@ -10,7 +10,6 @@ using N4Core.Files.Enums;
 using N4Core.Files.Messages;
 using N4Core.Files.Models;
 using N4Core.Mappers.Utils.Bases;
-using N4Core.Reflection.Utils.Bases;
 using N4Core.Repositories.Bases;
 using N4Core.Responses.Bases;
 using N4Core.Services.Bases;
@@ -26,9 +25,9 @@ namespace N4Core.Files.Services.Bases
 
         protected string _filterSessionKey;
 
-        protected FileBrowserServiceBase(UnitOfWorkBase unitOfWork, RepoBase<FileBrowserItem> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
+        protected FileBrowserServiceBase(UnitOfWorkBase unitOfWork, RepoBase<FileBrowserItem> repo, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil,
             MapperUtilBase<FileBrowserItem, FileBrowserItemModel, FileBrowserItemModel> mapperUtil)
-            : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil)
+            : base(unitOfWork, repo, cultureUtil, sessionUtil, mapperUtil)
         {
             _filterSessionKey = "FileBrowserFilterSessionKey";
             Config = new FileBrowserServiceConfig();

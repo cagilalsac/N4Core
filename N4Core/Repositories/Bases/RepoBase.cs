@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using N4Core.Accounts.Utils.Bases;
 using N4Core.Contexts.Bases;
 using N4Core.Records.Bases;
@@ -13,6 +14,7 @@ namespace N4Core.Repositories.Bases
     public abstract class RepoBase<TEntity> : IDisposable where TEntity : class, IRecord, new()
     {
         protected readonly IDb _db;
+        protected readonly ReflectionUtilBase _reflectionUtil;
 
         protected string _modifiedBy;
 
@@ -25,8 +27,9 @@ namespace N4Core.Repositories.Bases
         protected RepoBase(IDb db, ReflectionUtilBase reflectionUtil, AccountUtilBase accountUtil)
         {
             _db = db;
+            _reflectionUtil = reflectionUtil;
             _modifiedBy = accountUtil.GetUser()?.UserName;
-            ReflectionRecordModel = reflectionUtil.GetReflectionRecordModel<TEntity>();
+            ReflectionRecordModel = _reflectionUtil.GetReflectionRecordModel<TEntity>();
         }
 
         public void Set(bool applyRecordChanges)
@@ -54,7 +57,8 @@ namespace N4Core.Repositories.Bases
         }
 
         public virtual void Create(TEntity entity)
-        { 
+        {
+            _reflectionUtil.TrimStringProperties(entity);
             _db.Set<TEntity>().Add(entity); 
             if (_applyRecordChanges)
                 ApplyRecordChanges(); 
@@ -62,6 +66,7 @@ namespace N4Core.Repositories.Bases
 
         public virtual void Update(TEntity entity)
         {
+            _reflectionUtil.TrimStringProperties(entity);
             _db.Set<TEntity>().Update(entity);
             if (_applyRecordChanges)
                 ApplyRecordChanges();
@@ -112,46 +117,37 @@ namespace N4Core.Repositories.Bases
                             {
                                 entry.Property(ReflectionRecordModel.Guid).IsModified = false;
                             }
-                            if (ReflectionRecordModel.HasIsDeleted)
+                            if (UpdateChangesDetected(entry))
                             {
-                                entry.Property(ReflectionRecordModel.IsDeleted).IsModified = false;
-                            }
-                            if (ReflectionRecordModel.HasModifiedBy)
-                            {
-                                entry.Property(ReflectionRecordModel.CreateDate).IsModified = false;
-                                entry.Property(ReflectionRecordModel.CreatedBy).IsModified = false;
-                                entry.CurrentValues[ReflectionRecordModel.UpdateDate] = DateTime.Now;
-                                entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = _modifiedBy;
-                            }
-                            if (ReflectionRecordModel.HasFile && entry.CurrentValues[ReflectionRecordModel.FileContent] is not null && 
-                                entry.CurrentValues[ReflectionRecordModel.FileContent].ToString() == string.Empty)
-                            {
-                                entry.Property(ReflectionRecordModel.FileContent).IsModified = false;
-                                entry.Property(ReflectionRecordModel.FilePath).IsModified = false;
-                                entry.Property(ReflectionRecordModel.FileData).IsModified = false;
-                            }
-                            break;
-                        case EntityState.Deleted:
-                            if (ReflectionRecordModel.HasGuid)
-                            {
-                                entry.Property(ReflectionRecordModel.Guid).IsModified = false;
-                            }
-                            if (ReflectionRecordModel.HasIsDeleted)
-                            {
-                                entry.CurrentValues[ReflectionRecordModel.IsDeleted] = true;
                                 if (ReflectionRecordModel.HasModifiedBy)
                                 {
-                                    entry.Property(ReflectionRecordModel.CreateDate).IsModified = false;
-                                    entry.Property(ReflectionRecordModel.CreatedBy).IsModified = false;
                                     entry.CurrentValues[ReflectionRecordModel.UpdateDate] = DateTime.Now;
                                     entry.CurrentValues[ReflectionRecordModel.UpdatedBy] = _modifiedBy;
                                 }
+                            }
+                            else
+                            {
+                                entry.State = EntityState.Unchanged;
+                            }
+                            break;
+                        case EntityState.Deleted:
+                            if (ReflectionRecordModel.HasIsDeleted)
+                            {
+                                entry.CurrentValues[ReflectionRecordModel.IsDeleted] = true;
                                 entry.State = EntityState.Modified;
                             }
                             break;
                     }
                 }
             }
+        }
+
+        protected virtual bool UpdateChangesDetected(EntityEntry<TEntity> entry)
+        {
+            return entry.Properties.Any(p => p.IsModified &&
+                ((p.CurrentValue is null && p.OriginalValue is not null) ||
+                (p.CurrentValue is not null && p.OriginalValue is null) ||
+                (p.CurrentValue is not null && p.OriginalValue is not null && !p.CurrentValue.Equals(p.OriginalValue))));
         }
 
         public void Dispose()

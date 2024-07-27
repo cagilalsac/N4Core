@@ -36,7 +36,7 @@ namespace N4Core.Mappers.Utils.Bases
             }
         }
 
-        public virtual TEntity Map(TCommandModel commandModel)
+        public virtual TEntity Map(TCommandModel commandModel, TEntity entity = null)
         {
             MapperConfiguration configuration = new MapperConfiguration(c =>
             {
@@ -45,19 +45,21 @@ namespace N4Core.Mappers.Utils.Bases
                     c.AddProfiles(_profiles);
             });
             Mapper mapper = new Mapper(configuration);
-            return mapper.Map<TEntity>(commandModel);
+            entity = entity ?? new TEntity();
+            mapper.Map(commandModel, entity);
+            return entity;
         }
 
-        public virtual TQueryModel Map(TEntity entity)
+        public virtual TCommandModel Map(TEntity entity)
         {
             MapperConfiguration configuration = new MapperConfiguration(c =>
             {
-                c.CreateMap(entity.GetType(), typeof(TQueryModel));
+                c.CreateMap(entity.GetType(), typeof(TCommandModel));
                 if (_profiles is not null)
                     c.AddProfiles(_profiles);
             });
             Mapper mapper = new Mapper(configuration);
-            return mapper.Map<TQueryModel>(entity);
+            return mapper.Map<TCommandModel>(entity);
         }
     }
 }
