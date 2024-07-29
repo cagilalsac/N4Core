@@ -24,7 +24,7 @@ using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
 {
-    public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : CrudServiceBase<TEntity, TQueryModel, TCommandModel>
+    public abstract class ServiceBase<TEntity, TQueryModel, TCommandModel> : CrudServiceBase<TEntity, TQueryModel, TCommandModel>, IService<TQueryModel, TCommandModel>
         where TEntity : Record, new() where TQueryModel : Record, new() where TCommandModel : Record, new()
     {
         protected readonly ReflectionUtilBase _reflectionUtil;
@@ -284,7 +284,7 @@ namespace N4Core.Services.Bases
         }
     }
 
-    public abstract class ServiceBase<TEntity, TModel> : ServiceBase<TEntity, TModel, TModel> where TEntity : Record, new() where TModel : Record, new()
+    public abstract class ServiceBase<TEntity, TModel> : ServiceBase<TEntity, TModel, TModel>, IService<TModel, TModel> where TEntity : Record, new() where TModel : Record, new()
     {
         protected ServiceBase(UnitOfWorkBase unitOfWork, RepoBase<TEntity> repo, ReflectionUtilBase reflectionUtil, CultureUtilBase cultureUtil, SessionUtilBase sessionUtil, 
             MapperUtilBase<TEntity, TModel, TModel> mapperUtil, FileUtilBase fileUtil, ReportUtilBase reportUtil) : base(unitOfWork, repo, reflectionUtil, cultureUtil, sessionUtil, mapperUtil, fileUtil, reportUtil)
