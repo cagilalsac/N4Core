@@ -165,7 +165,7 @@ namespace N4Core.Types.Extensions
             return result;
         }
 
-        public static string SeperateUpperCaseCharacters(string value, char seperator = ' ')
+        public static string SeperateUpperCaseCharacters(this string value, char seperator = ' ')
         {
             string result = string.Empty;
             if (string.IsNullOrWhiteSpace(value))
