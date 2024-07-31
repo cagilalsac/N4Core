@@ -165,7 +165,7 @@ namespace N4Core.Types.Extensions
             return result;
         }
 
-        public static string SeperatePascalCaseCharacters(this string value, char seperator = ' ')
+        public static string SeperateUpperCaseCharacters(string value, char seperator = ' ')
         {
             string result = string.Empty;
             if (string.IsNullOrWhiteSpace(value))
@@ -173,7 +173,7 @@ namespace N4Core.Types.Extensions
             result += value[0];
             for (int i = 1; i < value.Length; i++)
             {
-                if (char.IsUpper(value[i]) && char.IsLetter(value[i - 1]))
+                if (char.IsUpper(value[i]) && !char.IsUpper(value[i - 1]) && char.IsLetter(value[i - 1]))
                     result += seperator;
                 result += value[i];
             }
