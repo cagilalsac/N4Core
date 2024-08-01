@@ -13,6 +13,7 @@ using N4Core.Responses.Managers;
 using N4Core.Responses.Messages;
 using N4Core.Services.Models;
 using N4Core.Session.Utils.Bases;
+using N4Core.Types.Extensions;
 using System.Linq.Expressions;
 
 namespace N4Core.Services.Bases
@@ -59,9 +60,14 @@ namespace N4Core.Services.Bases
             Messages = new CrudMessagesModel(Language);
         }
 
+        public virtual IQueryable<TQueryModel> Query(IQueryable<TEntity> entityQuery)
+        {
+            return entityQuery.ProjectTo<TQueryModel>(_mapperUtil.Configuration);
+        }
+
         public virtual IQueryable<TQueryModel> Query()
         {
-            return _repo.Query(_noEntityTracking).ProjectTo<TQueryModel>(_mapperUtil.Configuration);
+            return Query(_repo.Query(_noEntityTracking));
         }
 
         public virtual IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate)
@@ -69,13 +75,13 @@ namespace N4Core.Services.Bases
             return Query().Where(predicate);
         }
 
-        public virtual IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate, PageModel pageModel)
+        public virtual IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate, PageOrderModel pageModel)
         {
             var query = Query(predicate);
             return Paginate(query, pageModel);
         }
 
-        public virtual IQueryable<TQueryModel> Query(PageModel pageModel)
+        public virtual IQueryable<TQueryModel> Query(PageOrderModel pageModel)
         {
             var query = Query();
             return Paginate(query, pageModel);
@@ -91,12 +97,12 @@ namespace N4Core.Services.Bases
             return await Query(predicate).ToListAsync(cancellationToken);
         }
 
-        public virtual async Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, PageModel pageModel, CancellationToken cancellationToken = default)
+        public virtual async Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, PageOrderModel pageModel, CancellationToken cancellationToken = default)
         {
             return await Query(predicate, pageModel).ToListAsync(cancellationToken);
         }
 
-        public virtual async Task<List<TQueryModel>> GetList(PageModel pageModel, CancellationToken cancellationToken = default)
+        public virtual async Task<List<TQueryModel>> GetList(PageOrderModel pageModel, CancellationToken cancellationToken = default)
         {
             return await Query(pageModel).ToListAsync(cancellationToken);
         }
@@ -165,29 +171,29 @@ namespace N4Core.Services.Bases
             return Success(Messages.DeletedSuccessfully);
         }
 
-        public virtual IQueryable<TQueryModel> Paginate(IQueryable<TQueryModel> query, PageModel pageModel)
+        public virtual IQueryable<TQueryModel> Paginate(IQueryable<TQueryModel> query, PageOrderModel pageModel)
         {
             pageModel.Language = Language;
             pageModel.RecordsPerPageCounts = _recordsPerPageCounts.ToList();
             if (_usePageSession && pageModel.PageSession)
             {
-                var pageSessionModel = _sessionUtil.Get<PageModel>(_pageSessionKey);
+                var pageSessionModel = _sessionUtil.Get<PageOrderModel>(_pageSessionKey);
                 if (pageSessionModel is not null)
                 {
                     pageModel.PageNumber = pageSessionModel.PageNumber;
                     pageModel.RecordsPerPageCount = pageSessionModel.RecordsPerPageCount;
+                    pageModel.RecordsPerPageCounts = pageSessionModel.RecordsPerPageCounts;
+                    pageModel.OrderExpression = pageSessionModel.OrderExpression;
+                    pageModel.OrderExpressions = pageSessionModel.OrderExpressions;
                 }
             }
-            pageModel.TotalRecordsCount = query.Count();
-            int recordsPerPageCount;
-            if (pageModel.RecordsPerPageCounts is not null && pageModel.RecordsPerPageCounts.Any() && int.TryParse(pageModel.RecordsPerPageCount, out recordsPerPageCount))
-                query = query.Skip((pageModel.PageNumber - 1) * recordsPerPageCount).Take(recordsPerPageCount);
+            query = query.Paginate(pageModel);
             if (_usePageSession)
                 _sessionUtil.Set(pageModel, _pageSessionKey);
             return query;
         }
 
-        public virtual List<TQueryModel> Paginate(List<TQueryModel> list, PageModel pageModel)
+        public virtual List<TQueryModel> Paginate(List<TQueryModel> list, PageOrderModel pageModel)
         {
             return Paginate(list.AsQueryable(), pageModel).ToList();
         }

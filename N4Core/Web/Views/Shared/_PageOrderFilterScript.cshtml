@@ -35,22 +35,29 @@
 			}
 		});
 
-		$(".orderexpression").change(function () {
+		$(document).on('change', '.pagenumber', function () {
 			$("#form").submit();
 		});
-		$(".orderdirectiondescending").change(function () {
+		$(document).on('change', '.recordsperpagecount', function () {
+			$(".pagenumber").val("1");
 			$("#form").submit();
 		});
-		$(".filter").change(function () {
+		$(document).on('change', ".orderexpression", function () {
+			$("#form").submit();
+		});
+		$(document).on('change', ".orderdirectiondescending", function () {
+			$("#form").submit();
+		});
+		$(document).on('change', ".filter", function () {
 			$(".pagenumber").val("1");
 		});
-		$(".clear").click(function (event) {
+		$(document).on('click', ".clear", function (event) {
 			event.preventDefault();
 			$(".pagenumber").val("1");
 			$(".filter").val("");
 			$("#form").submit();
 		});
-		$(".orderexpressionlink").click(function (event) {
+		$(document).on('click', ".orderexpressionlink", function (event) {
 			event.preventDefault();
 			var linkHtml;
 			var label = $(this).find("label");
@@ -73,19 +80,18 @@
 				$("#form").submit();
 			}
 		});
-		$(".search").click(function (event) {
+		$(document).on('click', ".search", function (event) {
 			event.preventDefault();
 			$(".pagenumber").val("1");
 			$("#form").submit();
 		});
-		$(".export").click(function (event) {
+		$(document).on('click', ".export", function (event) {
 			event.preventDefault();
 			var formAction = $("#form").prop("action");
 			$("#form").prop("action", $(this).prop("href"));
 			$("#form").submit();
 			$("#form").prop("action", formAction);
 		});
-
 		$(".recordsperpagecount").prepend('<option value="" disabled>' + recordsPerPageCount + '</option>');
 		$(".pagenumber").prepend('<option value="" disabled>' + pageNumber + '</option>');
 		$(".orderexpression").prepend('<option value="" disabled>' + orderExpression + '</option>');

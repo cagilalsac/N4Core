@@ -9,7 +9,6 @@ namespace N4Core.Services.Models
         public ViewTextsModel ViewTexts { get; }
         public bool PageOrderFilter { get; set; }
         public string? Message { get; set; }
-        public List<string>? OrderExpressions { get; set; }
         public bool Modal { get; set; }
         public bool FileOperations { get; set; }
         public bool ExportOperation { get; set; }

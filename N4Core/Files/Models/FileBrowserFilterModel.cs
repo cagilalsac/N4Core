@@ -2,7 +2,7 @@
 
 namespace N4Core.Files.Models
 {
-    public class FileBrowserFilterModel : PageModel
+    public class FileBrowserFilterModel : PageOrderModel
     {
         public string? PlaceHolder { get; set; }
         public string Expression { get; set; } = string.Empty;

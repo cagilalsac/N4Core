@@ -4,7 +4,7 @@ using N4Core.Services.Models;
 
 namespace N4Core.Files.Models
 {
-    public class FileBrowserModel : PageModel
+    public class FileBrowserModel : PageOrderModel
     {
         public string? Path { get; set; }
         public string? FirstLevelPath { get; set; }

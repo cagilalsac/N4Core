@@ -1,16 +1,12 @@
 ﻿namespace N4Core.Services.Models
 {
-    public class PageOrderFilterModel : PageModel
+    public class PageOrderFilterModel : PageOrderModel
     {
-        public string? OrderExpression { get; set; }
-        public bool OrderDirectionDescending { get; set; }
         public string? Filter { get; set; }
-
         public bool? ListCards { get; set; }
 
-        public PageOrderFilterModel()
+        public PageOrderFilterModel() : base()
         {
-            OrderExpression = string.Empty;
             Filter = string.Empty;
         }
     }

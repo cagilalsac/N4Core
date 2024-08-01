@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using LinqKit;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using N4Core.Culture.Utils.Bases;
 using N4Core.Files.Bases;
@@ -70,33 +71,41 @@ namespace N4Core.Services.Bases
 
         public virtual IQueryable<TQueryModel> Query(PageOrderFilterModel pageModel)
         {
-            var query = Query();
+            IQueryable<TQueryModel> query;
+            IQueryable<TEntity> entityQuery = _repo.Query(true);
             if (_usePageSession && pageModel.PageSession)
             {
                 var pageSessionModel = _sessionUtil.Get<PageOrderFilterModel>(_pageSessionKey);
                 if (pageSessionModel is not null)
                 {
-                    pageModel.OrderExpression = pageSessionModel.OrderExpression;
                     pageModel.OrderDirectionDescending = pageSessionModel.OrderDirectionDescending;
                     pageModel.Filter = pageSessionModel.Filter;
                 }
             }
-            ViewModel.OrderExpressions = _reflectionOrderingProperties is null ? new List<string>() :
-                _reflectionOrderingProperties.Select(pm => !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName : pm.Name).ToList();
-            for (int i = 0; i < ViewModel.OrderExpressions.Count; i++)
+            if (_reflectionOrderingProperties is null)
             {
-                ViewModel.OrderExpressions[i] = ViewModel.OrderExpressions[i].GetDisplayName(Language);
+                if (pageModel.OrderExpressions is not null && pageModel.OrderExpressions.Any())
+                    entityQuery = entityQuery.OrderBy(pageModel);
+                query = Query(entityQuery);
+                ViewModel.OrderExpressions = pageModel.OrderExpressions;
             }
-            if (_reflectionOrderingProperties is not null && _reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageModel.OrderExpression))
+            else
             {
-                var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p =>
-                    p.DisplayName.GetDisplayName(Language) == pageModel.OrderExpression);
-                if (propertyForOrdering is null)
-                    propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageModel.OrderExpression);
-                if (propertyForOrdering is not null)
+                query = Query(entityQuery);
+                var orderExpressions = _reflectionOrderingProperties.Select(pm => 
+                    !string.IsNullOrWhiteSpace(pm.DisplayName) ? pm.DisplayName.GetDisplayName(Language) : pm.Name.GetDisplayName(Language)).ToList();
+                ViewModel.OrderExpressions = orderExpressions.Select(oe => new SelectListItem(oe, oe)).ToList();
+                if (_reflectionOrderingProperties.Any() && !string.IsNullOrWhiteSpace(pageModel.OrderExpression))
                 {
-                    query = pageModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name)) :
-                        query.OrderBy(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name));
+                    var propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p =>
+                        p.DisplayName.GetDisplayName(Language) == pageModel.OrderExpression);
+                    if (propertyForOrdering is null)
+                        propertyForOrdering = _reflectionOrderingProperties.FirstOrDefault(p => p.Name == pageModel.OrderExpression);
+                    if (propertyForOrdering is not null)
+                    {
+                        query = pageModel.OrderDirectionDescending ? query.OrderByDescending(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name)) :
+                            query.OrderBy(_reflectionUtil.GetExpression<TQueryModel>(propertyForOrdering.Name));
+                    }
                 }
             }
             if (!string.IsNullOrWhiteSpace(pageModel.Filter))

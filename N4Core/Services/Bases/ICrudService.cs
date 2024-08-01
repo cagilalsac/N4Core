@@ -13,12 +13,12 @@ namespace N4Core.Services.Bases
         public void Set(Languages? language = Languages.English, bool usePageSession = true, bool noEntityTracking = true, string[] recordsPerPageCounts = null, params Profile[] mapperProfiles);
         public IQueryable<TQueryModel> Query();
         public IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate);
-        public IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate, PageModel pageModel);
-        public IQueryable<TQueryModel> Query(PageModel pageModel);
+        public IQueryable<TQueryModel> Query(Expression<Func<TQueryModel, bool>> predicate, PageOrderModel pageModel);
+        public IQueryable<TQueryModel> Query(PageOrderModel pageModel);
         public Task<List<TQueryModel>> GetList(CancellationToken cancellationToken = default);
         public Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default);
-        public Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, PageModel pageModel, CancellationToken cancellationToken = default);
-        public Task<List<TQueryModel>> GetList(PageModel pageModel, CancellationToken cancellationToken = default);
+        public Task<List<TQueryModel>> GetList(Expression<Func<TQueryModel, bool>> predicate, PageOrderModel pageModel, CancellationToken cancellationToken = default);
+        public Task<List<TQueryModel>> GetList(PageOrderModel pageModel, CancellationToken cancellationToken = default);
         public Task<TQueryModel> GetItem(int id, CancellationToken cancellationToken = default);
         public Task<Response> ItemExists(Expression<Func<TQueryModel, bool>> predicate, CancellationToken cancellationToken = default);
         public Task<int> GetMaxId(CancellationToken cancellationToken = default);
@@ -28,8 +28,8 @@ namespace N4Core.Services.Bases
         public Task<Response> Update(TCommandModel commandModel, CancellationToken cancellationToken = default);
         public Task<Response> Delete(int id, CancellationToken cancellationToken = default);
         public Task<Response> Delete(CancellationToken cancellationToken = default);
-        public IQueryable<TQueryModel> Paginate(IQueryable<TQueryModel> query, PageModel pageModel);
-        public List<TQueryModel> Paginate(List<TQueryModel> list, PageModel pageModel);
+        public IQueryable<TQueryModel> Paginate(IQueryable<TQueryModel> query, PageOrderModel pageModel);
+        public List<TQueryModel> Paginate(List<TQueryModel> list, PageOrderModel pageModel);
     }
 
     public interface ICrudService<TModel> : IDisposable
